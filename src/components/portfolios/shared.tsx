@@ -43,7 +43,7 @@ export function MetricCard({
       <CardContent className="space-y-3 p-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">{label}</p>
-          <div className="flex size-8 items-center justify-center rounded-xl border border-emerald-700/10 bg-emerald-600/10 text-emerald-900">
+          <div className="flex size-8 items-center justify-center rounded-xl border border-emerald-700/10 bg-emerald-600/10 text-emerald-900 dark:text-emerald-100">
             <Icon className="size-4" />
           </div>
         </div>
@@ -78,10 +78,10 @@ export function WorkspaceMetricCard({
   return (
     <Card
       className={cn(
-        "border-border/80 shadow-sm",
-        tone === "authoritative" && "bg-background/92",
-        tone === "neutral" && "bg-background/88",
-        tone === "indicative" && "bg-background/88",
+                "border-border/80 shadow-sm",
+                tone === "authoritative" && "bg-background/92",
+                tone === "neutral" && "bg-background/88",
+                tone === "indicative" && "bg-background/88",
       )}
     >
       <CardContent className="space-y-3 p-4">
@@ -91,11 +91,11 @@ export function WorkspaceMetricCard({
               className={cn(
                 "flex size-8 shrink-0 items-center justify-center rounded-xl border",
                 tone === "authoritative" &&
-                  "border-emerald-700/10 bg-emerald-600/10 text-emerald-900",
+                  "border-emerald-700/10 bg-emerald-600/10 text-emerald-900 dark:text-emerald-100",
                 tone === "neutral" &&
-                  "border-slate-950/8 bg-slate-950/5 text-slate-700",
+                  "border-slate-950/8 bg-slate-950/5 text-slate-700 dark:text-slate-200",
                 tone === "indicative" &&
-                  "border-sky-900/10 bg-sky-900/8 text-sky-900",
+                  "border-sky-900/10 bg-sky-900/8 text-sky-900 dark:text-sky-100",
               )}
             >
               <Icon className="size-4" />
@@ -140,7 +140,7 @@ export function FeedStatusBadge({
         status === "delayed" &&
           "border border-slate-950/10 bg-slate-950/90 text-white hover:bg-slate-950/90",
         status === "stale" &&
-          "border border-amber-500/20 bg-amber-500/10 text-amber-900 hover:bg-amber-500/10",
+          "border border-amber-500/20 bg-amber-500/10 text-amber-900 hover:bg-amber-500/10 dark:text-amber-100",
         status === "unavailable" &&
           "border border-slate-950/10 bg-background text-muted-foreground hover:bg-background",
         className,

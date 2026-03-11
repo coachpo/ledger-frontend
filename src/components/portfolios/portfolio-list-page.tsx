@@ -6,6 +6,7 @@ import {
   CandlestickChart,
   FolderOpenDot,
   Plus,
+  Trash2,
   Wallet,
 } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
@@ -22,6 +23,7 @@ import { queryKeys } from "@/lib/query-keys"
 import { sortPortfolios } from "@/lib/workspace"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Card,
   CardContent,
@@ -61,8 +63,12 @@ export function PortfolioListPage() {
   )
 
   const [createOpen, setCreateOpen] = React.useState(false)
+  const [selectedPortfolioIds, setSelectedPortfolioIds] = React.useState<Set<string>>(
+    () => new Set(),
+  )
   const [editingPortfolio, setEditingPortfolio] = React.useState<PortfolioRead | null>(null)
   const [deletingPortfolio, setDeletingPortfolio] = React.useState<PortfolioRead | null>(null)
+  const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false)
 
   const totalPositions = portfolios.reduce(
     (total, portfolio) => total + portfolio.positionCount,
@@ -72,6 +78,89 @@ export function PortfolioListPage() {
     (total, portfolio) => total + portfolio.balanceCount,
     0,
   )
+  const selectedPortfolios = portfolios.filter((portfolio) => selectedPortfolioIds.has(portfolio.id))
+  const allSelected = portfolios.length > 0 && selectedPortfolioIds.size === portfolios.length
+  const someSelected = selectedPortfolioIds.size > 0 && !allSelected
+
+  React.useEffect(() => {
+    setSelectedPortfolioIds((current) => {
+      const next = new Set(
+        [...current].filter((portfolioId) =>
+          portfolios.some((portfolio) => portfolio.id === portfolioId),
+        ),
+      )
+
+      return next.size === current.size ? current : next
+    })
+  }, [portfolios])
+
+  const togglePortfolioSelection = React.useCallback((portfolioId: string, checked: boolean) => {
+    setSelectedPortfolioIds((current) => {
+      const next = new Set(current)
+
+      if (checked) {
+        next.add(portfolioId)
+      } else {
+        next.delete(portfolioId)
+      }
+
+      return next
+    })
+  }, [])
+
+  const toggleAllPortfolios = React.useCallback((checked: boolean) => {
+    setSelectedPortfolioIds(
+      checked ? new Set(portfolios.map((portfolio) => portfolio.id)) : new Set(),
+    )
+  }, [portfolios])
+
+  const clearSelection = React.useCallback(() => {
+    setSelectedPortfolioIds(new Set())
+  }, [])
+
+  const handleBatchDelete = React.useCallback(async () => {
+    const failures: Array<{ error: unknown; portfolio: PortfolioRead }> = []
+
+    for (const portfolio of selectedPortfolios) {
+      try {
+        await api.deletePortfolio(portfolio.id)
+      } catch (error) {
+        failures.push({ error, portfolio })
+      }
+    }
+
+    await queryClient.invalidateQueries({ queryKey: queryKeys.portfolios() })
+
+    if (failures.length === 0) {
+      toast.success(
+        `${selectedPortfolios.length} ${pluralize(selectedPortfolios.length, "portfolio")} deleted`,
+      )
+      setSelectedPortfolioIds(new Set())
+      return
+    }
+
+    setSelectedPortfolioIds(
+      new Set(failures.map(({ portfolio }) => portfolio.id)),
+    )
+
+    const deletedCount = selectedPortfolios.length - failures.length
+    const failureSummary = failures
+      .map(({ error, portfolio }) => `${portfolio.name}: ${getErrorMessage(error)}`)
+      .join(" ")
+
+    if (deletedCount > 0) {
+      toast.error(
+        `${deletedCount} ${pluralize(deletedCount, "portfolio")} deleted, ${failures.length} failed.`,
+      )
+    }
+
+    throw new Error(failureSummary)
+  }, [queryClient, selectedPortfolios])
+
+  const bulkDeleteDescription =
+    selectedPortfolios.length <= 3
+      ? `Delete ${selectedPortfolios.map((portfolio) => portfolio.name).join(", ")} and all related balances, positions, and simulated trades.`
+      : `Delete ${selectedPortfolios.length} selected portfolios and all related balances, positions, and simulated trades.`
 
   return (
     <div className="space-y-6">
@@ -135,10 +224,49 @@ export function PortfolioListPage() {
               Create a portfolio to start tracking balances, positions, and trades.
             </EmptyState>
           ) : (
-            <div className="overflow-hidden rounded-3xl border border-border/70">
-              <Table>
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-muted/20 px-4 py-4 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-foreground">Batch management</p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedPortfolioIds.size > 0
+                      ? `${selectedPortfolioIds.size} ${pluralize(selectedPortfolioIds.size, "portfolio")} selected`
+                      : "Select portfolios to apply bulk actions."}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2 md:justify-end">
+                  <Button
+                    className="rounded-full"
+                    onClick={clearSelection}
+                    size="sm"
+                    variant="outline"
+                  >
+                    Clear selection
+                  </Button>
+                  <Button
+                    className="rounded-full text-destructive hover:text-destructive"
+                    disabled={selectedPortfolioIds.size === 0}
+                    onClick={() => setBulkDeleteOpen(true)}
+                    size="sm"
+                    variant="ghost"
+                  >
+                    <Trash2 className="size-4" />
+                    Delete selected
+                  </Button>
+                </div>
+              </div>
+
+              <div className="overflow-hidden rounded-3xl border border-border/70">
+                <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        aria-label="Select all portfolios"
+                        checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                        onCheckedChange={(checked) => toggleAllPortfolios(checked === true)}
+                      />
+                    </TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Base</TableHead>
                     <TableHead>Balances</TableHead>
@@ -151,6 +279,15 @@ export function PortfolioListPage() {
                   {portfolios.map((portfolio) => (
                     <TableRow key={portfolio.id}>
                       <TableCell>
+                        <Checkbox
+                          aria-label={`Select ${portfolio.name}`}
+                          checked={selectedPortfolioIds.has(portfolio.id)}
+                          onCheckedChange={(checked) =>
+                            togglePortfolioSelection(portfolio.id, checked === true)
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
                         <div className={portfolio.description ? "space-y-1" : undefined}>
                           <p className="font-medium text-foreground">{portfolio.name}</p>
                           {portfolio.description ? (
@@ -161,7 +298,7 @@ export function PortfolioListPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className="rounded-full bg-slate-950 px-3 py-1 text-[0.65rem] uppercase tracking-[0.24em] text-white hover:bg-slate-950">
+                        <Badge className="rounded-full border border-border/70 bg-foreground px-3 py-1 text-[0.65rem] uppercase tracking-[0.24em] text-background hover:bg-foreground">
                           {portfolio.baseCurrency}
                         </Badge>
                       </TableCell>
@@ -189,7 +326,8 @@ export function PortfolioListPage() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
+                </Table>
+              </div>
             </div>
           )}
         </CardContent>
@@ -241,6 +379,14 @@ export function PortfolioListPage() {
         }}
         open={Boolean(deletingPortfolio)}
         title="Delete portfolio?"
+      />
+      <ConfirmDeleteDialog
+        confirmLabel="Delete selected"
+        description={bulkDeleteDescription}
+        onConfirm={handleBatchDelete}
+        onOpenChange={setBulkDeleteOpen}
+        open={bulkDeleteOpen}
+        title="Delete selected portfolios?"
       />
     </div>
   )

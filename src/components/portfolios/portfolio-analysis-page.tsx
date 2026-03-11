@@ -1,4 +1,9 @@
 import * as React from "react"
+import {
+  FolderOpenDot,
+  LineChart,
+  PieChart as PieChartIcon,
+} from "lucide-react"
 import { Cell, Pie, PieChart } from "recharts"
 import { Link } from "react-router-dom"
 
@@ -215,7 +220,7 @@ export function PortfolioAnalysisPage() {
           </CardHeader>
           <CardContent className="px-6 py-5">
             {rankedAssets.length === 0 ? (
-              <EmptyState icon={() => null} title="No assets match this filter">
+              <EmptyState icon={LineChart} title="No assets match this filter">
                 Try a different market filter.
               </EmptyState>
             ) : (
@@ -284,7 +289,7 @@ export function PortfolioAnalysisPage() {
           </CardHeader>
           <CardContent className="px-6 py-5">
             {dashboard.historicalHoldings.length === 0 ? (
-              <EmptyState icon={() => null} title="No closed holdings yet">
+              <EmptyState icon={FolderOpenDot} title="No closed holdings yet">
                 Symbols that are fully closed out through simulated trades will appear here.
               </EmptyState>
             ) : (
@@ -356,7 +361,7 @@ function AllocationCard({
       </CardHeader>
       <CardContent className="grid gap-6 px-6 py-5 lg:grid-cols-[minmax(220px,280px)_minmax(0,1fr)] lg:items-center">
         {data.length === 0 ? (
-          <EmptyState icon={() => null} title="No allocation yet">
+          <EmptyState icon={PieChartIcon} title="No allocation yet">
             Add balances or positions to see composition.
           </EmptyState>
         ) : (

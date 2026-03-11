@@ -402,19 +402,19 @@ export function PortfolioDetailPage() {
               <CardTitle className="min-w-0 font-[var(--font-display)] text-3xl tracking-tight md:text-4xl">
                 {portfolio.name}
               </CardTitle>
-              <Badge className="rounded-full border border-slate-950/10 bg-slate-950 px-3 py-1 text-[0.65rem] uppercase tracking-[0.28em] text-white hover:bg-slate-950">
+              <Badge className="rounded-full border border-border/70 bg-foreground px-3 py-1 text-[0.65rem] uppercase tracking-[0.28em] text-background hover:bg-foreground">
                 {portfolio.baseCurrency}
               </Badge>
               <FeedStatusBadge status={quoteFeedStatus} />
             </div>
 
             {portfolio.description ? (
-              <CardDescription className="max-w-2xl text-sm leading-6 text-slate-700">
+              <CardDescription className="max-w-2xl text-sm leading-6 text-muted-foreground">
                 {portfolio.description}
               </CardDescription>
             ) : null}
 
-            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <span>Updated {formatDateTime(portfolio.updatedAt)}</span>
               <span aria-hidden="true">•</span>
               <span>
@@ -666,7 +666,7 @@ export function PortfolioDetailPage() {
                     <p className="text-[0.65rem] font-medium uppercase tracking-[0.28em] text-muted-foreground">
                       Balance readiness
                     </p>
-                    <Badge className={cn("rounded-full px-3 py-1 text-[0.65rem] uppercase tracking-[0.24em]", balances.length > 0 ? "border border-emerald-700/20 bg-emerald-600/10 text-emerald-900 hover:bg-emerald-600/10" : "border border-amber-500/20 bg-amber-500/10 text-amber-900 hover:bg-amber-500/10")}>
+                    <Badge className={cn("rounded-full px-3 py-1 text-[0.65rem] uppercase tracking-[0.24em]", balances.length > 0 ? "border border-emerald-700/20 bg-emerald-600/10 text-emerald-900 hover:bg-emerald-600/10 dark:text-emerald-100" : "border border-amber-500/20 bg-amber-500/10 text-amber-900 hover:bg-amber-500/10 dark:text-amber-100")}>
                       {balances.length > 0 ? "Ready" : "Missing"}
                     </Badge>
                   </div>
@@ -682,7 +682,7 @@ export function PortfolioDetailPage() {
                     <p className="text-[0.65rem] font-medium uppercase tracking-[0.28em] text-muted-foreground">
                       Trade simulation
                     </p>
-                    <Badge className={cn("rounded-full px-3 py-1 text-[0.65rem] uppercase tracking-[0.24em]", balances.length > 0 ? "border border-emerald-700/20 bg-emerald-600/10 text-emerald-900 hover:bg-emerald-600/10" : "border border-amber-500/20 bg-amber-500/10 text-amber-900 hover:bg-amber-500/10")}>
+                    <Badge className={cn("rounded-full px-3 py-1 text-[0.65rem] uppercase tracking-[0.24em]", balances.length > 0 ? "border border-emerald-700/20 bg-emerald-600/10 text-emerald-900 hover:bg-emerald-600/10 dark:text-emerald-100" : "border border-amber-500/20 bg-amber-500/10 text-amber-900 hover:bg-amber-500/10 dark:text-amber-100")}>
                       {balances.length > 0 ? "Enabled" : "Blocked"}
                     </Badge>
                   </div>
@@ -942,7 +942,7 @@ export function PortfolioDetailPage() {
                         <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/70 px-4 py-4" key={operation.id}>
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <Badge className={cn("rounded-full px-3 py-1 text-[0.65rem] uppercase tracking-[0.24em]", operation.side === "BUY" ? "border border-emerald-700/20 bg-emerald-600/10 text-emerald-900 hover:bg-emerald-600/10" : "border border-amber-500/20 bg-amber-500/10 text-amber-900 hover:bg-amber-500/10")}>
+                              <Badge className={cn("rounded-full px-3 py-1 text-[0.65rem] uppercase tracking-[0.24em]", operation.side === "BUY" ? "border border-emerald-700/20 bg-emerald-600/10 text-emerald-900 hover:bg-emerald-600/10 dark:text-emerald-100" : "border border-amber-500/20 bg-amber-500/10 text-amber-900 hover:bg-amber-500/10 dark:text-amber-100")}>
                                 {operation.side}
                               </Badge>
                               <p className="font-medium text-foreground">{operation.symbol}</p>
@@ -1208,7 +1208,7 @@ export function PortfolioDetailPage() {
             </CardHeader>
             <CardContent className="space-y-4 px-6 py-5">
               {!balances.length ? (
-                <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-950">
+                <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-950 dark:text-amber-100">
                   Add a balance to trade.
                 </div>
               ) : null}

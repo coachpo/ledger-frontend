@@ -14,6 +14,7 @@ import { PortfolioListPage } from "@/components/portfolios/portfolio-list-page"
 import { PortfolioOverviewPage } from "@/components/portfolios/portfolio-overview-page"
 import { PortfolioTradePage } from "@/components/portfolios/portfolio-trade-page"
 import { PortfolioWorkspaceLayout } from "@/components/portfolios/portfolio-workspace-layout"
+import { ThemeProvider } from "@/components/theme/theme-provider"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,26 +29,34 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<AppFrame />}>
-              <Route index element={<Navigate replace to="/portfolios" />} />
-              <Route path="/portfolios" element={<PortfolioListPage />} />
-              <Route path="/portfolios/:portfolioId" element={<PortfolioWorkspaceLayout />}>
-                <Route index element={<Navigate replace to="overview" />} />
-                <Route path="overview" element={<PortfolioOverviewPage />} />
-                <Route path="trades/new" element={<PortfolioTradePage />} />
-                <Route path="transactions" element={<PortfolioHistoryPage />} />
-                <Route path="analysis" element={<PortfolioAnalysisPage />} />
-                <Route path="assets/:symbol" element={<AssetDetailPage />} />
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        disableTransitionOnChange
+        enableSystem
+        storageKey="ledger-ui-theme"
+      >
+        <TooltipProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route element={<AppFrame />}>
+                <Route index element={<Navigate replace to="/portfolios" />} />
+                <Route path="/portfolios" element={<PortfolioListPage />} />
+                <Route path="/portfolios/:portfolioId" element={<PortfolioWorkspaceLayout />}>
+                  <Route index element={<Navigate replace to="overview" />} />
+                  <Route path="overview" element={<PortfolioOverviewPage />} />
+                  <Route path="trades/new" element={<PortfolioTradePage />} />
+                  <Route path="transactions" element={<PortfolioHistoryPage />} />
+                  <Route path="analysis" element={<PortfolioAnalysisPage />} />
+                  <Route path="assets/:symbol" element={<AssetDetailPage />} />
+                </Route>
+                <Route path="*" element={<Navigate replace to="/portfolios" />} />
               </Route>
-              <Route path="*" element={<Navigate replace to="/portfolios" />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-      <Toaster closeButton position="top-right" richColors />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+        <Toaster closeButton position="top-right" richColors />
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }

@@ -3,8 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <script>
+      (() => {
+        const storageKey = "ledger-ui-theme"
+        const root = document.documentElement
+
+        try {
+          const storedTheme = localStorage.getItem(storageKey)
+          const normalizedTheme = ["light", "dark", "system"].includes(storedTheme)
+            ? storedTheme
+            : "system"
+
+          if (normalizedTheme !== storedTheme) {
+            localStorage.setItem(storageKey, normalizedTheme)
+          }
+
+          const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light"
+          const activeTheme = normalizedTheme === "system" ? systemTheme : normalizedTheme
+
+          root.classList.remove("light", "dark")
+          root.classList.add(activeTheme)
+          root.style.colorScheme = activeTheme
+        } catch (error) {
+          console.error("Failed to apply theme before app mount.", error)
+        }
+      })()
+    </script>
+    <title>Ledger</title>
   </head>
   <body>
     <div id="root"></div>

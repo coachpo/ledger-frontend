@@ -6,7 +6,6 @@ import {
   EyeOff,
   LayoutDashboard,
   LineChart,
-  Plus,
   ReceiptText,
   Trash2,
 } from "lucide-react"
@@ -125,17 +124,17 @@ export function PortfolioWorkspaceLayout() {
                   <CardTitle className="font-[var(--font-display)] text-4xl tracking-tight text-foreground md:text-5xl">
                     {portfolio.name}
                   </CardTitle>
-                  <Badge className="rounded-full border border-slate-950/10 bg-slate-950 px-3 py-1 text-[0.65rem] uppercase tracking-[0.28em] text-white hover:bg-slate-950">
+                  <Badge className="rounded-full border border-border/70 bg-foreground px-3 py-1 text-[0.65rem] uppercase tracking-[0.28em] text-background hover:bg-foreground">
                     {portfolio.baseCurrency}
                   </Badge>
                   <FeedStatusBadge status={workspace.quoteFeedStatus} />
                 </div>
                 {portfolio.description ? (
-                  <CardDescription className="max-w-3xl text-sm leading-7 text-slate-700">
+                  <CardDescription className="max-w-3xl text-sm leading-7 text-muted-foreground">
                     {portfolio.description}
                   </CardDescription>
                 ) : null}
-                <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                   <span>Updated {formatDateTime(portfolio.updatedAt)}</span>
                   {workspace.latestQuoteAsOf ? (
                     <>
@@ -252,20 +251,6 @@ export function PortfolioWorkspaceLayout() {
                 {item.label}
               </NavLink>
             ))}
-            <NavLink
-              className={({ isActive }) =>
-                cn(
-                  "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground",
-                )
-              }
-              to="/portfolios"
-            >
-              <Plus className="size-4" />
-              All portfolios
-            </NavLink>
           </div>
         </div>
 
