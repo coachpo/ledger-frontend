@@ -30,15 +30,44 @@ export const positionCreateSchema = z.object({
   averageCost: z.string().trim().min(1, "Average cost is required").refine(isNonNegativeDecimal, "Average cost must be greater than or equal to zero"),
 })
 
-export const tradingOperationSchema = z.object({
+// Base schema for all trading operations
+const tradingOperationBaseSchema = z.object({
   balanceId: z.string().trim().min(1, "Choose a settlement balance"),
   symbol: z.string().trim().min(1, "Symbol is required").max(32, "Symbol is too long"),
-  side: z.enum(["BUY", "SELL"]),
+  executedAt: z.string().trim().min(1, "Execution time is required"),
+})
+// BUY operation schema
+const buyOperationSchema = tradingOperationBaseSchema.extend({
+  side: z.literal("BUY"),
   quantity: z.string().trim().min(1, "Quantity is required").refine(isPositiveDecimal, "Quantity must be greater than zero"),
   price: z.string().trim().min(1, "Price is required").refine(isNonNegativeDecimal, "Price must be greater than or equal to zero"),
   commission: z.string().trim().min(1, "Commission is required").refine(isNonNegativeDecimal, "Commission must be greater than or equal to zero"),
-  executedAt: z.string().trim().min(1, "Execution time is required"),
 })
+// SELL operation schema
+const sellOperationSchema = tradingOperationBaseSchema.extend({
+  side: z.literal("SELL"),
+  quantity: z.string().trim().min(1, "Quantity is required").refine(isPositiveDecimal, "Quantity must be greater than zero"),
+  price: z.string().trim().min(1, "Price is required").refine(isNonNegativeDecimal, "Price must be greater than or equal to zero"),
+  commission: z.string().trim().min(1, "Commission is required").refine(isNonNegativeDecimal, "Commission must be greater than or equal to zero"),
+})
+// DIVIDEND operation schema
+const dividendOperationSchema = tradingOperationBaseSchema.extend({
+  side: z.literal("DIVIDEND"),
+  dividendAmount: z.string().trim().min(1, "Dividend amount is required").refine(isPositiveDecimal, "Dividend amount must be greater than zero"),
+  commission: z.string().trim().optional().refine((val) => !val || isNonNegativeDecimal(val), "Commission must be greater than or equal to zero"),
+})
+// SPLIT operation schema
+const splitOperationSchema = tradingOperationBaseSchema.extend({
+  side: z.literal("SPLIT"),
+  splitRatio: z.string().trim().min(1, "Split ratio is required").refine(isPositiveDecimal, "Split ratio must be greater than zero"),
+})
+// Discriminated union for all operation types
+export const tradingOperationSchema = z.discriminatedUnion("side", [
+  buyOperationSchema,
+  sellOperationSchema,
+  dividendOperationSchema,
+  splitOperationSchema,
+])
 
 export type WorkspaceTab = "overview" | "positions" | "balances" | "simulation-log" | "quotes"
 export type PositionFilter = "all" | "quoted" | "unquoted"
@@ -52,4 +81,4 @@ export interface PositionTableRow extends PositionRead {
   quoteStatus: FeedStatus
 }
 
-export const BASE_CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "CAD"]
+export const BASE_CURRENCY_OPTIONS = ["USD", "CNY", "HKD", "EUR", "GBP", "CAD"]

@@ -32,7 +32,8 @@ export class ApiRequestError extends Error {
   }
 }
 
-export type TradingSide = "BUY" | "SELL"
+export type TradingSide = "BUY" | "SELL" | "DIVIDEND" | "SPLIT"
+export type MarketHistoryRange = "1mo" | "3mo" | "ytd" | "1y" | "max"
 
 export interface PortfolioRead {
   id: string
@@ -133,9 +134,11 @@ export interface TradingOperationRead {
   balanceLabel: string
   symbol: string
   side: TradingSide
-  quantity: string
-  price: string
+  quantity: string | null
+  price: string | null
   commission: string
+  dividendAmount: string | null
+  splitRatio: string | null
   currency: string
   executedAt: string
   createdAt: string
@@ -161,19 +164,48 @@ export interface TradingOperationResult {
   updatedBalance: BalanceCompactRead
 }
 
-export interface TradingOperationInput {
+// Base interface for all trading operations
+interface TradingOperationBaseInput {
   balanceId: string
   symbol: string
-  side: TradingSide
+  executedAt: string
+}
+// BUY operation
+export interface BuyOperationInput extends TradingOperationBaseInput {
+  side: "BUY"
   quantity: string
   price: string
   commission: string
-  executedAt: string
 }
+// SELL operation
+export interface SellOperationInput extends TradingOperationBaseInput {
+  side: "SELL"
+  quantity: string
+  price: string
+  commission: string
+}
+// DIVIDEND operation
+export interface DividendOperationInput extends TradingOperationBaseInput {
+  side: "DIVIDEND"
+  dividendAmount: string
+  commission?: string
+}
+// SPLIT operation
+export interface SplitOperationInput extends TradingOperationBaseInput {
+  side: "SPLIT"
+  splitRatio: string
+}
+// Discriminated union for all operation types
+export type TradingOperationInput =
+  | BuyOperationInput
+  | SellOperationInput
+  | DividendOperationInput
+  | SplitOperationInput
 
 export interface MarketQuoteRead {
   symbol: string
   price: string
+  previousClose?: string | null
   currency: string
   provider: string
   asOf: string | null
@@ -182,6 +214,25 @@ export interface MarketQuoteRead {
 
 export interface MarketQuoteListRead {
   quotes: MarketQuoteRead[]
+  warnings: string[]
+}
+
+export interface MarketHistoryPointRead {
+  at: string
+  close: string
+}
+
+export interface MarketHistorySeriesRead {
+  symbol: string
+  currency: string | null
+  provider: string
+  points: MarketHistoryPointRead[]
+}
+
+export interface MarketHistoryRead {
+  range: MarketHistoryRange
+  interval: string
+  series: MarketHistorySeriesRead[]
   warnings: string[]
 }
 
@@ -348,5 +399,15 @@ export const api = {
       `/portfolios/${portfolioId}/market-data/quotes?symbols=${encodeURIComponent(
         symbols.join(","),
       )}`,
+    ),
+  getMarketHistory: (
+    portfolioId: string,
+    symbols: string[],
+    range: MarketHistoryRange,
+  ) =>
+    request<MarketHistoryRead>(
+      `/portfolios/${portfolioId}/market-data/history?symbols=${encodeURIComponent(
+        symbols.join(","),
+      )}&range=${encodeURIComponent(range)}`,
     ),
 }

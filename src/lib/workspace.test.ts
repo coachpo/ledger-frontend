@@ -63,6 +63,8 @@ describe('workspace metrics', () => {
       quantity: '2',
       price: '100.00',
       commission: '5.00',
+      dividendAmount: null,
+      splitRatio: null,
       currency: 'USD',
       executedAt: '2026-03-10T14:05:00Z',
       createdAt: '2026-03-10T14:05:01Z',

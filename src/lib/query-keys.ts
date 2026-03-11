@@ -11,6 +11,10 @@ export const queryKeys = {
     ["portfolios", portfolioId, "market-data"] as const,
   marketData: (portfolioId: string, symbols: string[]) =>
     ["portfolios", portfolioId, "market-data", symbols.join(",")] as const,
+  marketHistoryBase: (portfolioId: string) =>
+    ["portfolios", portfolioId, "market-history"] as const,
+  marketHistory: (portfolioId: string, symbols: string[], range: string) =>
+    ["portfolios", portfolioId, "market-history", symbols.join(","), range] as const,
 }
 
 export async function invalidatePortfolioScope(
@@ -25,6 +29,9 @@ export async function invalidatePortfolioScope(
     queryClient.invalidateQueries({ queryKey: queryKeys.trades(portfolioId) }),
     queryClient.invalidateQueries({
       queryKey: queryKeys.marketDataBase(portfolioId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.marketHistoryBase(portfolioId),
     }),
   ])
 }

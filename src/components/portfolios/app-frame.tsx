@@ -32,7 +32,9 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function AppFrame() {
-  const activeMatch = useMatch("/portfolios/:portfolioId")
+  const nestedMatch = useMatch("/portfolios/:portfolioId/*")
+  const exactMatch = useMatch("/portfolios/:portfolioId")
+  const activeMatch = nestedMatch ?? exactMatch
   const portfoliosQuery = useQuery({
     queryKey: queryKeys.portfolios(),
     queryFn: api.listPortfolios,

@@ -62,6 +62,16 @@ export function formatDecimal(
   }).format(decimalToNumber(value))
 }
 
+export function formatPercentage(
+  value: string | number | null | undefined,
+  maximumFractionDigits = 2,
+): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "percent",
+    maximumFractionDigits,
+  }).format(decimalToNumber(value))
+}
+
 export function formatDateTime(value: string | null | undefined): string {
   if (!value) {
     return "Not available"

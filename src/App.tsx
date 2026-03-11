@@ -5,10 +5,15 @@ import {
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { Toaster } from "@/components/ui/sonner"
+import { AssetDetailPage } from "@/components/portfolios/asset-detail-page"
+import { PortfolioAnalysisPage } from "@/components/portfolios/portfolio-analysis-page"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AppFrame } from "@/components/portfolios/app-frame"
-import { PortfolioDetailPage } from "@/components/portfolios/portfolio-detail-page"
+import { PortfolioHistoryPage } from "@/components/portfolios/portfolio-history-page"
 import { PortfolioListPage } from "@/components/portfolios/portfolio-list-page"
+import { PortfolioOverviewPage } from "@/components/portfolios/portfolio-overview-page"
+import { PortfolioTradePage } from "@/components/portfolios/portfolio-trade-page"
+import { PortfolioWorkspaceLayout } from "@/components/portfolios/portfolio-workspace-layout"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,10 +34,14 @@ function App() {
             <Route element={<AppFrame />}>
               <Route index element={<Navigate replace to="/portfolios" />} />
               <Route path="/portfolios" element={<PortfolioListPage />} />
-              <Route
-                path="/portfolios/:portfolioId"
-                element={<PortfolioDetailPage />}
-              />
+              <Route path="/portfolios/:portfolioId" element={<PortfolioWorkspaceLayout />}>
+                <Route index element={<Navigate replace to="overview" />} />
+                <Route path="overview" element={<PortfolioOverviewPage />} />
+                <Route path="trades/new" element={<PortfolioTradePage />} />
+                <Route path="transactions" element={<PortfolioHistoryPage />} />
+                <Route path="analysis" element={<PortfolioAnalysisPage />} />
+                <Route path="assets/:symbol" element={<AssetDetailPage />} />
+              </Route>
               <Route path="*" element={<Navigate replace to="/portfolios" />} />
             </Route>
           </Routes>
