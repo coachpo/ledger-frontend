@@ -10,10 +10,8 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -69,15 +67,12 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="rounded-full" size="sm" variant="outline">
+        <Button className="rounded-full" size="icon-sm" variant="outline">
           <ThemeIcon theme={activeTheme} />
-          <span className="hidden sm:inline">Theme</span>
           <span className="sr-only">Change theme</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44 min-w-44">
-        <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <DropdownMenuRadioGroup onValueChange={setTheme} value={activeTheme}>
           {themeOptions.map((option) => {
             const Icon = option.icon
