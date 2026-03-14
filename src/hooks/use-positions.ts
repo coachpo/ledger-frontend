@@ -10,12 +10,14 @@ import {
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
 import type { PositionUpdateInput, PositionWriteInput } from "@/lib/api-types";
 
+type IdParam = number | string;
+
 type UpdatePositionVariables = {
-  positionId: string;
+  positionId: number;
   data: PositionUpdateInput;
 };
 
-export function usePositions(portfolioId: string | undefined) {
+export function usePositions(portfolioId: IdParam | undefined) {
   const resolvedPortfolioId = portfolioId ?? "";
 
   return useQuery({
@@ -25,7 +27,7 @@ export function usePositions(portfolioId: string | undefined) {
   });
 }
 
-export function useCreatePosition(portfolioId: string) {
+export function useCreatePosition(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -34,7 +36,7 @@ export function useCreatePosition(portfolioId: string) {
   });
 }
 
-export function useUpdatePosition(portfolioId: string) {
+export function useUpdatePosition(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -44,22 +46,22 @@ export function useUpdatePosition(portfolioId: string) {
   });
 }
 
-export function useDeletePosition(portfolioId: string) {
+export function useDeletePosition(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (positionId: string) => deletePosition(portfolioId, positionId),
+    mutationFn: (positionId: number) => deletePosition(portfolioId, positionId),
     onSuccess: () => invalidatePortfolioScope(queryClient, portfolioId),
   });
 }
 
-export function useCsvPreview(portfolioId: string) {
+export function useCsvPreview(portfolioId: IdParam) {
   return useMutation({
     mutationFn: (file: File) => previewPositionImport(portfolioId, file),
   });
 }
 
-export function useCsvCommit(portfolioId: string) {
+export function useCsvCommit(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({

@@ -15,7 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TradingOperationForm } from "./trading-operation-form";
 
 type PortfolioTradesSectionProps = {
-  portfolioId: string;
+  portfolioId: number | string;
   balances: BalanceRead[];
   operations: TradingOperationRead[];
 };

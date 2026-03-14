@@ -3,8 +3,10 @@ import { getMarketHistory, getMarketQuotes } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import type { GetMarketHistoryParams, GetMarketQuotesParams } from "@/lib/api-types";
 
+type IdParam = number | string;
+
 export function useMarketQuotes(
-  portfolioId: string | undefined,
+  portfolioId: IdParam | undefined,
   symbols: GetMarketQuotesParams["symbols"],
 ) {
   const resolvedPortfolioId = portfolioId ?? "";
@@ -18,7 +20,7 @@ export function useMarketQuotes(
 }
 
 export function useMarketHistory(
-  portfolioId: string | undefined,
+  portfolioId: IdParam | undefined,
   symbols: GetMarketHistoryParams["symbols"],
   range?: GetMarketHistoryParams["range"],
 ) {

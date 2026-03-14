@@ -9,8 +9,10 @@ import {
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
 import type { PortfolioUpdateInput, PortfolioWriteInput } from "@/lib/api-types";
 
+type IdParam = number | string;
+
 type UpdatePortfolioVariables = {
-  portfolioId: string;
+  portfolioId: IdParam;
   data: PortfolioUpdateInput;
 };
 
@@ -21,7 +23,7 @@ export function usePortfolios() {
   });
 }
 
-export function usePortfolio(portfolioId: string | undefined) {
+export function usePortfolio(portfolioId: IdParam | undefined) {
   const resolvedPortfolioId = portfolioId ?? "";
 
   return useQuery({
@@ -56,7 +58,7 @@ export function useDeletePortfolio() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (portfolioId: string) => deletePortfolio(portfolioId),
+    mutationFn: (portfolioId: IdParam) => deletePortfolio(portfolioId),
     onSuccess: async (_, portfolioId) => {
       queryClient.removeQueries({ queryKey: queryKeys.portfolios.detail(portfolioId) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.portfolios.lists() });

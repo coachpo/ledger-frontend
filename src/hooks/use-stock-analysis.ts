@@ -26,12 +26,14 @@ import type {
   StockAnalysisRunCreate,
 } from "@/lib/api-types";
 
+type IdParam = number | string;
+
 type UpdateConversationVariables = {
-  conversationId: string;
+  conversationId: number;
   data: StockAnalysisConversationUpdate;
 };
 
-export function useStockAnalysisSettings(portfolioId: string | undefined) {
+export function useStockAnalysisSettings(portfolioId: IdParam | undefined) {
   const resolvedPortfolioId = portfolioId ?? "";
 
   return useQuery({
@@ -42,7 +44,7 @@ export function useStockAnalysisSettings(portfolioId: string | undefined) {
   });
 }
 
-export function useUpdateStockAnalysisSettings(portfolioId: string) {
+export function useUpdateStockAnalysisSettings(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -53,7 +55,7 @@ export function useUpdateStockAnalysisSettings(portfolioId: string) {
 }
 
 export function useStockAnalysisConversations(
-  portfolioId: string | undefined,
+  portfolioId: IdParam | undefined,
   params: ListStockAnalysisConversationsParams = {},
 ) {
   const resolvedPortfolioId = portfolioId ?? "";
@@ -66,7 +68,7 @@ export function useStockAnalysisConversations(
   });
 }
 
-export function useCreateConversation(portfolioId: string) {
+export function useCreateConversation(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -76,7 +78,7 @@ export function useCreateConversation(portfolioId: string) {
   });
 }
 
-export function useUpdateConversation(portfolioId: string) {
+export function useUpdateConversation(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -87,8 +89,8 @@ export function useUpdateConversation(portfolioId: string) {
 }
 
 export function useStockAnalysisRuns(
-  portfolioId: string | undefined,
-  conversationId: string | undefined,
+  portfolioId: IdParam | undefined,
+  conversationId: number | undefined,
 ) {
   const resolvedPortfolioId = portfolioId ?? "";
   const resolvedConversationId = conversationId ?? "";
@@ -104,7 +106,7 @@ export function useStockAnalysisRuns(
   });
 }
 
-export function useCreateRun(portfolioId: string, conversationId: string) {
+export function useCreateRun(portfolioId: IdParam, conversationId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -114,18 +116,18 @@ export function useCreateRun(portfolioId: string, conversationId: string) {
   });
 }
 
-export function useExecuteRun(portfolioId: string) {
+export function useExecuteRun(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (runId: string) => executeStockAnalysisRun(portfolioId, runId),
+    mutationFn: (runId: number) => executeStockAnalysisRun(portfolioId, runId),
     onSuccess: () => invalidatePortfolioScope(queryClient, portfolioId),
   });
 }
 
 export function useStockAnalysisRun(
-  portfolioId: string | undefined,
-  runId: string | undefined,
+  portfolioId: IdParam | undefined,
+  runId: number | undefined,
 ) {
   const resolvedPortfolioId = portfolioId ?? "";
   const resolvedRunId = runId ?? "";
@@ -138,7 +140,7 @@ export function useStockAnalysisRun(
 }
 
 export function useStockAnalysisVersions(
-  portfolioId: string | undefined,
+  portfolioId: IdParam | undefined,
   params: ListStockAnalysisVersionsParams = {},
 ) {
   const resolvedPortfolioId = portfolioId ?? "";
@@ -151,8 +153,8 @@ export function useStockAnalysisVersions(
 }
 
 export function useStockAnalysisVersion(
-  portfolioId: string | undefined,
-  versionId: string | undefined,
+  portfolioId: IdParam | undefined,
+  versionId: number | undefined,
 ) {
   const resolvedPortfolioId = portfolioId ?? "";
   const resolvedVersionId = versionId ?? "";
@@ -169,7 +171,7 @@ export function useStockAnalysisVersion(
 }
 
 export function useStockAnalysisResponses(
-  portfolioId: string | undefined,
+  portfolioId: IdParam | undefined,
   params: ListStockAnalysisResponsesParams = {},
 ) {
   const resolvedPortfolioId = portfolioId ?? "";

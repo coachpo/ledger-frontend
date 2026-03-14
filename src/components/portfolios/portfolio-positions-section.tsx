@@ -20,7 +20,7 @@ import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
 import { PositionFormDialog } from "./position-form-dialog";
 
 type PortfolioPositionsSectionProps = {
-  portfolioId: string;
+  portfolioId: number | string;
   positions: PositionWithMarketData[];
   quoteWarnings: string[];
 };

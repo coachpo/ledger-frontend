@@ -49,17 +49,15 @@ const PLACEHOLDER_REFERENCE_ITEMS: PlaceholderReferenceItem[] = [
   },
   {
     label: "Prior response",
-    reference: "{{response.123e4567-e89b-12d3-a456-426614174000}}",
+    reference: "{{response.42}}",
     description: "The full output text from an earlier response in the same portfolio.",
-    example:
-      "Build on this earlier response: {{response.123e4567-e89b-12d3-a456-426614174000}}",
+    example: "Build on this earlier response: {{response.42}}",
   },
   {
     label: "Saved snippet",
-    reference: "{{user.snippet.123e4567-e89b-12d3-a456-426614174000}}",
+    reference: "{{user.snippet.core_thesis}}",
     description: "Reusable text from the User Snippets page. The copied reference there is ready to paste here.",
-    example:
-      "Use this checklist: {{user.snippet.123e4567-e89b-12d3-a456-426614174000}}",
+    example: "Use this checklist: {{user.snippet.core_thesis}}",
   },
   {
     label: "Another symbol",
@@ -83,7 +81,7 @@ const PLACEHOLDER_REFERENCE_ITEMS: PlaceholderReferenceItem[] = [
 
 const PLACEHOLDER_REFERENCE_TIPS = [
   "Use dot paths, not shorthand. {{stock.symbol}} works, while {{stock}} does not.",
-  "Response and snippet placeholders need real UUIDs. Preview will fail if the record does not exist.",
+  "Response placeholders need real numeric ids, and snippet placeholders use saved aliases. Preview will fail if the record does not exist.",
   "Response placeholders only work for responses that belong to the same portfolio.",
   "Use Prompt Preview to confirm the rendered text before saving a template.",
   "Escape literal braces with \\{{ and \\}} when you want to show placeholder syntax as plain text.",

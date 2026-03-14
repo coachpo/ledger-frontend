@@ -46,7 +46,7 @@ function getLastFetchCall(fetchMock: ReturnType<typeof createFetchMock>): {
 }
 
 const portfolioFixture: PortfolioRead = {
-  id: "portfolio-1",
+  id: 1,
   name: "Retirement",
   description: "Long-term holdings",
   baseCurrency: "USD",
@@ -111,7 +111,7 @@ describe("api client", () => {
 
     let error: unknown;
     try {
-      await getPortfolio("missing");
+      await getPortfolio(999);
     } catch (caught) {
       error = caught;
     }

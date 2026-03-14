@@ -114,7 +114,7 @@ export function ResponsesPage() {
       conversationId:
         selectedConversationId === ALL_CONVERSATIONS
           ? undefined
-          : selectedConversationId,
+          : Number(selectedConversationId),
       limit: 100,
     }),
     [selectedConversationId],

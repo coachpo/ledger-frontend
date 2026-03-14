@@ -13,7 +13,7 @@ import { BalanceFormDialog } from "./balance-form-dialog";
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
 
 type PortfolioBalancesSectionProps = {
-  portfolioId: string;
+  portfolioId: number | string;
   balances: BalanceRead[];
 };
 

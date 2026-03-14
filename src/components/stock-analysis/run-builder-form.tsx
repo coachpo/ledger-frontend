@@ -59,10 +59,10 @@ const RUN_TYPE_OPTIONS: Array<{ label: string; value: StockAnalysisRunType }> = 
 ];
 
 type Props = {
-  conversationId: string;
+  conversationId: number;
   isAnalysisEnabled: boolean;
-  onRunStarted: (runId: string) => void;
-  portfolioId: string;
+  onRunStarted: (runId: number) => void;
+  portfolioId: number | string;
   settings?: PortfolioStockAnalysisSettingsRead;
   symbol: string;
 };
@@ -131,22 +131,22 @@ export function RunBuilderForm({
   }, [settings?.compareToOrigin]);
 
   useEffect(() => {
-    if (llmConfigId && configs.some((config) => config.id === llmConfigId)) {
+    if (llmConfigId && configs.some((config) => String(config.id) === llmConfigId)) {
       return;
     }
 
     const defaultConfigId = settings?.defaultLlmConfigId;
 
     if (defaultConfigId && configs.some((config) => config.id === defaultConfigId)) {
-      setLlmConfigId(defaultConfigId);
+      setLlmConfigId(String(defaultConfigId));
       return;
     }
 
-    setLlmConfigId(configs[0]?.id ?? "");
+    setLlmConfigId(configs[0] ? String(configs[0].id) : "");
   }, [configs, llmConfigId, settings?.defaultLlmConfigId]);
 
   useEffect(() => {
-    if (promptTemplateId && !templates.some((template) => template.id === promptTemplateId)) {
+    if (promptTemplateId && !templates.some((template) => String(template.id) === promptTemplateId)) {
       setPromptTemplateId(null);
     }
   }, [promptTemplateId, templates]);
@@ -163,13 +163,13 @@ export function RunBuilderForm({
 
     return {
       conversationId,
-      llmConfigId: llmConfigId || undefined,
-      portfolioId,
+      llmConfigId: llmConfigId ? Number(llmConfigId) : undefined,
+      portfolioId: Number(portfolioId),
       reviewTrigger: opt(reviewTrigger),
       runType,
       step: isSinglePrompt ? "single" : "fresh_analysis",
       symbol,
-      templateId: promptTemplateId,
+      templateId: promptTemplateId ? Number(promptTemplateId) : null,
       userNote: opt(userNote),
       inputTemplate: promptTemplateId ? null : opt(inlineInput),
       instructionsTemplate: promptTemplateId ? null : opt(inlineInstructions),
@@ -219,9 +219,9 @@ export function RunBuilderForm({
     }
 
     const payload: StockAnalysisRunCreate = {
-      llmConfigId,
+      llmConfigId: Number(llmConfigId),
       mode,
-      promptTemplateId,
+      promptTemplateId: promptTemplateId ? Number(promptTemplateId) : null,
       reviewTrigger: opt(reviewTrigger),
       runType,
       userNote: opt(userNote),
@@ -361,7 +361,7 @@ export function RunBuilderForm({
                 </SelectTrigger>
                 <SelectContent>
                   {configs.map((config) => (
-                    <SelectItem key={config.id} value={config.id}>
+                    <SelectItem key={config.id} value={String(config.id)}>
                       {config.displayName}
                     </SelectItem>
                   ))}
@@ -387,7 +387,7 @@ export function RunBuilderForm({
               <SelectContent>
                 <SelectItem value={EMPTY_SELECT_VALUE}>No saved template</SelectItem>
                 {templates.map((template) => (
-                  <SelectItem key={template.id} value={template.id}>
+                  <SelectItem key={template.id} value={String(template.id)}>
                     {template.name}
                   </SelectItem>
                 ))}

@@ -56,7 +56,7 @@ export type StockAnalysisParseStatus =
   | "parsed_failure";
 
 export interface PortfolioRead {
-  id: string;
+  id: number;
   name: string;
   description: string | null;
   baseCurrency: string;
@@ -78,8 +78,8 @@ export interface PortfolioUpdateInput {
 }
 
 export interface BalanceRead {
-  id: string;
-  portfolioId: string;
+  id: number;
+  portfolioId: number;
   label: string;
   amount: string;
   currency: string;
@@ -98,8 +98,8 @@ export interface BalanceUpdateInput {
 }
 
 export interface PositionRead {
-  id: string;
-  portfolioId: string;
+  id: number;
+  portfolioId: number;
   symbol: string;
   name: string | null;
   quantity: string;
@@ -153,7 +153,7 @@ export interface CsvCommitRead {
 }
 
 export interface TradingOperationBase {
-  balanceId: string;
+  balanceId: number;
   symbol: string;
   executedAt: string;
 }
@@ -190,9 +190,9 @@ export type TradingOperationInput =
   | SplitOperationInput;
 
 export interface TradingOperationRead {
-  id: string;
-  portfolioId: string;
-  balanceId: string | null;
+  id: number;
+  portfolioId: number;
+  balanceId: number | null;
   balanceLabel: string;
   symbol: string;
   side: TradingSide;
@@ -214,7 +214,7 @@ export interface PositionCompactRead {
 }
 
 export interface BalanceCompactRead {
-  id: string;
+  id: number;
   label: string;
   amount: string;
   currency: string;
@@ -261,7 +261,7 @@ export interface MarketHistoryRead {
 }
 
 export interface LlmConfigRead {
-  id: string;
+  id: number;
   provider: LlmProvider;
   displayName: string;
   model: string;
@@ -296,7 +296,7 @@ export interface LlmConfigUpdate {
 }
 
 export interface PromptTemplateRead {
-  id: string;
+  id: number;
   name: string;
   description: string | null;
   revision: number;
@@ -338,7 +338,7 @@ export interface PromptTemplateUpdate {
 }
 
 export interface UserSnippetRead {
-  id: string;
+  id: number;
   name: string;
   snippetAlias: string;
   content: string;
@@ -362,11 +362,11 @@ export interface UserSnippetUpdate {
 }
 
 export interface PortfolioStockAnalysisSettingsRead {
-  id: string;
-  portfolioId: string;
+  id: number;
+  portfolioId: number;
   enabled: boolean;
-  defaultPromptTemplateId: string | null;
-  defaultLlmConfigId: string | null;
+  defaultPromptTemplateId: number | null;
+  defaultLlmConfigId: number | null;
   compareToOrigin: boolean;
   createdAt: string;
   updatedAt: string;
@@ -374,14 +374,14 @@ export interface PortfolioStockAnalysisSettingsRead {
 
 export interface PortfolioStockAnalysisSettingsUpdate {
   enabled?: boolean | null;
-  defaultPromptTemplateId?: string | null;
-  defaultLlmConfigId?: string | null;
+  defaultPromptTemplateId?: number | null;
+  defaultLlmConfigId?: number | null;
   compareToOrigin?: boolean | null;
 }
 
 export interface StockAnalysisConversationRead {
-  id: string;
-  portfolioId: string;
+  id: number;
+  portfolioId: number;
   symbol: string;
   title: string | null;
   reviewCadence: string | null;
@@ -411,8 +411,8 @@ export interface StockAnalysisConversationUpdate {
 export interface StockAnalysisRunCreate {
   mode?: StockAnalysisRunMode;
   runType: StockAnalysisRunType;
-  llmConfigId: string;
-  promptTemplateId?: string | null;
+  llmConfigId: number;
+  promptTemplateId?: number | null;
   reviewTrigger?: string | null;
   userNote?: string | null;
   compareToOrigin?: boolean | null;
@@ -425,8 +425,8 @@ export interface StockAnalysisRunCreate {
 }
 
 export interface StockAnalysisResponseRead {
-  id: string;
-  requestId: string;
+  id: number;
+  requestId: number;
   provider: LlmProvider;
   providerResponseId: string | null;
   outputText: string | null;
@@ -439,8 +439,8 @@ export interface StockAnalysisResponseRead {
 }
 
 export interface StockAnalysisRequestRead {
-  id: string;
-  runId: string;
+  id: number;
+  runId: number;
   step: StockAnalysisPromptStep;
   stepIndex: number;
   status: StockAnalysisRequestStatus;
@@ -456,8 +456,8 @@ export interface StockAnalysisRequestRead {
 }
 
 export interface StockAnalysisRunRead {
-  id: string;
-  conversationId: string;
+  id: number;
+  conversationId: number;
   mode: StockAnalysisRunMode;
   runType: StockAnalysisRunType;
   status: StockAnalysisRunStatus;
@@ -466,7 +466,7 @@ export interface StockAnalysisRunRead {
   providerEndpoint: string | null;
   reviewTrigger: string | null;
   userNote: string | null;
-  promptTemplateId: string | null;
+  promptTemplateId: number | null;
   promptTemplateRevision: number | null;
   compareToOrigin: boolean;
   createdAt: string;
@@ -476,10 +476,10 @@ export interface StockAnalysisRunRead {
 }
 
 export interface StockAnalysisResponseSummary {
-  id: string;
-  requestId: string;
-  runId: string;
-  conversationId: string;
+  id: number;
+  requestId: number;
+  runId: number;
+  conversationId: number;
   symbol: string;
   step: StockAnalysisPromptStep;
   outputTextPreview: string;
@@ -487,9 +487,9 @@ export interface StockAnalysisResponseSummary {
 }
 
 export interface StockAnalysisVersionRead {
-  id: string;
-  conversationId: string;
-  runId: string;
+  id: number;
+  conversationId: number;
+  runId: number;
   versionNumber: number;
   symbol: string;
   action: StockAnalysisAction;
@@ -502,12 +502,12 @@ export interface StockAnalysisVersionRead {
 }
 
 export interface PromptPreviewRequest {
-  templateId?: string | null;
+  templateId?: number | null;
   step: StockAnalysisPromptStep;
-  portfolioId: string;
+  portfolioId: number;
   symbol: string;
-  llmConfigId?: string | null;
-  conversationId?: string | null;
+  llmConfigId?: number | null;
+  conversationId?: number | null;
   runType?: StockAnalysisRunType | null;
   reviewTrigger?: string | null;
   userNote?: string | null;
@@ -545,7 +545,7 @@ export interface ListStockAnalysisConversationsParams {
 }
 
 export interface ListStockAnalysisResponsesParams {
-  conversationId?: string;
+  conversationId?: number;
   limit?: number;
 }
 

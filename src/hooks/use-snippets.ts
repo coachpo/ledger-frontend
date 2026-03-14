@@ -9,7 +9,7 @@ import { queryKeys } from "@/lib/query-keys";
 import type { UserSnippetCreate, UserSnippetUpdate } from "@/lib/api-types";
 
 type UpdateSnippetVariables = {
-  snippetId: string;
+  snippetId: number;
   data: UserSnippetUpdate;
 };
 
@@ -48,7 +48,7 @@ export function useDeleteSnippet() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (snippetId: string) => deleteUserSnippet(snippetId),
+    mutationFn: (snippetId: number) => deleteUserSnippet(snippetId),
     onSuccess: (_, snippetId) =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.snippets.lists() }),

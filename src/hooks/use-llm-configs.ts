@@ -9,7 +9,7 @@ import { queryKeys } from "@/lib/query-keys";
 import type { LlmConfigUpdate, LlmConfigWrite } from "@/lib/api-types";
 
 type UpdateLlmConfigVariables = {
-  configId: string;
+  configId: number;
   data: LlmConfigUpdate;
 };
 
@@ -48,7 +48,7 @@ export function useDeleteLlmConfig() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (configId: string) => deleteLlmConfig(configId),
+    mutationFn: (configId: number) => deleteLlmConfig(configId),
     onSuccess: (_, configId) =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.llmConfigs.lists() }),

@@ -14,8 +14,8 @@ const FIXTURE_TIME = "2024-03-15T12:00:00Z";
 
 function makePosition(overrides: Partial<PositionRead> = {}): PositionRead {
   return {
-    id: "position-aapl",
-    portfolioId: "portfolio-1",
+    id: 1,
+    portfolioId: 1,
     symbol: "AAPL",
     name: "Apple Inc.",
     quantity: "10",
@@ -43,8 +43,8 @@ function makeQuote(overrides: Partial<MarketQuoteRead> = {}): MarketQuoteRead {
 
 function makeBalance(overrides: Partial<BalanceRead> = {}): BalanceRead {
   return {
-    id: "balance-usd",
-    portfolioId: "portfolio-1",
+    id: 1,
+    portfolioId: 1,
     label: "Broker Cash",
     amount: "500.25",
     currency: "USD",
@@ -66,7 +66,7 @@ function withMarketData(overrides: Partial<PositionWithMarketData> = {}): Positi
 
 describe("portfolio analytics", () => {
   it("enriches positions with matching quotes and leaves missing quotes empty", () => {
-    const positions = [makePosition(), makePosition({ id: "position-msft", symbol: "MSFT", name: "Microsoft", quantity: "5" })];
+    const positions = [makePosition(), makePosition({ id: 2, symbol: "MSFT", name: "Microsoft", quantity: "5" })];
     const quotes = [makeQuote()];
 
     const enriched = enrichPositionsWithQuotes(positions, quotes);
@@ -99,8 +99,8 @@ describe("portfolio analytics", () => {
   });
 
   it("totals marked positions with balances and ignores invalid numeric inputs", () => {
-    const positions = [withMarketData(), withMarketData({ id: "position-msft", symbol: "MSFT", quantity: "5", currentPrice: undefined })];
-    const balances = [makeBalance(), makeBalance({ id: "balance-eur", label: "FX", amount: "invalid" })];
+    const positions = [withMarketData(), withMarketData({ id: 2, symbol: "MSFT", quantity: "5", currentPrice: undefined })];
+    const balances = [makeBalance(), makeBalance({ id: 2, label: "FX", amount: "invalid" })];
 
     expect(computePortfolioTotalValue(positions, balances)).toBeCloseTo(2400.25);
   });
@@ -108,8 +108,8 @@ describe("portfolio analytics", () => {
   it("builds sorted allocation data and handles zero total portfolios", () => {
     const positions = [
       withMarketData({ symbol: "AAPL", quantity: "10", currentPrice: "190" }),
-      withMarketData({ id: "position-msft", symbol: "MSFT", quantity: "5", currentPrice: "120" }),
-      withMarketData({ id: "position-cash", symbol: "CASH", quantity: "1", currentPrice: undefined }),
+      withMarketData({ id: 2, symbol: "MSFT", quantity: "5", currentPrice: "120" }),
+      withMarketData({ id: 3, symbol: "CASH", quantity: "1", currentPrice: undefined }),
     ];
 
     const allocation = computePortfolioAllocation(positions, 2500);

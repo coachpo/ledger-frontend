@@ -9,7 +9,7 @@ import { queryKeys } from "@/lib/query-keys";
 import type { PromptTemplateUpdate, PromptTemplateWrite } from "@/lib/api-types";
 
 type UpdatePromptTemplateVariables = {
-  templateId: string;
+  templateId: number;
   data: PromptTemplateUpdate;
 };
 
@@ -48,7 +48,7 @@ export function useDeletePromptTemplate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (templateId: string) => deletePromptTemplate(templateId),
+    mutationFn: (templateId: number) => deletePromptTemplate(templateId),
     onSuccess: (_, templateId) =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.promptTemplates.lists() }),

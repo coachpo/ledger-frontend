@@ -131,13 +131,18 @@ export function TradingOperationForm({
           disabled={isPending || !canSubmit}
           onClick={() => {
             const common = {
-              balanceId,
+              balanceId: Number(balanceId),
               symbol: symbol.trim().toUpperCase(),
               executedAt: new Date(executedAt).toISOString(),
             };
 
-            if (side === "BUY" || side === "SELL") {
-              onSave({ ...common, side, quantity: quantity.trim(), price: price.trim(), commission: commission.trim() || undefined });
+            if (side === "BUY") {
+              onSave({ ...common, side: "BUY", quantity: quantity.trim(), price: price.trim(), commission: commission.trim() || undefined });
+              return;
+            }
+
+            if (side === "SELL") {
+              onSave({ ...common, side: "SELL", quantity: quantity.trim(), price: price.trim(), commission: commission.trim() || undefined });
               return;
             }
 

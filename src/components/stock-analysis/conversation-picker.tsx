@@ -63,7 +63,7 @@ export function ConversationPicker({
           </SelectTrigger>
           <SelectContent>
             {conversations.map((conversation) => (
-              <SelectItem key={conversation.id} value={conversation.id}>
+              <SelectItem key={conversation.id} value={String(conversation.id)}>
                 {(conversation.title?.trim() || conversation.symbol)} -{" "}
                 {formatDateTime(conversation.updatedAt)}
               </SelectItem>

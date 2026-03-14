@@ -8,12 +8,14 @@ import {
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
 import type { BalanceUpdateInput, BalanceWriteInput } from "@/lib/api-types";
 
+type IdParam = number | string;
+
 type UpdateBalanceVariables = {
-  balanceId: string;
+  balanceId: number;
   data: BalanceUpdateInput;
 };
 
-export function useBalances(portfolioId: string | undefined) {
+export function useBalances(portfolioId: IdParam | undefined) {
   const resolvedPortfolioId = portfolioId ?? "";
 
   return useQuery({
@@ -23,7 +25,7 @@ export function useBalances(portfolioId: string | undefined) {
   });
 }
 
-export function useCreateBalance(portfolioId: string) {
+export function useCreateBalance(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -32,7 +34,7 @@ export function useCreateBalance(portfolioId: string) {
   });
 }
 
-export function useUpdateBalance(portfolioId: string) {
+export function useUpdateBalance(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -42,11 +44,11 @@ export function useUpdateBalance(portfolioId: string) {
   });
 }
 
-export function useDeleteBalance(portfolioId: string) {
+export function useDeleteBalance(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (balanceId: string) => deleteBalance(portfolioId, balanceId),
+    mutationFn: (balanceId: number) => deleteBalance(portfolioId, balanceId),
     onSuccess: () => invalidatePortfolioScope(queryClient, portfolioId),
   });
 }

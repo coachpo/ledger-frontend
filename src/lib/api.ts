@@ -18,6 +18,8 @@ interface ApiRequestErrorOptions {
   status: number;
 }
 
+type IdParam = number | string;
+
 const DEFAULT_API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
@@ -46,8 +48,8 @@ function normalizeApiBaseUrl(value: string | undefined): string {
   return normalized.endsWith("/") ? normalized.slice(0, -1) : normalized;
 }
 
-function toPathSegment(value: string): string {
-  return encodeURIComponent(value);
+function toPathSegment(value: IdParam): string {
+  return encodeURIComponent(String(value));
 }
 
 function buildQueryString(query?: Record<string, RequestQueryValue>): string {
@@ -178,11 +180,11 @@ function serializeSymbols(symbols: readonly string[]): string {
     .join(",");
 }
 
-function portfolioPath(portfolioId: string): string {
+function portfolioPath(portfolioId: IdParam): string {
   return `/portfolios/${toPathSegment(portfolioId)}`;
 }
 
-function stockAnalysisPath(portfolioId: string): string {
+function stockAnalysisPath(portfolioId: IdParam): string {
   return `${portfolioPath(portfolioId)}/stock-analysis`;
 }
 
@@ -202,14 +204,14 @@ export function createPortfolio(
 }
 
 export function getPortfolio(
-  portfolioId: string,
+  portfolioId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.PortfolioRead> {
   return request<ApiTypes.PortfolioRead>(portfolioPath(portfolioId), { signal });
 }
 
 export function updatePortfolio(
-  portfolioId: string,
+  portfolioId: IdParam,
   input: ApiTypes.PortfolioUpdateInput,
   signal?: AbortSignal,
 ): Promise<ApiTypes.PortfolioRead> {
@@ -220,7 +222,7 @@ export function updatePortfolio(
   });
 }
 
-export function deletePortfolio(portfolioId: string, signal?: AbortSignal): Promise<void> {
+export function deletePortfolio(portfolioId: IdParam, signal?: AbortSignal): Promise<void> {
   return request<void>(portfolioPath(portfolioId), {
     method: "DELETE",
     signal,
@@ -228,7 +230,7 @@ export function deletePortfolio(portfolioId: string, signal?: AbortSignal): Prom
 }
 
 export function listBalances(
-  portfolioId: string,
+  portfolioId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.BalanceRead[]> {
   return request<ApiTypes.BalanceRead[]>(`${portfolioPath(portfolioId)}/balances`, {
@@ -237,7 +239,7 @@ export function listBalances(
 }
 
 export function createBalance(
-  portfolioId: string,
+  portfolioId: IdParam,
   input: ApiTypes.BalanceWriteInput,
   signal?: AbortSignal,
 ): Promise<ApiTypes.BalanceRead> {
@@ -249,8 +251,8 @@ export function createBalance(
 }
 
 export function updateBalance(
-  portfolioId: string,
-  balanceId: string,
+  portfolioId: IdParam,
+  balanceId: IdParam,
   input: ApiTypes.BalanceUpdateInput,
   signal?: AbortSignal,
 ): Promise<ApiTypes.BalanceRead> {
@@ -265,8 +267,8 @@ export function updateBalance(
 }
 
 export function deleteBalance(
-  portfolioId: string,
-  balanceId: string,
+  portfolioId: IdParam,
+  balanceId: IdParam,
   signal?: AbortSignal,
 ): Promise<void> {
   return request<void>(`${portfolioPath(portfolioId)}/balances/${toPathSegment(balanceId)}`, {
@@ -276,7 +278,7 @@ export function deleteBalance(
 }
 
 export function listPositions(
-  portfolioId: string,
+  portfolioId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.PositionRead[]> {
   return request<ApiTypes.PositionRead[]>(`${portfolioPath(portfolioId)}/positions`, {
@@ -285,7 +287,7 @@ export function listPositions(
 }
 
 export function createPosition(
-  portfolioId: string,
+  portfolioId: IdParam,
   input: ApiTypes.PositionWriteInput,
   signal?: AbortSignal,
 ): Promise<ApiTypes.PositionRead> {
@@ -297,8 +299,8 @@ export function createPosition(
 }
 
 export function updatePosition(
-  portfolioId: string,
-  positionId: string,
+  portfolioId: IdParam,
+  positionId: IdParam,
   input: ApiTypes.PositionUpdateInput,
   signal?: AbortSignal,
 ): Promise<ApiTypes.PositionRead> {
@@ -313,8 +315,8 @@ export function updatePosition(
 }
 
 export function deletePosition(
-  portfolioId: string,
-  positionId: string,
+  portfolioId: IdParam,
+  positionId: IdParam,
   signal?: AbortSignal,
 ): Promise<void> {
   return request<void>(`${portfolioPath(portfolioId)}/positions/${toPathSegment(positionId)}`, {
@@ -324,7 +326,7 @@ export function deletePosition(
 }
 
 export function previewPositionImport(
-  portfolioId: string,
+  portfolioId: IdParam,
   file: File,
   signal?: AbortSignal,
 ): Promise<ApiTypes.CsvPreviewRead> {
@@ -336,7 +338,7 @@ export function previewPositionImport(
 }
 
 export function commitPositionImport(
-  portfolioId: string,
+  portfolioId: IdParam,
   file: File,
   signal?: AbortSignal,
 ): Promise<ApiTypes.CsvCommitRead> {
@@ -348,7 +350,7 @@ export function commitPositionImport(
 }
 
 export function listTradingOperations(
-  portfolioId: string,
+  portfolioId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.TradingOperationRead[]> {
   return request<ApiTypes.TradingOperationRead[]>(
@@ -358,7 +360,7 @@ export function listTradingOperations(
 }
 
 export function createTradingOperation(
-  portfolioId: string,
+  portfolioId: IdParam,
   input: ApiTypes.TradingOperationInput,
   signal?: AbortSignal,
 ): Promise<ApiTypes.TradingOperationResult> {
@@ -370,7 +372,7 @@ export function createTradingOperation(
 }
 
 export function getMarketQuotes(
-  portfolioId: string,
+  portfolioId: IdParam,
   params: ApiTypes.GetMarketQuotesParams,
   signal?: AbortSignal,
 ): Promise<ApiTypes.MarketQuoteListRead> {
@@ -381,7 +383,7 @@ export function getMarketQuotes(
 }
 
 export function getMarketHistory(
-  portfolioId: string,
+  portfolioId: IdParam,
   params: ApiTypes.GetMarketHistoryParams,
   signal?: AbortSignal,
 ): Promise<ApiTypes.MarketHistoryRead> {
@@ -410,7 +412,7 @@ export function createLlmConfig(
 }
 
 export function getLlmConfig(
-  configId: string,
+  configId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.LlmConfigRead> {
   return request<ApiTypes.LlmConfigRead>(`/stock-analysis/llm-configs/${toPathSegment(configId)}`, {
@@ -419,7 +421,7 @@ export function getLlmConfig(
 }
 
 export function updateLlmConfig(
-  configId: string,
+  configId: IdParam,
   input: ApiTypes.LlmConfigUpdate,
   signal?: AbortSignal,
 ): Promise<ApiTypes.LlmConfigRead> {
@@ -430,7 +432,7 @@ export function updateLlmConfig(
   });
 }
 
-export function deleteLlmConfig(configId: string, signal?: AbortSignal): Promise<void> {
+export function deleteLlmConfig(configId: IdParam, signal?: AbortSignal): Promise<void> {
   return request<void>(`/stock-analysis/llm-configs/${toPathSegment(configId)}`, {
     method: "DELETE",
     signal,
@@ -453,7 +455,7 @@ export function createPromptTemplate(
 }
 
 export function getPromptTemplate(
-  templateId: string,
+  templateId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.PromptTemplateRead> {
   return request<ApiTypes.PromptTemplateRead>(
@@ -463,7 +465,7 @@ export function getPromptTemplate(
 }
 
 export function updatePromptTemplate(
-  templateId: string,
+  templateId: IdParam,
   input: ApiTypes.PromptTemplateUpdate,
   signal?: AbortSignal,
 ): Promise<ApiTypes.PromptTemplateRead> {
@@ -477,7 +479,7 @@ export function updatePromptTemplate(
   );
 }
 
-export function deletePromptTemplate(templateId: string, signal?: AbortSignal): Promise<void> {
+export function deletePromptTemplate(templateId: IdParam, signal?: AbortSignal): Promise<void> {
   return request<void>(`/stock-analysis/prompt-templates/${toPathSegment(templateId)}`, {
     method: "DELETE",
     signal,
@@ -511,7 +513,7 @@ export function createUserSnippet(
 }
 
 export function getUserSnippet(
-  snippetId: string,
+  snippetId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.UserSnippetRead> {
   return request<ApiTypes.UserSnippetRead>(`/stock-analysis/snippets/${toPathSegment(snippetId)}`, {
@@ -520,7 +522,7 @@ export function getUserSnippet(
 }
 
 export function updateUserSnippet(
-  snippetId: string,
+  snippetId: IdParam,
   input: ApiTypes.UserSnippetUpdate,
   signal?: AbortSignal,
 ): Promise<ApiTypes.UserSnippetRead> {
@@ -531,7 +533,7 @@ export function updateUserSnippet(
   });
 }
 
-export function deleteUserSnippet(snippetId: string, signal?: AbortSignal): Promise<void> {
+export function deleteUserSnippet(snippetId: IdParam, signal?: AbortSignal): Promise<void> {
   return request<void>(`/stock-analysis/snippets/${toPathSegment(snippetId)}`, {
     method: "DELETE",
     signal,
@@ -539,7 +541,7 @@ export function deleteUserSnippet(snippetId: string, signal?: AbortSignal): Prom
 }
 
 export function getPortfolioStockAnalysisSettings(
-  portfolioId: string,
+  portfolioId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.PortfolioStockAnalysisSettingsRead> {
   return request<ApiTypes.PortfolioStockAnalysisSettingsRead>(`${stockAnalysisPath(portfolioId)}/settings`, {
@@ -548,7 +550,7 @@ export function getPortfolioStockAnalysisSettings(
 }
 
 export function updatePortfolioStockAnalysisSettings(
-  portfolioId: string,
+  portfolioId: IdParam,
   input: ApiTypes.PortfolioStockAnalysisSettingsUpdate,
   signal?: AbortSignal,
 ): Promise<ApiTypes.PortfolioStockAnalysisSettingsRead> {
@@ -560,7 +562,7 @@ export function updatePortfolioStockAnalysisSettings(
 }
 
 export function listStockAnalysisConversations(
-  portfolioId: string,
+  portfolioId: IdParam,
   params: ApiTypes.ListStockAnalysisConversationsParams = {},
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisConversationRead[]> {
@@ -574,7 +576,7 @@ export function listStockAnalysisConversations(
 }
 
 export function createStockAnalysisConversation(
-  portfolioId: string,
+  portfolioId: IdParam,
   input: ApiTypes.StockAnalysisConversationWrite,
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisConversationRead> {
@@ -586,8 +588,8 @@ export function createStockAnalysisConversation(
 }
 
 export function getStockAnalysisConversation(
-  portfolioId: string,
-  conversationId: string,
+  portfolioId: IdParam,
+  conversationId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisConversationRead> {
   return request<ApiTypes.StockAnalysisConversationRead>(
@@ -597,8 +599,8 @@ export function getStockAnalysisConversation(
 }
 
 export function updateStockAnalysisConversation(
-  portfolioId: string,
-  conversationId: string,
+  portfolioId: IdParam,
+  conversationId: IdParam,
   input: ApiTypes.StockAnalysisConversationUpdate,
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisConversationRead> {
@@ -613,8 +615,8 @@ export function updateStockAnalysisConversation(
 }
 
 export function listStockAnalysisRuns(
-  portfolioId: string,
-  conversationId: string,
+  portfolioId: IdParam,
+  conversationId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisRunRead[]> {
   return request<ApiTypes.StockAnalysisRunRead[]>(
@@ -624,8 +626,8 @@ export function listStockAnalysisRuns(
 }
 
 export function createStockAnalysisRun(
-  portfolioId: string,
-  conversationId: string,
+  portfolioId: IdParam,
+  conversationId: IdParam,
   input: ApiTypes.StockAnalysisRunCreate,
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisRunRead> {
@@ -640,8 +642,8 @@ export function createStockAnalysisRun(
 }
 
 export function getStockAnalysisRun(
-  portfolioId: string,
-  runId: string,
+  portfolioId: IdParam,
+  runId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisRunRead> {
   return request<ApiTypes.StockAnalysisRunRead>(
@@ -653,8 +655,8 @@ export function getStockAnalysisRun(
 }
 
 export function executeStockAnalysisRun(
-  portfolioId: string,
-  runId: string,
+  portfolioId: IdParam,
+  runId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisRunRead> {
   return request<ApiTypes.StockAnalysisRunRead>(
@@ -667,7 +669,7 @@ export function executeStockAnalysisRun(
 }
 
 export function listStockAnalysisResponses(
-  portfolioId: string,
+  portfolioId: IdParam,
   params: ApiTypes.ListStockAnalysisResponsesParams = {},
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisResponseSummary[]> {
@@ -681,7 +683,7 @@ export function listStockAnalysisResponses(
 }
 
 export function listStockAnalysisVersions(
-  portfolioId: string,
+  portfolioId: IdParam,
   params: ApiTypes.ListStockAnalysisVersionsParams = {},
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisVersionRead[]> {
@@ -692,8 +694,8 @@ export function listStockAnalysisVersions(
 }
 
 export function getStockAnalysisVersion(
-  portfolioId: string,
-  versionId: string,
+  portfolioId: IdParam,
+  versionId: IdParam,
   signal?: AbortSignal,
 ): Promise<ApiTypes.StockAnalysisVersionRead> {
   return request<ApiTypes.StockAnalysisVersionRead>(
@@ -703,7 +705,7 @@ export function getStockAnalysisVersion(
 }
 
 export function previewStockAnalysisPrompt(
-  portfolioId: string,
+  portfolioId: IdParam,
   input: ApiTypes.PromptPreviewRequest,
   signal?: AbortSignal,
 ): Promise<ApiTypes.PromptPreviewResponse> {

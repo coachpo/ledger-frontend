@@ -6,7 +6,9 @@ import {
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
 import type { TradingOperationInput } from "@/lib/api-types";
 
-export function useTradingOperations(portfolioId: string | undefined) {
+type IdParam = number | string;
+
+export function useTradingOperations(portfolioId: IdParam | undefined) {
   const resolvedPortfolioId = portfolioId ?? "";
 
   return useQuery({
@@ -16,7 +18,7 @@ export function useTradingOperations(portfolioId: string | undefined) {
   });
 }
 
-export function useCreateTradingOperation(portfolioId: string) {
+export function useCreateTradingOperation(portfolioId: IdParam) {
   const queryClient = useQueryClient();
 
   return useMutation({

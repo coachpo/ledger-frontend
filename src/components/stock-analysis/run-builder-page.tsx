@@ -27,7 +27,7 @@ export function RunBuilderPage() {
   const portfoliosQuery = usePortfolios();
   const [portfolioId, setPortfolioId] = useState("");
   const [selectedConversationId, setSelectedConversationId] = useState("");
-  const [activeRunId, setActiveRunId] = useState<string | null>(null);
+  const [activeRunId, setActiveRunId] = useState<number | null>(null);
 
   const portfolios = useMemo(() => portfoliosQuery.data ?? [], [portfoliosQuery.data]);
   const settingsQuery = useStockAnalysisSettings(portfolioId || undefined);
@@ -37,20 +37,20 @@ export function RunBuilderPage() {
   const createConversation = useCreateConversation(portfolioId || "__missing__");
   const selectedPortfolio = useMemo(
     () =>
-      portfolios.find((portfolio) => portfolio.id === portfolioId) ?? null,
+      portfolios.find((portfolio) => String(portfolio.id) === portfolioId) ?? null,
     [portfolioId, portfolios],
   );
   const selectedConversation = useMemo(
     () =>
       (conversationsQuery.data ?? []).find(
-        (conversation) => conversation.id === selectedConversationId,
+        (conversation) => String(conversation.id) === selectedConversationId,
       ) ?? null,
     [conversationsQuery.data, selectedConversationId],
   );
 
   useEffect(() => {
     if (!portfolioId && portfolios.length > 0) {
-      setPortfolioId(portfolios[0].id);
+      setPortfolioId(String(portfolios[0].id));
     }
   }, [portfolioId, portfolios]);
 
@@ -145,7 +145,7 @@ export function RunBuilderPage() {
               </SelectTrigger>
               <SelectContent>
                 {portfolios.map((portfolio) => (
-                  <SelectItem key={portfolio.id} value={portfolio.id}>
+                  <SelectItem key={portfolio.id} value={String(portfolio.id)}>
                     {portfolio.name}
                   </SelectItem>
                 ))}
@@ -211,7 +211,7 @@ export function RunBuilderPage() {
             try {
               const conversation = await createConversation.mutateAsync(data);
               toast.success("Conversation created");
-              setSelectedConversationId(conversation.id);
+              setSelectedConversationId(String(conversation.id));
             } catch (error) {
               toast.error(
                 error instanceof Error ? error.message : "Failed to create conversation",
@@ -221,7 +221,7 @@ export function RunBuilderPage() {
         />
 
         <div className="space-y-6">
-          {selectedConversation ? (
+          {selectedConversation && selectedPortfolio ? (
             <>
               <Card className="border-border/60 bg-muted/10">
                 <CardContent className="flex flex-col gap-4 pt-6 sm:flex-row sm:items-center sm:justify-between">
@@ -251,7 +251,7 @@ export function RunBuilderPage() {
                 conversationId={selectedConversation.id}
                 isAnalysisEnabled={analysisEnabled}
                 onRunStarted={setActiveRunId}
-                portfolioId={portfolioId}
+                portfolioId={selectedPortfolio.id}
                 settings={settingsQuery.data}
                 symbol={selectedConversation.symbol}
               />
@@ -265,7 +265,7 @@ export function RunBuilderPage() {
             </Card>
           )}
 
-          <RunStatusDisplay portfolioId={portfolioId} runId={activeRunId ?? undefined} />
+          <RunStatusDisplay portfolioId={selectedPortfolio?.id} runId={activeRunId ?? undefined} />
         </div>
       </div>
     </div>

@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type RunStatusDisplayProps = {
-  portfolioId?: string;
-  runId?: string;
+  portfolioId?: number | string;
+  runId?: number;
 };
 
 export function RunStatusDisplay({

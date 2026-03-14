@@ -397,7 +397,7 @@ export function LLMConfigs() {
     }
   }, [error]);
 
-  function handleDelete(configId: string) {
+  function handleDelete(configId: number) {
     deleteMutation.mutate(configId, {
       onError: (mutationError) => {
         toast.error(getErrorMessage(mutationError, "Failed to delete configuration"));

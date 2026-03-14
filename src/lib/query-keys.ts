@@ -2,12 +2,17 @@ import type { QueryClient } from "@tanstack/react-query";
 import type * as ApiTypes from "./api-types";
 
 const apiRoot = ["api"] as const;
+type IdParam = number | string;
 
-function portfolioRoot(portfolioId: string) {
-  return [...apiRoot, "portfolios", portfolioId] as const;
+function normalizeId(id: IdParam) {
+  return String(id);
 }
 
-function stockAnalysisRoot(portfolioId: string) {
+function portfolioRoot(portfolioId: IdParam) {
+  return [...apiRoot, "portfolios", normalizeId(portfolioId)] as const;
+}
+
+function stockAnalysisRoot(portfolioId: IdParam) {
   return [...portfolioRoot(portfolioId), "stockAnalysis"] as const;
 }
 
@@ -26,7 +31,10 @@ function normalizeConversationParams(
 
 function normalizeResponseParams(params: ApiTypes.ListStockAnalysisResponsesParams = {}) {
   return {
-    conversationId: params.conversationId ?? null,
+    conversationId:
+      params.conversationId === undefined || params.conversationId === null
+        ? null
+        : String(params.conversationId),
     limit: params.limit ?? 20,
   };
 }
@@ -46,48 +54,50 @@ function normalizeHistoryParams(params: ApiTypes.GetMarketHistoryParams) {
 
 const portfoliosQueryKeys = {
   all: [...apiRoot, "portfolios"] as const,
-  detail: (portfolioId: string) => [...apiRoot, "portfolios", "detail", portfolioId] as const,
+  detail: (portfolioId: IdParam) =>
+    [...apiRoot, "portfolios", "detail", normalizeId(portfolioId)] as const,
   details: () => [...apiRoot, "portfolios", "detail"] as const,
   list: () => [...apiRoot, "portfolios", "list"] as const,
   lists: () => [...apiRoot, "portfolios", "list"] as const,
 } as const;
 
 const balancesQueryKeys = {
-  all: (portfolioId: string) => [...portfolioRoot(portfolioId), "balances"] as const,
-  detail: (portfolioId: string, balanceId: string) =>
-    [...portfolioRoot(portfolioId), "balances", "detail", balanceId] as const,
-  list: (portfolioId: string) => [...portfolioRoot(portfolioId), "balances", "list"] as const,
+  all: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "balances"] as const,
+  detail: (portfolioId: IdParam, balanceId: IdParam) =>
+    [...portfolioRoot(portfolioId), "balances", "detail", normalizeId(balanceId)] as const,
+  list: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "balances", "list"] as const,
 } as const;
 
 const positionsQueryKeys = {
-  all: (portfolioId: string) => [...portfolioRoot(portfolioId), "positions"] as const,
-  detail: (portfolioId: string, positionId: string) =>
-    [...portfolioRoot(portfolioId), "positions", "detail", positionId] as const,
-  list: (portfolioId: string) => [...portfolioRoot(portfolioId), "positions", "list"] as const,
+  all: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "positions"] as const,
+  detail: (portfolioId: IdParam, positionId: IdParam) =>
+    [...portfolioRoot(portfolioId), "positions", "detail", normalizeId(positionId)] as const,
+  list: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "positions", "list"] as const,
 } as const;
 
 const tradesQueryKeys = {
-  all: (portfolioId: string) => [...portfolioRoot(portfolioId), "trades"] as const,
-  detail: (portfolioId: string, tradeId: string) =>
-    [...portfolioRoot(portfolioId), "trades", "detail", tradeId] as const,
-  list: (portfolioId: string) => [...portfolioRoot(portfolioId), "trades", "list"] as const,
+  all: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "trades"] as const,
+  detail: (portfolioId: IdParam, tradeId: IdParam) =>
+    [...portfolioRoot(portfolioId), "trades", "detail", normalizeId(tradeId)] as const,
+  list: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "trades", "list"] as const,
 } as const;
 
 const marketDataQueryKeys = {
-  all: (portfolioId: string) => [...portfolioRoot(portfolioId), "marketData"] as const,
-  quotes: (portfolioId: string, params: ApiTypes.GetMarketQuotesParams) =>
+  all: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "marketData"] as const,
+  quotes: (portfolioId: IdParam, params: ApiTypes.GetMarketQuotesParams) =>
     [...portfolioRoot(portfolioId), "marketData", "quotes", normalizeSymbols(params.symbols)] as const,
 } as const;
 
 const marketHistoryQueryKeys = {
-  all: (portfolioId: string) => [...portfolioRoot(portfolioId), "marketHistory"] as const,
-  series: (portfolioId: string, params: ApiTypes.GetMarketHistoryParams) =>
+  all: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "marketHistory"] as const,
+  series: (portfolioId: IdParam, params: ApiTypes.GetMarketHistoryParams) =>
     [...portfolioRoot(portfolioId), "marketHistory", "series", normalizeHistoryParams(params)] as const,
 } as const;
 
 const llmConfigsQueryKeys = {
   all: [...apiRoot, "llmConfigs"] as const,
-  detail: (configId: string) => [...apiRoot, "llmConfigs", "detail", configId] as const,
+  detail: (configId: IdParam) =>
+    [...apiRoot, "llmConfigs", "detail", normalizeId(configId)] as const,
   details: () => [...apiRoot, "llmConfigs", "detail"] as const,
   list: () => [...apiRoot, "llmConfigs", "list"] as const,
   lists: () => [...apiRoot, "llmConfigs", "list"] as const,
@@ -95,7 +105,8 @@ const llmConfigsQueryKeys = {
 
 const promptTemplatesQueryKeys = {
   all: [...apiRoot, "promptTemplates"] as const,
-  detail: (templateId: string) => [...apiRoot, "promptTemplates", "detail", templateId] as const,
+  detail: (templateId: IdParam) =>
+    [...apiRoot, "promptTemplates", "detail", normalizeId(templateId)] as const,
   details: () => [...apiRoot, "promptTemplates", "detail"] as const,
   list: () => [...apiRoot, "promptTemplates", "list"] as const,
   lists: () => [...apiRoot, "promptTemplates", "list"] as const,
@@ -105,23 +116,29 @@ const promptTemplatesQueryKeys = {
 
 const snippetsQueryKeys = {
   all: [...apiRoot, "snippets"] as const,
-  detail: (snippetId: string) => [...apiRoot, "snippets", "detail", snippetId] as const,
+  detail: (snippetId: IdParam) =>
+    [...apiRoot, "snippets", "detail", normalizeId(snippetId)] as const,
   details: () => [...apiRoot, "snippets", "detail"] as const,
   list: () => [...apiRoot, "snippets", "list"] as const,
   lists: () => [...apiRoot, "snippets", "list"] as const,
 } as const;
 
 const stockAnalysisQueryKeys = {
-  all: (portfolioId: string) => [...stockAnalysisRoot(portfolioId)] as const,
-  promptPreview: (portfolioId: string, request?: ApiTypes.PromptPreviewRequest) =>
+  all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId)] as const,
+  promptPreview: (portfolioId: IdParam, request?: ApiTypes.PromptPreviewRequest) =>
     [...stockAnalysisRoot(portfolioId), "promptPreview", request ?? null] as const,
-  settings: (portfolioId: string) => [...stockAnalysisRoot(portfolioId), "settings"] as const,
+  settings: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "settings"] as const,
   conversations: {
-    all: (portfolioId: string) => [...stockAnalysisRoot(portfolioId), "conversations"] as const,
-    detail: (portfolioId: string, conversationId: string) =>
-      [...stockAnalysisRoot(portfolioId), "conversations", "detail", conversationId] as const,
+    all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "conversations"] as const,
+    detail: (portfolioId: IdParam, conversationId: IdParam) =>
+      [
+        ...stockAnalysisRoot(portfolioId),
+        "conversations",
+        "detail",
+        normalizeId(conversationId),
+      ] as const,
     list: (
-      portfolioId: string,
+      portfolioId: IdParam,
       params: ApiTypes.ListStockAnalysisConversationsParams = {},
     ) =>
       [
@@ -132,26 +149,31 @@ const stockAnalysisQueryKeys = {
       ] as const,
   },
   responses: {
-    all: (portfolioId: string) => [...stockAnalysisRoot(portfolioId), "responses"] as const,
+    all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "responses"] as const,
     list: (
-      portfolioId: string,
+      portfolioId: IdParam,
       params: ApiTypes.ListStockAnalysisResponsesParams = {},
     ) =>
       [...stockAnalysisRoot(portfolioId), "responses", "list", normalizeResponseParams(params)] as const,
   },
   runs: {
-    all: (portfolioId: string) => [...stockAnalysisRoot(portfolioId), "runs"] as const,
-    detail: (portfolioId: string, runId: string) =>
-      [...stockAnalysisRoot(portfolioId), "runs", "detail", runId] as const,
-    list: (portfolioId: string, conversationId: string) =>
-      [...stockAnalysisRoot(portfolioId), "runs", "list", conversationId] as const,
+    all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "runs"] as const,
+    detail: (portfolioId: IdParam, runId: IdParam) =>
+      [...stockAnalysisRoot(portfolioId), "runs", "detail", normalizeId(runId)] as const,
+    list: (portfolioId: IdParam, conversationId: IdParam) =>
+      [...stockAnalysisRoot(portfolioId), "runs", "list", normalizeId(conversationId)] as const,
   },
   versions: {
-    all: (portfolioId: string) => [...stockAnalysisRoot(portfolioId), "versions"] as const,
-    detail: (portfolioId: string, versionId: string) =>
-      [...stockAnalysisRoot(portfolioId), "versions", "detail", versionId] as const,
+    all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "versions"] as const,
+    detail: (portfolioId: IdParam, versionId: IdParam) =>
+      [
+        ...stockAnalysisRoot(portfolioId),
+        "versions",
+        "detail",
+        normalizeId(versionId),
+      ] as const,
     list: (
-      portfolioId: string,
+      portfolioId: IdParam,
       params: ApiTypes.ListStockAnalysisVersionsParams = {},
     ) =>
       [...stockAnalysisRoot(portfolioId), "versions", "list", normalizeVersionParams(params)] as const,
@@ -176,7 +198,7 @@ export const queryKeys = {
 
 export async function invalidatePortfolioScope(
   queryClient: QueryClient,
-  portfolioId: string,
+  portfolioId: IdParam,
 ): Promise<void> {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: queryKeys.portfolios.lists() }),
