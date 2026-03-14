@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import {
   ArrowUpRight,
   BarChart3,
@@ -67,32 +67,11 @@ function DashboardSkeleton() {
           </Card>
         ))}
       </div>
-
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-40" />
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="flex items-center justify-between gap-4 py-2">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-40" />
-              </div>
-              <div className="space-y-2 text-right">
-                <Skeleton className="ml-auto h-4 w-14" />
-                <Skeleton className="ml-auto h-3 w-20" />
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
     </div>
   );
 }
 
 export function Dashboard() {
-  const navigate = useNavigate();
   const { data: portfolios = [], error, isError, isPending, refetch } = usePortfolios();
 
   const portfolioCount = portfolios.length;
@@ -121,10 +100,6 @@ export function Dashboard() {
   const mostRecentlyUpdatedPortfolio = [...portfolios].sort((left, right) =>
     right.updatedAt.localeCompare(left.updatedAt),
   )[0] ?? null;
-  const sortedPortfolios = [...portfolios].sort((left, right) =>
-    right.updatedAt.localeCompare(left.updatedAt),
-  );
-
   if (isPending) {
     return <DashboardSkeleton />;
   }
@@ -169,9 +144,9 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card
-          className="cursor-pointer transition-shadow hover:shadow-md"
-          onClick={() => navigate("/portfolios")}
+        <Link
+          to="/portfolios"
+          className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border text-left transition-shadow hover:shadow-md"
         >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm text-muted-foreground">
@@ -185,7 +160,7 @@ export function Dashboard() {
               Portfolio records syncing from the API
             </p>
           </CardContent>
-        </Card>
+        </Link>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -217,22 +192,40 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">
-              Latest Update
-            </CardTitle>
-            <ArrowUpRight className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg leading-tight">
-              {mostRecentlyUpdatedPortfolio?.name ?? "No portfolio data"}
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {formatDateLabel(mostRecentlyUpdatedPortfolio?.updatedAt ?? null)}
-            </p>
-          </CardContent>
-        </Card>
+        {mostRecentlyUpdatedPortfolio ? (
+          <Link
+            to={`/portfolios/${mostRecentlyUpdatedPortfolio.id}`}
+            className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border text-left transition-shadow hover:shadow-md"
+          >
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm text-muted-foreground">
+                Latest Update
+              </CardTitle>
+              <ArrowUpRight className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg leading-tight">
+                {mostRecentlyUpdatedPortfolio.name}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {formatDateLabel(mostRecentlyUpdatedPortfolio.updatedAt)}
+              </p>
+            </CardContent>
+          </Link>
+        ) : (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm text-muted-foreground">
+                Latest Update
+              </CardTitle>
+              <ArrowUpRight className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg leading-tight">No portfolio data</div>
+              <p className="mt-1 text-xs text-muted-foreground">No updates yet</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -281,42 +274,6 @@ export function Dashboard() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Portfolio Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {sortedPortfolios.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-              No portfolios yet. Create one to start tracking positions and responses.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {sortedPortfolios.map((portfolio) => (
-                <button
-                  key={portfolio.id}
-                  type="button"
-                  className="flex w-full items-center justify-between gap-4 rounded-xl border border-border px-4 py-3 text-left transition-colors hover:bg-muted/60"
-                  onClick={() => navigate("/portfolios")}
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm">{portfolio.name}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {portfolio.baseCurrency} base currency · {portfolio.balanceCount} balances
-                    </p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-sm">{portfolio.positionCount} positions</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Updated {formatDateLabel(portfolio.updatedAt)}
-                    </p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

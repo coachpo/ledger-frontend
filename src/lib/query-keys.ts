@@ -139,6 +139,13 @@ const stockAnalysisQueryKeys = {
     ) =>
       [...stockAnalysisRoot(portfolioId), "responses", "list", normalizeResponseParams(params)] as const,
   },
+  runs: {
+    all: (portfolioId: string) => [...stockAnalysisRoot(portfolioId), "runs"] as const,
+    detail: (portfolioId: string, runId: string) =>
+      [...stockAnalysisRoot(portfolioId), "runs", "detail", runId] as const,
+    list: (portfolioId: string, conversationId: string) =>
+      [...stockAnalysisRoot(portfolioId), "runs", "list", conversationId] as const,
+  },
   versions: {
     all: (portfolioId: string) => [...stockAnalysisRoot(portfolioId), "versions"] as const,
     detail: (portfolioId: string, versionId: string) =>

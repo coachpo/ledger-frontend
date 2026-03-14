@@ -1,81 +1,38 @@
-import { useEffect, useState } from "react";
-import { Code2, Copy, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, Code2, Copy, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
 import {
-  useCreateSnippet,
   useDeleteSnippet,
   useSnippets,
   useUpdateSnippet,
 } from "@/hooks/use-snippets";
-import type { UserSnippetCreate, UserSnippetRead, UserSnippetUpdate } from "@/lib/api-types";
+import type { UserSnippetRead, UserSnippetUpdate } from "@/lib/api-types";
 import { formatDateTime } from "@/lib/format";
 
+import { ConfirmDeleteDialog } from "./portfolios/confirm-delete-dialog";
+import { SnippetForm } from "./snippet-form";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardTitle } from "./ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-
-type SnippetFormProps = {
-  initial?: UserSnippetRead;
-  isPending: boolean;
-  onCancel: () => void;
-  onSave: (data: UserSnippetCreate | UserSnippetUpdate) => void;
-};
-
-function SnippetForm({ initial, isPending, onCancel, onSave }: SnippetFormProps) {
-  const [name, setName] = useState(initial?.name ?? "");
-  const [description, setDescription] = useState(initial?.description ?? "");
-  const [content, setContent] = useState(initial?.content ?? "");
-
-  return (
-    <div className="space-y-4">
-      <div>
-        <Label>Name</Label>
-        <Input value={name} onChange={(event) => setName(event.target.value)} disabled={isPending} />
-      </div>
-      <div>
-        <Label>Description</Label>
-        <Input value={description} onChange={(event) => setDescription(event.target.value)} disabled={isPending} />
-      </div>
-      <div>
-        <Label>Content</Label>
-        <Textarea
-          value={content}
-          onChange={(event) => setContent(event.target.value)}
-          rows={8}
-          className="font-mono text-sm"
-          disabled={isPending}
-        />
-      </div>
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancel} disabled={isPending}>
-          Cancel
-        </Button>
-        <Button
-          onClick={() => onSave({ name: name.trim(), description: description.trim() || null, content: content.trim() })}
-          disabled={isPending || !name.trim() || !content.trim()}
-        >
-          {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-          Save
-        </Button>
-      </div>
-    </div>
-  );
-}
 
 export function Snippets() {
+  const navigate = useNavigate();
   const snippetsQuery = useSnippets();
-  const createMutation = useCreateSnippet();
   const updateMutation = useUpdateSnippet();
   const deleteMutation = useDeleteSnippet();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<UserSnippetRead | null>(null);
+  const [deleting, setDeleting] = useState<UserSnippetRead | null>(null);
+  const [expandedSnippetIds, setExpandedSnippetIds] = useState<Record<string, boolean>>({});
 
-  const snippets = snippetsQuery.data ?? [];
-  const isMutating = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
+  const snippets = useMemo(
+    () => [...(snippetsQuery.data ?? [])].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)),
+    [snippetsQuery.data],
+  );
+  const isMutating = updateMutation.isPending || deleteMutation.isPending;
 
   useEffect(() => {
     if (snippetsQuery.isError) {
@@ -97,90 +54,112 @@ export function Snippets() {
             Save reusable notes and references for prompt composition.
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)} disabled={isMutating}>
+        <Button onClick={() => navigate("/snippets/new")} disabled={isMutating}>
           <Plus className="mr-1 size-4" /> New Snippet
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="space-y-3">
         {snippetsQuery.isPending ? (
-          <Card className="md:col-span-2">
+          <Card>
             <CardContent className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
               <Loader2 className="size-4 animate-spin" /> Loading snippets...
             </CardContent>
           </Card>
         ) : null}
 
-        {!snippetsQuery.isPending && snippets.length === 0 ? (
-          <Card className="md:col-span-2">
+        {!snippetsQuery.isPending && snippetsQuery.isError && snippets.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center text-muted-foreground">
+              Unable to load snippets right now.
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {!snippetsQuery.isPending && !snippetsQuery.isError && snippets.length === 0 ? (
+          <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
               No snippets yet. Add one to reuse text across prompts.
             </CardContent>
           </Card>
         ) : null}
 
-        {snippets.map((snippet) => (
-          <Card key={snippet.id}>
-            <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3">
-              <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-amber-100 p-2 text-amber-700">
-                  <Code2 className="size-4" />
-                </div>
-                <div>
-                  <CardTitle className="text-base">{snippet.name}</CardTitle>
-                  <p className="mt-1 text-sm text-muted-foreground">{snippet.description || "No description"}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Updated {formatDateTime(snippet.updatedAt)}</p>
-                </div>
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    void navigator.clipboard.writeText(`{{user.snippet.${snippet.id}}}`);
-                    toast.success("Snippet reference copied");
-                  }}
-                >
-                  <Copy className="size-3" />
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => { setEditing(snippet); setShowForm(true); }}>
-                  <Pencil className="size-3" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    deleteMutation.mutate(snippet.id, {
-                      onError: (error) => {
-                        toast.error(error instanceof Error ? error.message : "Failed to delete snippet");
-                      },
-                      onSuccess: () => toast.success("Snippet deleted"),
-                    });
-                  }}
-                >
-                  <Trash2 className="size-3" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-xs text-muted-foreground">
-                Reference <code className="rounded bg-muted px-1">{`{{user.snippet.${snippet.id}}}`}</code>
-              </p>
-              <pre className="overflow-x-auto rounded-xl bg-muted p-4 text-xs whitespace-pre-wrap">{snippet.content}</pre>
-            </CardContent>
-          </Card>
-        ))}
+        {snippets.map((snippet) => {
+          const isExpanded = Boolean(expandedSnippetIds[snippet.id]);
+
+          return (
+            <Collapsible
+              key={snippet.id}
+              open={isExpanded}
+              onOpenChange={(open) => {
+                setExpandedSnippetIds((current) => ({
+                  ...current,
+                  [snippet.id]: open,
+                }));
+              }}
+            >
+              <Card>
+                <CardContent className="py-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <div className="rounded-lg bg-amber-100 p-2 text-amber-700">
+                        <Code2 className="size-4" />
+                      </div>
+                      <div className="min-w-0 space-y-2">
+                        <CardTitle className="text-base">{snippet.name}</CardTitle>
+                        <p className="text-xs text-muted-foreground">Alias {snippet.snippetAlias}</p>
+                        <p className="text-sm text-muted-foreground">{snippet.description || "No description"}</p>
+                        <p className="text-xs text-muted-foreground">Updated {formatDateTime(snippet.updatedAt)}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Reference <code className="rounded bg-muted px-1">{`{{user.snippet.${snippet.snippetAlias}}}`}</code>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1 self-start">
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <ChevronDown className={`size-3 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                          {isExpanded ? "Hide" : "Show"}
+                        </Button>
+                      </CollapsibleTrigger>
+                      <Button
+                        aria-label={`Copy snippet reference for ${snippet.name}`}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          void navigator.clipboard.writeText(`{{user.snippet.${snippet.snippetAlias}}}`);
+                          toast.success("Snippet reference copied");
+                        }}
+                      >
+                        <Copy className="size-3" />
+                      </Button>
+                      <Button aria-label={`Edit snippet ${snippet.name}`} variant="ghost" size="sm" onClick={() => { setEditing(snippet); setShowForm(true); }}>
+                        <Pencil className="size-3" />
+                      </Button>
+                      <Button aria-label={`Delete snippet ${snippet.name}`} variant="ghost" size="sm" onClick={() => setDeleting(snippet)}>
+                        <Trash2 className="size-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <CollapsibleContent className="pt-4">
+                    <pre className="overflow-x-auto rounded-xl bg-muted p-4 text-xs whitespace-pre-wrap">{snippet.content}</pre>
+                  </CollapsibleContent>
+                </CardContent>
+              </Card>
+            </Collapsible>
+          );
+        })}
       </div>
 
       <Dialog open={showForm} onOpenChange={(open) => { if (!isMutating) { setShowForm(open); if (!open) { setEditing(null); } } }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit Snippet" : "New Snippet"}</DialogTitle>
+            <DialogTitle>Edit Snippet</DialogTitle>
           </DialogHeader>
           <SnippetForm
             key={editing?.id ?? "new"}
             initial={editing ?? undefined}
-            isPending={createMutation.isPending || updateMutation.isPending}
+            isPending={updateMutation.isPending}
             onCancel={closeForm}
             onSave={(data) => {
               if (editing) {
@@ -195,17 +174,37 @@ export function Snippets() {
                 );
                 return;
               }
-
-              createMutation.mutate(data as UserSnippetCreate, {
-                onError: (error) => {
-                  toast.error(error instanceof Error ? error.message : "Failed to create snippet");
-                },
-                onSuccess: () => { toast.success("Snippet created"); closeForm(); },
-              });
             }}
           />
         </DialogContent>
       </Dialog>
+
+      <ConfirmDeleteDialog
+        open={Boolean(deleting)}
+        title="Delete snippet"
+        description={`Delete ${deleting?.name ?? "this snippet"}? This cannot be undone.`}
+        isPending={deleteMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleting(null);
+          }
+        }}
+        onConfirm={() => {
+          if (!deleting) {
+            return;
+          }
+
+          deleteMutation.mutate(deleting.id, {
+            onError: (error) => {
+              toast.error(error instanceof Error ? error.message : "Failed to delete snippet");
+            },
+            onSuccess: () => {
+              toast.success("Snippet deleted");
+              setDeleting(null);
+            },
+          });
+        }}
+      />
     </div>
   );
 }

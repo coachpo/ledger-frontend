@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Menu,
   MessageSquare,
+  Send,
   Settings2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -34,6 +35,7 @@ const navItems: NavItem[] = [
   { to: "/llm-configs", icon: Settings2, label: "LLM Configs" },
   { to: "/templates", icon: FileText, label: "Templates" },
   { to: "/snippets", icon: Code2, label: "Snippets" },
+  { to: "/requests", icon: Send, label: "Run Builder" },
   { to: "/responses", icon: MessageSquare, label: "Responses" },
 ];
 
@@ -106,7 +108,7 @@ export function Layout() {
               </div>
               <span>Stock Analysis AI</span>
             </SheetTitle>
-            <SheetDescription>Navigate between all six workspace routes.</SheetDescription>
+            <SheetDescription>Navigate between all seven workspace routes.</SheetDescription>
           </SheetHeader>
           <div className="flex h-full flex-col">
             <SidebarNav onNavigate={() => setMobileOpen(false)} />

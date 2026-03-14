@@ -10,6 +10,7 @@ React 19 + Vite frontend with a flat route shell, TanStack Query for server stat
 - `src/hooks/AGENTS.md` — TanStack Query wrappers and invalidation patterns
 - `src/components/AGENTS.md` — routed screens, layout shell, shared component boundaries
 - `src/components/portfolios/AGENTS.md` — portfolio pages, sections, dialogs, trading forms
+- `src/components/stock-analysis/AGENTS.md` — run builder, preview, conversation, and run-status flows
 
 ## STRUCTURE
 ```text
@@ -25,10 +26,11 @@ frontend/
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |---|---|---|
-| App bootstrap | `src/App.tsx`, `src/routes.ts`, `src/components/layout.tsx` | query client, router provider, nine child routes, six sidebar destinations |
+| App bootstrap | `src/App.tsx`, `src/routes.ts`, `src/components/layout.tsx` | query client, router provider, ten child routes, seven sidebar destinations |
 | Shared API/state logic | `src/lib/AGENTS.md`, `src/hooks/AGENTS.md` | typed fetch, query keys, analytics, TanStack Query wrappers |
 | Routed screens | `src/components/AGENTS.md` | dashboard, layouts, top-level CRUD pages, responses browser |
 | Portfolio feature UI | `src/components/portfolios/AGENTS.md` | detail page, sections, dialogs, trading form |
+| Stock-analysis feature UI | `src/components/stock-analysis/AGENTS.md` | run builder, mode fields, preview, status display |
 | Unit test setup | `vite.config.ts`, `src/test/setup.ts` | jsdom config + browser API mocks |
 | E2E flow setup | `playwright.config.ts`, `scripts/start-playwright-*.mjs` | backend `8001`, frontend `4173` |
 
@@ -58,4 +60,4 @@ pnpm test:e2e
 ## NOTES
 - `vite.config.ts` sets up the `@` alias and jsdom-based Vitest runs.
 - Playwright only runs Chromium here and starts both backend/frontend web servers automatically.
-- The router currently has nine child routes under `Layout`; the sidebar exposes six destinations because portfolio detail and create pages are reachable from the workspace rather than the nav.
+- The router currently has ten child routes under `Layout`; the sidebar exposes seven destinations because portfolio detail and create pages are reachable from the workspace rather than the nav.

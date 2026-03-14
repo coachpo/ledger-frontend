@@ -612,6 +612,60 @@ export function updateStockAnalysisConversation(
   );
 }
 
+export function listStockAnalysisRuns(
+  portfolioId: string,
+  conversationId: string,
+  signal?: AbortSignal,
+): Promise<ApiTypes.StockAnalysisRunRead[]> {
+  return request<ApiTypes.StockAnalysisRunRead[]>(
+    `${stockAnalysisPath(portfolioId)}/conversations/${toPathSegment(conversationId)}/runs`,
+    { signal },
+  );
+}
+
+export function createStockAnalysisRun(
+  portfolioId: string,
+  conversationId: string,
+  input: ApiTypes.StockAnalysisRunCreate,
+  signal?: AbortSignal,
+): Promise<ApiTypes.StockAnalysisRunRead> {
+  return request<ApiTypes.StockAnalysisRunRead>(
+    `${stockAnalysisPath(portfolioId)}/conversations/${toPathSegment(conversationId)}/runs`,
+    {
+      body: input,
+      method: "POST",
+      signal,
+    },
+  );
+}
+
+export function getStockAnalysisRun(
+  portfolioId: string,
+  runId: string,
+  signal?: AbortSignal,
+): Promise<ApiTypes.StockAnalysisRunRead> {
+  return request<ApiTypes.StockAnalysisRunRead>(
+    `${stockAnalysisPath(portfolioId)}/runs/${toPathSegment(runId)}`,
+    {
+      signal,
+    },
+  );
+}
+
+export function executeStockAnalysisRun(
+  portfolioId: string,
+  runId: string,
+  signal?: AbortSignal,
+): Promise<ApiTypes.StockAnalysisRunRead> {
+  return request<ApiTypes.StockAnalysisRunRead>(
+    `${stockAnalysisPath(portfolioId)}/runs/${toPathSegment(runId)}/execute`,
+    {
+      method: "POST",
+      signal,
+    },
+  );
+}
+
 export function listStockAnalysisResponses(
   portfolioId: string,
   params: ApiTypes.ListStockAnalysisResponsesParams = {},
@@ -729,6 +783,12 @@ export const stockAnalysisApi = {
   promptPreview: previewStockAnalysisPrompt,
   responses: {
     list: listStockAnalysisResponses,
+  },
+  runs: {
+    create: createStockAnalysisRun,
+    execute: executeStockAnalysisRun,
+    get: getStockAnalysisRun,
+    list: listStockAnalysisRuns,
   },
   settings: {
     get: getPortfolioStockAnalysisSettings,

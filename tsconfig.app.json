@@ -29,9 +29,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
-  "exclude": [
-    "src/components/stock-analysis/run-builder-form.tsx",
-    "src/components/stock-analysis/run-builder-page.tsx"
-  ]
+  "include": ["src"]
 }

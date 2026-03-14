@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { Loader2, Pencil, Plus, Settings2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,7 +20,7 @@ import type {
 
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -99,6 +99,26 @@ type ConfigFormProps = {
 };
 
 function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
+  const displayNameId = useId();
+  const displayNameLabelId = useId();
+  const providerId = useId();
+  const providerLabelId = useId();
+  const modelId = useId();
+  const modelLabelId = useId();
+  const openaiEndpointModeId = useId();
+  const openaiEndpointModeLabelId = useId();
+  const replaceApiKeyId = useId();
+  const replaceApiKeyLabelId = useId();
+  const apiKeyId = useId();
+  const apiKeyLabelId = useId();
+  const temperatureId = useId();
+  const temperatureLabelId = useId();
+  const maxTokensId = useId();
+  const maxTokensLabelId = useId();
+  const topPId = useId();
+  const topPLabelId = useId();
+  const enabledId = useId();
+  const enabledLabelId = useId();
   const [displayName, setDisplayName] = useState(initial?.displayName ?? "");
   const [provider, setProvider] = useState<LlmProvider>(initial?.provider ?? "openai");
   const [model, setModel] = useState(initial?.model ?? DEFAULT_MODELS.openai);
@@ -166,8 +186,11 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
   return (
     <div className="space-y-4">
       <div>
-        <Label>Display Name</Label>
+        <Label id={displayNameLabelId} htmlFor={displayNameId}>Display Name</Label>
         <Input
+          aria-label="Display Name"
+          aria-labelledby={displayNameLabelId}
+          id={displayNameId}
           value={displayName}
           onChange={(event) => setDisplayName(event.target.value)}
           placeholder="Config name"
@@ -177,9 +200,9 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label>Provider</Label>
+          <Label id={providerLabelId} htmlFor={providerId}>Provider</Label>
           <Select value={provider} onValueChange={handleProviderChange} disabled={isPending || isEditing}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Provider" aria-labelledby={providerLabelId} id={providerId}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -193,8 +216,11 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
         </div>
 
         <div>
-          <Label>Model</Label>
+          <Label id={modelLabelId} htmlFor={modelId}>Model</Label>
           <Input
+            aria-label="Model"
+            aria-labelledby={modelLabelId}
+            id={modelId}
             value={model}
             onChange={(event) => setModel(event.target.value)}
             placeholder={DEFAULT_MODELS[provider]}
@@ -205,13 +231,13 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
 
       {provider === "openai" ? (
         <div>
-          <Label>OpenAI Endpoint Mode</Label>
+          <Label id={openaiEndpointModeLabelId} htmlFor={openaiEndpointModeId}>OpenAI Endpoint Mode</Label>
           <Select
             value={openaiEndpointMode ?? "responses"}
             onValueChange={(value) => setOpenaiEndpointMode(value as OpenaiEndpointMode)}
             disabled={isPending}
           >
-            <SelectTrigger>
+            <SelectTrigger aria-label="OpenAI Endpoint Mode" aria-labelledby={openaiEndpointModeLabelId} id={openaiEndpointModeId}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -237,8 +263,11 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
             </Badge>
           </div>
           <div>
-            <Label>Replace API Key</Label>
+            <Label id={replaceApiKeyLabelId} htmlFor={replaceApiKeyId}>Replace API Key</Label>
             <Input
+              aria-label="Replace API Key"
+              aria-labelledby={replaceApiKeyLabelId}
+              id={replaceApiKeyId}
               type="password"
               value={apiKeySecret}
               onChange={(event) => setApiKeySecret(event.target.value)}
@@ -249,8 +278,11 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
         </div>
       ) : (
         <div>
-          <Label>API Key</Label>
+          <Label id={apiKeyLabelId} htmlFor={apiKeyId}>API Key</Label>
           <Input
+            aria-label="API Key"
+            aria-labelledby={apiKeyLabelId}
+            id={apiKeyId}
             type="password"
             value={apiKeySecret}
             onChange={(event) => setApiKeySecret(event.target.value)}
@@ -271,8 +303,11 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
         </div>
 
         <div>
-          <Label>Temperature: {temperature.toFixed(2)}</Label>
+          <Label id={temperatureLabelId} htmlFor={temperatureId}>Temperature: {temperature.toFixed(2)}</Label>
           <Slider
+            aria-label="Temperature"
+            aria-labelledby={temperatureLabelId}
+            id={temperatureId}
             min={0}
             max={2}
             step={0.01}
@@ -285,8 +320,11 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label>Max Tokens</Label>
+            <Label id={maxTokensLabelId} htmlFor={maxTokensId}>Max Tokens</Label>
             <Input
+              aria-label="Max Tokens"
+              aria-labelledby={maxTokensLabelId}
+              id={maxTokensId}
               type="number"
               min={1}
               value={maxTokens}
@@ -296,8 +334,11 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
           </div>
 
           <div>
-            <Label>Top P: {topP.toFixed(2)}</Label>
+            <Label id={topPLabelId} htmlFor={topPId}>Top P: {topP.toFixed(2)}</Label>
             <Slider
+              aria-label="Top P"
+              aria-labelledby={topPLabelId}
+              id={topPId}
               min={0}
               max={1}
               step={0.01}
@@ -312,10 +353,10 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
 
       <div className="flex items-center justify-between rounded-lg border p-4">
         <div>
-          <Label>Enabled</Label>
+          <Label id={enabledLabelId} htmlFor={enabledId}>Enabled</Label>
           <p className="text-xs text-muted-foreground">Disabled configs stay in the library but cannot be selected.</p>
         </div>
-        <Switch checked={enabled} onCheckedChange={setEnabled} disabled={isPending} />
+        <Switch aria-label="Enabled" aria-labelledby={enabledLabelId} id={enabledId} checked={enabled} onCheckedChange={setEnabled} disabled={isPending} />
       </div>
 
       <div className="flex justify-end gap-2">
@@ -333,7 +374,7 @@ function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
 
 export function LLMConfigs() {
   const {
-    data: configs = [],
+    data: configItems = [],
     error,
     isLoading,
   } = useLlmConfigs();
@@ -342,6 +383,10 @@ export function LLMConfigs() {
   const deleteMutation = useDeleteLlmConfig();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<LlmConfigRead | null>(null);
+  const configs = useMemo(
+    () => [...configItems].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)),
+    [configItems],
+  );
 
   const isMutating =
     createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
@@ -413,9 +458,9 @@ export function LLMConfigs() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="space-y-3">
         {isLoading ? (
-          <Card className="md:col-span-2">
+          <Card>
             <CardContent className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
               <Loader2 className="size-4 animate-spin" /> Loading configurations...
             </CardContent>
@@ -423,7 +468,7 @@ export function LLMConfigs() {
         ) : null}
 
         {!isLoading && error && configs.length === 0 ? (
-          <Card className="md:col-span-2">
+          <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
               Unable to load configurations right now.
             </CardContent>
@@ -431,7 +476,7 @@ export function LLMConfigs() {
         ) : null}
 
         {!isLoading && !error && configs.length === 0 ? (
-          <Card className="md:col-span-2">
+          <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
               No configurations yet. Create one to connect your model provider.
             </CardContent>
@@ -454,14 +499,14 @@ export function LLMConfigs() {
 
               return (
                 <Card key={config.id}>
-                  <CardHeader className="flex flex-row items-start justify-between">
-                    <div className="flex items-start gap-3">
+                  <CardContent className="flex flex-col gap-4 py-5 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex min-w-0 items-start gap-3">
                       <div className="rounded-lg bg-blue-100 p-2 text-blue-700">
                         <Settings2 className="size-4" />
                       </div>
-                      <div>
-                        <CardTitle className="text-base">{config.displayName}</CardTitle>
-                        <div className="mt-1 flex flex-wrap gap-2">
+                      <div className="min-w-0 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <CardTitle className="text-base">{config.displayName}</CardTitle>
                           <Badge variant="secondary">{PROVIDER_LABELS[config.provider]}</Badge>
                           <Badge variant="outline">{config.model}</Badge>
                           <Badge variant={config.enabled ? "secondary" : "outline"}>
@@ -473,10 +518,18 @@ export function LLMConfigs() {
                             </Badge>
                           ) : null}
                         </div>
+                        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+                          <span>Temp: {temperature.toFixed(2)}</span>
+                          <span>Tokens: {maxTokens}</span>
+                          <span>Top P: {topP.toFixed(2)}</span>
+                          <span>API key {config.hasApiKey ? "set" : "missing"}</span>
+                          <span>Updated {config.updatedAt}</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex items-center gap-1 self-start lg:self-center">
                       <Button
+                        aria-label={`Edit configuration ${config.displayName}`}
                         variant="ghost"
                         size="sm"
                         onClick={() => {
@@ -488,6 +541,7 @@ export function LLMConfigs() {
                         <Pencil className="size-3" />
                       </Button>
                       <Button
+                        aria-label={`Delete configuration ${config.displayName}`}
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(config.id)}
@@ -495,17 +549,6 @@ export function LLMConfigs() {
                       >
                         <Trash2 className="size-3" />
                       </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                      <div>Temp: {temperature.toFixed(2)}</div>
-                      <div>Tokens: {maxTokens}</div>
-                      <div>Top P: {topP.toFixed(2)}</div>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                      <span>API key {config.hasApiKey ? "set" : "missing"}</span>
-                      <span>Updated {config.updatedAt}</span>
                     </div>
                   </CardContent>
                 </Card>

@@ -6,6 +6,7 @@ import { PortfolioListPage } from "./components/portfolios/portfolio-list-page";
 import { LLMConfigs } from "./components/llm-configs";
 import { PromptTemplateCreatePage } from "./components/prompt-template-create-page";
 import { PromptTemplates } from "./components/prompt-templates";
+import { SnippetCreatePage } from "./components/snippet-create-page";
 import { Snippets } from "./components/snippets";
 import { ResponsesPage } from "./components/responses-page";
 
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
       { path: "llm-configs", Component: LLMConfigs },
       { path: "templates/new", Component: PromptTemplateCreatePage },
       { path: "templates", Component: PromptTemplates },
+      { path: "snippets/new", Component: SnippetCreatePage },
       { path: "snippets", Component: Snippets },
       { path: "responses", Component: ResponsesPage },
     ],

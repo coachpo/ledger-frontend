@@ -14,7 +14,7 @@ import type { PortfolioRead, PortfolioUpdateInput, PortfolioWriteInput } from "@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
 import { PortfolioFormDialog } from "./portfolio-form-dialog";
@@ -48,50 +48,48 @@ export function PortfolioListPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="space-y-3">
         {portfoliosQuery.isPending ? (
-          <Card className="md:col-span-2 xl:col-span-3">
+          <Card>
             <CardContent className="py-12 text-center text-muted-foreground">Loading portfolios...</CardContent>
           </Card>
         ) : null}
         {portfoliosQuery.isError ? (
-          <Card className="md:col-span-2 xl:col-span-3">
+          <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
               {portfoliosQuery.error instanceof Error ? portfoliosQuery.error.message : "Failed to load portfolios."}
             </CardContent>
           </Card>
         ) : null}
         {!portfoliosQuery.isPending && !portfoliosQuery.isError && portfolios.length === 0 ? (
-          <Card className="md:col-span-2 xl:col-span-3">
+          <Card>
             <CardContent className="py-12 text-center text-muted-foreground">No portfolios yet.</CardContent>
           </Card>
         ) : null}
         {portfolios.map((portfolio) => (
-          <Card key={portfolio.id} className="transition-shadow hover:shadow-md">
-            <CardHeader className="flex flex-row items-start justify-between gap-4">
-              <div className="space-y-2">
-                <CardTitle className="text-base">{portfolio.name}</CardTitle>
-                <div className="flex flex-wrap gap-2">
+          <Card key={portfolio.id}>
+            <CardContent className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <CardTitle className="text-base">{portfolio.name}</CardTitle>
                   <Badge variant="secondary">{portfolio.baseCurrency}</Badge>
                   <Badge variant="outline">{portfolio.positionCount} positions</Badge>
                   <Badge variant="outline">{portfolio.balanceCount} balances</Badge>
                 </div>
+                <p className="text-sm text-muted-foreground">{portfolio.description || "No description"}</p>
+                <p className="text-xs text-muted-foreground">Updated {formatDateTime(portfolio.updatedAt)}</p>
               </div>
-              <div className="flex gap-1">
-                <Button variant="ghost" size="sm" onClick={() => { setEditing(portfolio); setShowForm(true); }}>
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+                <Button aria-label={`Edit portfolio ${portfolio.name}`} variant="ghost" size="sm" onClick={() => { setEditing(portfolio); setShowForm(true); }}>
                   <Pencil className="size-3" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setDeleting(portfolio)}>
+                <Button aria-label={`Delete portfolio ${portfolio.name}`} variant="ghost" size="sm" onClick={() => setDeleting(portfolio)}>
                   <Trash2 className="size-3" />
                 </Button>
+                <Button variant="outline" onClick={() => navigate(`/portfolios/${portfolio.id}`)}>
+                  Open Portfolio
+                </Button>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">{portfolio.description || "No description"}</p>
-              <p className="text-xs text-muted-foreground">Updated {formatDateTime(portfolio.updatedAt)}</p>
-              <Button className="w-full" variant="outline" onClick={() => navigate(`/portfolios/${portfolio.id}`)}>
-                Open Portfolio
-              </Button>
             </CardContent>
           </Card>
         ))}

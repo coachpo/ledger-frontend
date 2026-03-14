@@ -32,7 +32,7 @@ export function TradingOperationForm({
 
   useEffect(() => {
     if (!balanceId && balances[0]?.id) {
-      setBalanceId(balances[0].id);
+      setBalanceId(String(balances[0].id));
     }
   }, [balanceId, balances]);
 
@@ -57,7 +57,7 @@ export function TradingOperationForm({
             </SelectTrigger>
             <SelectContent>
               {balances.map((balance) => (
-                <SelectItem key={balance.id} value={balance.id}>
+                <SelectItem key={balance.id} value={String(balance.id)}>
                   {balance.label}
                 </SelectItem>
               ))}
