@@ -7,11 +7,11 @@ test.describe("Smoke tests", () => {
     await expect(page.locator("nav")).toBeVisible();
   });
 
-  test("sidebar navigation has all 7 routes", async ({ page }) => {
+  test("sidebar navigation has all 6 routes", async ({ page }) => {
     await page.goto("/");
     const nav = page.locator("nav");
     await expect(nav).toBeVisible();
-    await expect(nav.getByRole("link")).toHaveCount(7);
+    await expect(nav.getByRole("link")).toHaveCount(6);
   });
 
   test("navigate to portfolios page", async ({ page }) => {
@@ -32,11 +32,6 @@ test.describe("Smoke tests", () => {
   test("navigate to snippets page", async ({ page }) => {
     await page.goto("/snippets");
     await expect(page).toHaveURL(/\/snippets/);
-  });
-
-  test("navigate to requests page", async ({ page }) => {
-    await page.goto("/requests");
-    await expect(page).toHaveURL(/\/requests/);
   });
 
   test("navigate to responses page", async ({ page }) => {

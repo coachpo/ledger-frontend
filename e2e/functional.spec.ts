@@ -58,12 +58,6 @@ test.describe("Snippet CRUD", () => {
 });
 
 test.describe("Stock Analysis", () => {
-  test("run builder page renders", async ({ page }) => {
-    await page.goto("/requests");
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator("body")).toBeVisible();
-  });
-
   test("responses page renders", async ({ page }) => {
     await page.goto("/responses");
     await page.waitForLoadState("networkidle");

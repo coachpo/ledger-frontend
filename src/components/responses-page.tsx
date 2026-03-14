@@ -138,7 +138,7 @@ export function ResponsesPage() {
   useEffect(() => {
     if (
       selectedConversationId !== ALL_CONVERSATIONS
-      && !conversations.some((conversation) => conversation.id === selectedConversationId)
+      && !conversations.some((conversation) => String(conversation.id) === selectedConversationId)
     ) {
       setSelectedConversationId(ALL_CONVERSATIONS);
     }
@@ -179,7 +179,7 @@ export function ResponsesPage() {
   }
 
   const selectedConversation = conversations.find(
-    (conversation) => conversation.id === selectedConversationId,
+    (conversation) => String(conversation.id) === selectedConversationId,
   );
 
   return (
@@ -205,12 +205,12 @@ export function ResponsesPage() {
                 <SelectTrigger>
                   <SelectValue placeholder="Select a portfolio" />
                 </SelectTrigger>
-                <SelectContent>
-                  {portfolios.map((portfolio) => (
-                    <SelectItem key={portfolio.id} value={portfolio.id}>
-                      {portfolio.name}
-                    </SelectItem>
-                  ))}
+                  <SelectContent>
+                    {portfolios.map((portfolio) => (
+                      <SelectItem key={portfolio.id} value={String(portfolio.id)}>
+                        {portfolio.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -230,7 +230,7 @@ export function ResponsesPage() {
                 <SelectContent>
                   <SelectItem value={ALL_CONVERSATIONS}>All conversations</SelectItem>
                   {conversations.map((conversation) => (
-                    <SelectItem key={conversation.id} value={conversation.id}>
+                    <SelectItem key={conversation.id} value={String(conversation.id)}>
                       {conversation.title?.trim() || conversation.symbol}
                     </SelectItem>
                   ))}
@@ -356,7 +356,6 @@ export function ResponsesPage() {
                         <span>
                           {conversation?.title?.trim() || conversation?.symbol || response.conversationId}
                         </span>
-                        <span>Run {response.runId}</span>
                       </div>
                     </div>
                     <Badge variant="secondary">{response.id}</Badge>

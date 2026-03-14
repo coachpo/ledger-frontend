@@ -1,14 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createStockAnalysisConversation,
-  createStockAnalysisRun,
-  executeStockAnalysisRun,
   getPortfolioStockAnalysisSettings,
-  getStockAnalysisRun,
   getStockAnalysisVersion,
   listStockAnalysisConversations,
   listStockAnalysisResponses,
-  listStockAnalysisRuns,
   listStockAnalysisVersions,
   previewStockAnalysisPrompt,
   updatePortfolioStockAnalysisSettings,
@@ -23,7 +19,6 @@ import type {
   PromptPreviewRequest,
   StockAnalysisConversationUpdate,
   StockAnalysisConversationWrite,
-  StockAnalysisRunCreate,
 } from "@/lib/api-types";
 
 type UpdateConversationVariables = {
@@ -83,57 +78,6 @@ export function useUpdateConversation(portfolioId: string) {
     mutationFn: ({ conversationId, data }: UpdateConversationVariables) =>
       updateStockAnalysisConversation(portfolioId, conversationId, data),
     onSuccess: () => invalidatePortfolioScope(queryClient, portfolioId),
-  });
-}
-
-export function useStockAnalysisRuns(
-  portfolioId: string | undefined,
-  conversationId: string | undefined,
-) {
-  const resolvedPortfolioId = portfolioId ?? "";
-  const resolvedConversationId = conversationId ?? "";
-
-  return useQuery({
-    queryKey: queryKeys.stockAnalysis.runs.list(
-      resolvedPortfolioId,
-      resolvedConversationId,
-    ),
-    queryFn: ({ signal }) =>
-      listStockAnalysisRuns(resolvedPortfolioId, resolvedConversationId, signal),
-    enabled: Boolean(portfolioId && conversationId),
-  });
-}
-
-export function useCreateRun(portfolioId: string, conversationId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: StockAnalysisRunCreate) =>
-      createStockAnalysisRun(portfolioId, conversationId, data),
-    onSuccess: () => invalidatePortfolioScope(queryClient, portfolioId),
-  });
-}
-
-export function useExecuteRun(portfolioId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (runId: string) => executeStockAnalysisRun(portfolioId, runId),
-    onSuccess: () => invalidatePortfolioScope(queryClient, portfolioId),
-  });
-}
-
-export function useStockAnalysisRun(
-  portfolioId: string | undefined,
-  runId: string | undefined,
-) {
-  const resolvedPortfolioId = portfolioId ?? "";
-  const resolvedRunId = runId ?? "";
-
-  return useQuery({
-    queryKey: queryKeys.stockAnalysis.runs.detail(resolvedPortfolioId, resolvedRunId),
-    queryFn: ({ signal }) => getStockAnalysisRun(resolvedPortfolioId, resolvedRunId, signal),
-    enabled: Boolean(portfolioId && runId),
   });
 }
 

@@ -18,18 +18,11 @@ export type LlmProvider = "openai" | "anthropic" | "gemini";
 export type OpenaiEndpointMode = "chat_completions" | "responses";
 export type PromptTemplateMode = "single" | "two_step";
 export type PromptTemplateStatus = "active" | "archived";
-export type StockAnalysisRunMode = "single_prompt" | "two_step_workflow";
 export type StockAnalysisRunType =
   | "initial_review"
   | "periodic_review"
   | "event_review"
   | "manual_follow_up";
-export type StockAnalysisRunStatus =
-  | "queued"
-  | "running"
-  | "completed"
-  | "partial_failure"
-  | "failed";
 export type StockAnalysisPromptStep =
   | "fresh_analysis"
   | "compare_decide_reflect"
@@ -403,73 +396,6 @@ export interface StockAnalysisConversationUpdate {
   isArchived?: boolean | null;
   reviewCadence?: string | null;
   nextReviewAt?: string | null;
-}
-
-export interface StockAnalysisRunCreate {
-  mode?: StockAnalysisRunMode;
-  runType: StockAnalysisRunType;
-  llmConfigId: string;
-  promptTemplateId?: string | null;
-  reviewTrigger?: string | null;
-  userNote?: string | null;
-  compareToOrigin?: boolean | null;
-  instructionsText?: string | null;
-  inputText?: string | null;
-  freshInstructionsOverride?: string | null;
-  freshInputOverride?: string | null;
-  compareInstructionsOverride?: string | null;
-  compareInputOverride?: string | null;
-}
-
-export interface StockAnalysisResponseRead {
-  id: string;
-  requestId: string;
-  provider: LlmProvider;
-  providerResponseId: string | null;
-  outputText: string | null;
-  parsedPayload: UnknownRecord | null;
-  parseStatus: StockAnalysisParseStatus;
-  inputTokens: number | null;
-  outputTokens: number | null;
-  reasoningTokens: number | null;
-  createdAt: string;
-}
-
-export interface StockAnalysisRequestRead {
-  id: string;
-  runId: string;
-  step: StockAnalysisPromptStep;
-  stepIndex: number;
-  status: StockAnalysisRequestStatus;
-  promptSource: StockAnalysisPromptSource;
-  instructionsSnapshot: string;
-  inputSnapshot: string;
-  submittedAt: string | null;
-  completedAt: string | null;
-  errorCode: string | null;
-  errorMessage: string | null;
-  createdAt: string;
-  response: StockAnalysisResponseRead | null;
-}
-
-export interface StockAnalysisRunRead {
-  id: string;
-  conversationId: string;
-  mode: StockAnalysisRunMode;
-  runType: StockAnalysisRunType;
-  status: StockAnalysisRunStatus;
-  provider: LlmProvider;
-  model: string;
-  providerEndpoint: string | null;
-  reviewTrigger: string | null;
-  userNote: string | null;
-  promptTemplateId: string | null;
-  promptTemplateRevision: number | null;
-  compareToOrigin: boolean;
-  createdAt: string;
-  updatedAt: string;
-  completedAt: string | null;
-  requests: StockAnalysisRequestRead[];
 }
 
 export interface StockAnalysisResponseSummary {
