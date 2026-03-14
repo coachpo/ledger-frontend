@@ -11,7 +11,7 @@ test.describe("Smoke tests", () => {
     await page.goto("/");
     const nav = page.locator("nav");
     await expect(nav).toBeVisible();
-    await expect(nav.getByRole("link")).toHaveCount.greaterThanOrEqual;
+    await expect(nav.getByRole("link")).toHaveCount(7);
   });
 
   test("navigate to portfolios page", async ({ page }) => {
