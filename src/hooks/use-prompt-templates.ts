@@ -1,0 +1,58 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  createPromptTemplate,
+  deletePromptTemplate,
+  listPromptTemplates,
+  updatePromptTemplate,
+} from "@/lib/api";
+import { queryKeys } from "@/lib/query-keys";
+import type { PromptTemplateUpdate, PromptTemplateWrite } from "@/lib/api-types";
+
+type UpdatePromptTemplateVariables = {
+  templateId: string;
+  data: PromptTemplateUpdate;
+};
+
+export function usePromptTemplates() {
+  return useQuery({
+    queryKey: queryKeys.promptTemplates.list(),
+    queryFn: ({ signal }) => listPromptTemplates(signal),
+  });
+}
+
+export function useCreatePromptTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: PromptTemplateWrite) => createPromptTemplate(data),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.promptTemplates.lists() }),
+  });
+}
+
+export function useUpdatePromptTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ templateId, data }: UpdatePromptTemplateVariables) =>
+      updatePromptTemplate(templateId, data),
+    onSuccess: (_, { templateId }) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.promptTemplates.lists() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.promptTemplates.detail(templateId) }),
+      ]),
+  });
+}
+
+export function useDeletePromptTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (templateId: string) => deletePromptTemplate(templateId),
+    onSuccess: (_, templateId) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.promptTemplates.lists() }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.promptTemplates.detail(templateId) }),
+      ]),
+  });
+}
