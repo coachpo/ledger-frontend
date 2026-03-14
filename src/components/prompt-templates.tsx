@@ -52,6 +52,72 @@ function templateClipboardText(template: PromptTemplateRead) {
   ].join("\n\n");
 }
 
+type PlaceholderReferenceItem = {
+  label: string;
+  reference: string;
+  description: string;
+  example: string;
+};
+
+const PLACEHOLDER_REFERENCE_ITEMS: PlaceholderReferenceItem[] = [
+  {
+    label: "Current symbol",
+    reference: "{{stock.symbol}}",
+    description: "The selected stock symbol for this template or preview.",
+    example: "Analyze {{stock.symbol}} for {{portfolio.name}}.",
+  },
+  {
+    label: "Selected portfolio",
+    reference: "{{portfolio.name}}",
+    description: "Portfolio fields like name and baseCurrency for the active selection.",
+    example: "Base currency: {{portfolio.baseCurrency}}.",
+  },
+  {
+    label: "Active position",
+    reference: "{{position.quantity}}",
+    description: "Position fields for the selected symbol, including quantity, averageCost, and currency.",
+    example: "Current position: {{position.quantity}} shares at {{position.averageCost}} {{position.currency}}.",
+  },
+  {
+    label: "Prior response",
+    reference: "{{response.123e4567-e89b-12d3-a456-426614174000}}",
+    description: "The full output text from an earlier response in the same portfolio.",
+    example: "Build on this earlier response: {{response.123e4567-e89b-12d3-a456-426614174000}}",
+  },
+  {
+    label: "Saved snippet",
+    reference: "{{user.snippet.123e4567-e89b-12d3-a456-426614174000}}",
+    description: "Reusable text from the User Snippets page. The copied reference there is ready to paste here.",
+    example: "Use this checklist: {{user.snippet.123e4567-e89b-12d3-a456-426614174000}}",
+  },
+  {
+    label: "Another symbol",
+    reference: "{{stock.MSFT.quote.summary}}",
+    description: "Live quote or history context for another symbol mentioned inside the template.",
+    example: "Compare {{stock.symbol}} with {{stock.MSFT.quote.summary}}",
+  },
+  {
+    label: "Specific holding",
+    reference: "{{position.AAPL.quantity}}",
+    description: "Position data for a specific portfolio holding, even if it is not the active symbol.",
+    example: "Reference the existing AAPL size: {{position.AAPL.quantity}} shares.",
+  },
+  {
+    label: "Compare step output",
+    reference: "{{freshAnalysis.thesis}}",
+    description: "Available in compare-step prompts after the fresh analysis step has produced structured output.",
+    example: "Re-evaluate the thesis: {{freshAnalysis.thesis}}",
+  },
+];
+
+const PLACEHOLDER_REFERENCE_TIPS = [
+  "Use dot paths, not shorthand. {{stock.symbol}} works, while {{stock}} does not.",
+  "Response and snippet placeholders need real UUIDs. Preview will fail if the record does not exist.",
+  "Response placeholders only work for responses that belong to the same portfolio.",
+  "Use Prompt Preview to confirm the rendered text before saving or running a template.",
+  "Escape literal braces with \\{{ and \\}} when you want to show placeholder syntax as plain text.",
+];
+
 function TemplateForm({ initial, isPending, onCancel, onSave }: TemplateFormProps) {
   const [name, setName] = useState(initial?.name ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
@@ -235,11 +301,10 @@ export function PromptTemplates() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<PromptTemplateRead | null>(null);
 
-  const templates = templatesQuery.data ?? [];
   const isMutating = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
   const sortedTemplates = useMemo(
-    () => [...templates].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)),
-    [templates],
+    () => [...(templatesQuery.data ?? [])].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)),
+    [templatesQuery.data],
   );
 
   useEffect(() => {
@@ -271,12 +336,55 @@ export function PromptTemplates() {
         <CardHeader>
           <CardTitle className="text-base">Placeholder Reference</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
-          <span><code className="rounded bg-muted px-1">{"{{stock}}"}</code> current symbol</span>
-          <span><code className="rounded bg-muted px-1">{"{{portfolio}}"}</code> selected portfolio</span>
-          <span><code className="rounded bg-muted px-1">{"{{position}}"}</code> active position</span>
-          <span><code className="rounded bg-muted px-1">{"{{response.ID}}"}</code> prior response</span>
-          <span><code className="rounded bg-muted px-1">{"{{user.snippet.ID}}"}</code> saved snippet</span>
+        <CardContent className="space-y-4">
+          <div className="rounded-xl border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
+            Placeholders resolve against live portfolio context during preview and execution. Use
+            full dot paths like <code className="rounded bg-muted px-1">{"{{stock.symbol}}"}</code>{" "}
+            and <code className="rounded bg-muted px-1">{"{{portfolio.name}}"}</code> in either the
+            instructions or input template.
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
+            <div className="grid gap-3 md:grid-cols-2">
+              {PLACEHOLDER_REFERENCE_ITEMS.map((item) => (
+                <div key={item.reference} className="space-y-2 rounded-xl border p-4">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                      {item.label}
+                    </p>
+                    <code className="mt-2 inline-block rounded bg-muted px-1 py-0.5 text-xs">
+                      {item.reference}
+                    </code>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{item.description}</p>
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-foreground">Example</p>
+                    <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-muted p-3 text-xs leading-5">
+                      {item.example}
+                    </pre>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-3 rounded-xl border p-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                  Usage Tips
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Preview is the fastest way to verify that a placeholder resolves to the value you expect.
+                </p>
+              </div>
+              <div className="space-y-2 text-xs text-muted-foreground">
+                {PLACEHOLDER_REFERENCE_TIPS.map((tip) => (
+                  <p key={tip} className="rounded-lg bg-muted/60 p-3">
+                    {tip}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
