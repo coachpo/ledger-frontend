@@ -23,7 +23,6 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { Textarea } from "./ui/textarea";
 
 type PromptTemplateFormProps = {
@@ -93,7 +92,7 @@ const PLACEHOLDER_REFERENCE_ITEMS: PlaceholderReferenceItem[] = [
 
 const PLACEHOLDER_REFERENCE_TIPS = [
   "Use dot paths, not shorthand. {{stock.symbol}} works, while {{stock}} does not.",
-  "Response placeholders need real numeric ids, and snippet placeholders use saved aliases. Preview will fail if the record does not exist.",
+  "Response placeholders need real numeric ids, and snippet placeholders use saved snippet IDs. Preview will fail if the record does not exist.",
   "Response placeholders only work for responses that belong to the same portfolio.",
   "Use Prompt Preview to confirm the rendered text before saving a template.",
   "Escape literal braces with \\{{ and \\}} when you want to show placeholder syntax as plain text.",
@@ -104,16 +103,22 @@ function emptyText(value: string | null | undefined) {
 }
 
 function getDefaultValues(initial?: PromptTemplateRead): PromptTemplateFormValues {
+  const templateMode = initial?.templateMode ?? "single";
+
   return {
-    compareInputTemplate: emptyText(initial?.compareInputTemplate),
-    compareInstructionsTemplate: emptyText(initial?.compareInstructionsTemplate),
+    compareInputTemplate:
+      templateMode === "two_step" ? emptyText(initial?.compareInputTemplate) : "",
+    compareInstructionsTemplate:
+      templateMode === "two_step" ? emptyText(initial?.compareInstructionsTemplate) : "",
     description: initial?.description ?? "",
-    freshInputTemplate: emptyText(initial?.freshInputTemplate),
-    freshInstructionsTemplate: emptyText(initial?.freshInstructionsTemplate),
-    inputTemplate: emptyText(initial?.inputTemplate),
-    instructionsTemplate: emptyText(initial?.instructionsTemplate),
+    freshInputTemplate: templateMode === "two_step" ? emptyText(initial?.freshInputTemplate) : "",
+    freshInstructionsTemplate:
+      templateMode === "two_step" ? emptyText(initial?.freshInstructionsTemplate) : "",
+    inputTemplate: templateMode === "single" ? emptyText(initial?.inputTemplate) : "",
+    instructionsTemplate:
+      templateMode === "single" ? emptyText(initial?.instructionsTemplate) : "",
     name: initial?.name ?? "",
-    templateMode: initial?.templateMode ?? "single",
+    templateMode,
   };
 }
 
@@ -123,12 +128,12 @@ export function PromptTemplateForm({
   onCancel,
   onSave,
 }: PromptTemplateFormProps) {
+  const templateMode = initial?.templateMode ?? "single";
+  const isSingle = templateMode === "single";
   const form = useForm<PromptTemplateFormValues>({
     defaultValues: getDefaultValues(initial),
     resolver: zodResolver(promptTemplateFormSchema),
   });
-  const templateMode = form.watch("templateMode");
-  const isSingle = templateMode === "single";
 
   useEffect(() => {
     form.reset(getDefaultValues(initial));
@@ -139,15 +144,11 @@ export function PromptTemplateForm({
       <form
         className="space-y-4"
         onSubmit={form.handleSubmit((values) => {
-          const shared = {
-            description: values.description.trim() || null,
-            name: values.name.trim(),
-            templateMode: values.templateMode,
-          };
-
-          if (values.templateMode === "single") {
+          if (isSingle) {
             onSave({
-              ...shared,
+              description: values.description.trim() || null,
+              name: values.name.trim(),
+              templateMode: "single",
               compareInputTemplate: null,
               compareInstructionsTemplate: null,
               freshInputTemplate: null,
@@ -159,7 +160,9 @@ export function PromptTemplateForm({
           }
 
           onSave({
-            ...shared,
+            description: values.description.trim() || null,
+            name: values.name.trim(),
+            templateMode: "two_step",
             compareInputTemplate: values.compareInputTemplate.trim(),
             compareInstructionsTemplate: values.compareInstructionsTemplate.trim(),
             freshInputTemplate: values.freshInputTemplate.trim(),
@@ -198,23 +201,6 @@ export function PromptTemplateForm({
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="templateMode"
-          render={({ field }) => (
-            <FormItem className="space-y-2">
-              <FormLabel>Template Mode</FormLabel>
-              <Tabs value={field.value} onValueChange={field.onChange}>
-                <TabsList aria-label="Template Mode" className="grid w-full grid-cols-2">
-                  <TabsTrigger value="single">Single Prompt</TabsTrigger>
-                  <TabsTrigger value="two_step">Two Step</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {isSingle ? (
           <div className="space-y-4 rounded-xl border p-4">
             <FormField
@@ -224,7 +210,7 @@ export function PromptTemplateForm({
                 <FormItem>
                   <FormLabel>Instructions Template</FormLabel>
                   <FormControl>
-                    <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                    <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={16} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -237,7 +223,7 @@ export function PromptTemplateForm({
                 <FormItem>
                   <FormLabel>Input Template</FormLabel>
                   <FormControl>
-                    <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                    <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={16} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -254,7 +240,7 @@ export function PromptTemplateForm({
                   <FormItem>
                     <FormLabel>Fresh Instructions Template</FormLabel>
                     <FormControl>
-                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={16} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -267,7 +253,7 @@ export function PromptTemplateForm({
                   <FormItem>
                     <FormLabel>Fresh Input Template</FormLabel>
                     <FormControl>
-                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={16} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -282,7 +268,7 @@ export function PromptTemplateForm({
                   <FormItem>
                     <FormLabel>Compare Instructions Template</FormLabel>
                     <FormControl>
-                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={16} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -295,7 +281,7 @@ export function PromptTemplateForm({
                   <FormItem>
                     <FormLabel>Compare Input Template</FormLabel>
                     <FormControl>
-                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={16} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

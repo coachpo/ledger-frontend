@@ -1,16 +1,12 @@
 import { z } from "zod";
 
 import type {
-  LlmProvider,
-  OpenaiEndpointMode,
   PromptTemplateMode,
   StockAnalysisRunMode,
   StockAnalysisRunType,
   TradingSide,
 } from "@/lib/api-types";
 
-const llmProviders = ["openai", "anthropic", "gemini"] as const satisfies readonly LlmProvider[];
-const openaiEndpointModes = ["chat_completions", "responses"] as const satisfies readonly OpenaiEndpointMode[];
 const promptTemplateModes = ["single", "two_step"] as const satisfies readonly PromptTemplateMode[];
 const tradingSides = ["BUY", "SELL", "DIVIDEND", "SPLIT"] as const satisfies readonly TradingSide[];
 const stockAnalysisRunModes = ["single_prompt", "two_step_workflow"] as const satisfies readonly StockAnalysisRunMode[];
@@ -68,10 +64,9 @@ export const positionUpdateFormSchema = z.object({
 export const snippetFormSchema = z.object({
   content: requiredText("Content"),
   description: optionalText,
-  name: requiredText("Name"),
-  snippetAlias: optionalText.refine(
-    (value) => value.length === 0 || /^[A-Za-z0-9_]+$/.test(value),
-    "Snippet alias may only contain letters, numbers, and underscores",
+  snippetId: requiredText("Snippet ID").refine(
+    (value) => /^[A-Za-z0-9_]+$/.test(value),
+    "Snippet ID may only contain letters, numbers, and underscores",
   ),
 });
 
@@ -213,37 +208,19 @@ export const tradingOperationFormSchema = z
     }
   });
 
-function withOpenAiValidation<TSchema extends z.AnyZodObject>(schema: TSchema) {
-  return schema.superRefine((value, ctx) => {
-    if (value.provider === "openai" && value.openaiEndpointMode === null) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "OpenAI endpoint mode is required",
-        path: ["openaiEndpointMode"],
-      });
-    }
-  });
-}
+export const llmConfigCreateFormSchema = z.object({
+  apiKeySecret: requiredText("API key"),
+  baseUrl: optionalText,
+  displayName: requiredText("Display name"),
+  enabled: z.boolean(),
+});
 
-const llmConfigBaseObject = z.object({
-    apiKeySecret: optionalText,
-    displayName: requiredText("Display name"),
-    enabled: z.boolean(),
-    maxTokens: z.number().int().positive("Max tokens must be greater than 0"),
-    model: requiredText("Model"),
-    openaiEndpointMode: z.enum(openaiEndpointModes).nullable(),
-    provider: z.enum(llmProviders),
-    temperature: z.number().min(0, "Temperature must be at least 0").max(2, "Temperature must be at most 2"),
-    topP: z.number().min(0, "Top P must be at least 0").max(1, "Top P must be at most 1"),
-  });
-
-export const llmConfigCreateFormSchema = withOpenAiValidation(
-  llmConfigBaseObject.extend({
-    apiKeySecret: requiredText("API key"),
-  }),
-);
-
-export const llmConfigUpdateFormSchema = withOpenAiValidation(llmConfigBaseObject);
+export const llmConfigUpdateFormSchema = z.object({
+  apiKeySecret: optionalText,
+  baseUrl: optionalText,
+  displayName: requiredText("Display name"),
+  enabled: z.boolean(),
+});
 
 export const conversationFormSchema = z.object({
   nextReviewAt: optionalText.refine(

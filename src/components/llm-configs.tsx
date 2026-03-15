@@ -11,14 +11,7 @@ import {
 import { ApiRequestError } from "@/lib/api";
 import type { LlmConfigRead, LlmConfigUpdate, LlmConfigWrite } from "@/lib/api-types";
 
-import {
-  DEFAULT_MAX_TOKENS,
-  DEFAULT_TEMPERATURE,
-  DEFAULT_TOP_P,
-  getNumberSetting,
-  OPENAI_ENDPOINT_LABELS,
-  PROVIDER_LABELS,
-} from "./llm-config-form.constants";
+
 import { LLMConfigForm } from "./llm-config-form";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -152,22 +145,6 @@ export function LLMConfigs() {
 
         {!isLoading
           ? configs.map((config) => {
-              const temperature = getNumberSetting(
-                config.defaultGenerationSettings,
-                "temperature",
-                DEFAULT_TEMPERATURE,
-              );
-              const maxTokens = getNumberSetting(
-                config.defaultGenerationSettings,
-                "maxTokens",
-                DEFAULT_MAX_TOKENS,
-              );
-              const topP = getNumberSetting(
-                config.defaultGenerationSettings,
-                "topP",
-                DEFAULT_TOP_P,
-              );
-
               return (
                 <Card key={config.id}>
                   <CardContent className="flex flex-col gap-4 py-5 lg:flex-row lg:items-center lg:justify-between">
@@ -178,22 +155,14 @@ export function LLMConfigs() {
                       <div className="min-w-0 space-y-2">
                         <div className="flex flex-wrap items-center gap-2">
                           <CardTitle className="text-base">{config.displayName}</CardTitle>
-                          <Badge variant="secondary">{PROVIDER_LABELS[config.provider]}</Badge>
                           <Badge variant="outline">{config.model}</Badge>
                           <Badge variant={config.enabled ? "secondary" : "outline"}>
                             {config.enabled ? "Enabled" : "Disabled"}
                           </Badge>
-                          {config.provider === "openai" && config.openaiEndpointMode ? (
-                            <Badge variant="outline">
-                              {OPENAI_ENDPOINT_LABELS[config.openaiEndpointMode]}
-                            </Badge>
-                          ) : null}
                         </div>
                         <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                          <span>Temp: {temperature.toFixed(2)}</span>
-                          <span>Tokens: {maxTokens}</span>
-                          <span>Top P: {topP.toFixed(2)}</span>
                           <span>API key {config.hasApiKey ? "set" : "missing"}</span>
+                          {config.baseUrl ? <span>Base URL: {config.baseUrl}</span> : null}
                           <span>Updated {config.updatedAt}</span>
                         </div>
                       </div>

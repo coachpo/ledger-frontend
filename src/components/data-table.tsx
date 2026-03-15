@@ -112,21 +112,23 @@ export function DataTable<TData, TValue>({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>Rows per page</span>
-          <Select
-            value={String(table.getState().pagination.pageSize)}
-            onValueChange={(value) => table.setPageSize(Number(value))}
-          >
-            <SelectTrigger className="h-8 w-20">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {pageSizeOptions.map((option) => (
-                <SelectItem key={option} value={String(option)}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select
+              value={`${table.getState().pagination.pageSize}`}
+              onValueChange={(value) => {
+                table.setPageSize(Number(value));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {pageSizeOptions.map((pageSize) => (
+                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize} rows
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
         </div>
 
         <div className="flex items-center justify-between gap-3 sm:justify-end">

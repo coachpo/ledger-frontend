@@ -73,7 +73,7 @@ export function PromptTemplates() {
         <div>
           <h1 className="text-2xl tracking-tight">Prompt Templates</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage saved prompt structures for single-step and two-step stock analysis workflows.
+            Manage saved prompt structures for stock analysis workflows.
           </p>
         </div>
         <Button onClick={() => navigate("/templates/new")} disabled={isMutating}>

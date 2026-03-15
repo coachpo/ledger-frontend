@@ -16,7 +16,7 @@ export function PromptTemplateCreatePage() {
       <div>
         <h1 className="text-2xl tracking-tight">New Prompt Template</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Create a reusable prompt structure for single-step or two-step stock analysis workflows.
+          Create a reusable prompt structure for stock analysis workflows.
         </p>
       </div>
 

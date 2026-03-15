@@ -112,12 +112,11 @@ export function Snippets() {
                         <Code2 className="size-4" />
                       </div>
                       <div className="min-w-0 space-y-2">
-                        <CardTitle className="text-base">{snippet.name}</CardTitle>
-                        <p className="text-xs text-muted-foreground">Alias {snippet.snippetAlias}</p>
+                        <CardTitle className="text-base">{snippet.snippetId}</CardTitle>
                         <p className="text-sm text-muted-foreground">{snippet.description || "No description"}</p>
                         <p className="text-xs text-muted-foreground">Updated {formatDateTime(snippet.updatedAt)}</p>
                         <p className="text-xs text-muted-foreground">
-                          Reference <code className="rounded bg-muted px-1">{`{{user.snippet.${snippet.snippetAlias}}}`}</code>
+                          Reference <code className="rounded bg-muted px-1">{`{{user.snippet.${snippet.snippetId}}}`}</code>
                         </p>
                       </div>
                     </div>
@@ -130,14 +129,14 @@ export function Snippets() {
                       </CollapsibleTrigger>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button aria-label={`Open actions for ${snippet.name}`} size="icon" variant="ghost">
+                          <Button aria-label={`Open actions for ${snippet.snippetId}`} size="icon" variant="ghost">
                             <MoreHorizontal className="size-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onSelect={() => {
-                              void navigator.clipboard.writeText(`{{user.snippet.${snippet.snippetAlias}}}`);
+                              void navigator.clipboard.writeText(`{{user.snippet.${snippet.snippetId}}}`);
                               toast.success("Snippet reference copied");
                             }}
                           >
@@ -202,7 +201,7 @@ export function Snippets() {
       <ConfirmDeleteDialog
         open={Boolean(deleting)}
         title="Delete snippet"
-        description={`Delete ${deleting?.name ?? "this snippet"}? This cannot be undone.`}
+        description={`Delete ${deleting?.snippetId ?? "this snippet"}? This cannot be undone.`}
         isPending={deleteMutation.isPending}
         onOpenChange={(open) => {
           if (!open) {

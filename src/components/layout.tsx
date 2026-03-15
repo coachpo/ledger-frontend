@@ -195,7 +195,7 @@ export function Layout() {
 
         <main className="min-h-0 min-w-0 flex-1 overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="min-h-full [&>*]:mx-auto [&>*]:w-full">
+            <div className="min-h-full [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-7xl">
               <Outlet />
             </div>
           </ScrollArea>

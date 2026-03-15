@@ -339,8 +339,7 @@ export interface PromptTemplateUpdate {
 
 export interface UserSnippetRead {
   id: number;
-  name: string;
-  snippetAlias: string;
+  snippetId: string;
   content: string;
   description: string | null;
   createdAt: string;
@@ -348,15 +347,12 @@ export interface UserSnippetRead {
 }
 
 export interface UserSnippetCreate {
-  name: string;
-  snippetAlias?: string | null;
+  snippetId: string;
   content: string;
   description?: string | null;
 }
 
 export interface UserSnippetUpdate {
-  name?: string | null;
-  snippetAlias?: string | null;
   content?: string | null;
   description?: string | null;
 }

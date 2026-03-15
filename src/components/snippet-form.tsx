@@ -25,12 +25,12 @@ type SnippetFormProps = {
 };
 
 export function SnippetForm({ initial, isPending, onCancel, onSave }: SnippetFormProps) {
+  const isEditing = Boolean(initial);
   const form = useForm<SnippetFormValues>({
     defaultValues: {
       content: initial?.content ?? "",
       description: initial?.description ?? "",
-      name: initial?.name ?? "",
-      snippetAlias: initial?.snippetAlias ?? "",
+      snippetId: initial?.snippetId ?? "",
     },
     resolver: zodResolver(snippetFormSchema),
   });
@@ -39,8 +39,7 @@ export function SnippetForm({ initial, isPending, onCancel, onSave }: SnippetFor
     form.reset({
       content: initial?.content ?? "",
       description: initial?.description ?? "",
-      name: initial?.name ?? "",
-      snippetAlias: initial?.snippetAlias ?? "",
+      snippetId: initial?.snippetId ?? "",
     });
   }, [form, initial]);
 
@@ -52,33 +51,22 @@ export function SnippetForm({ initial, isPending, onCancel, onSave }: SnippetFor
           onSave({
             content: values.content.trim(),
             description: values.description.trim() || null,
-            name: values.name.trim(),
-            snippetAlias: values.snippetAlias.trim() || null,
+            ...(isEditing ? {} : { snippetId: values.snippetId.trim() }),
           } satisfies UserSnippetCreate | UserSnippetUpdate),
         )}
       >
         <FormField
           control={form.control}
-          name="name"
+          name="snippetId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Snippet ID</FormLabel>
               <FormControl>
-                <Input {...field} disabled={isPending} />
+                <Input {...field} disabled={isPending || isEditing} />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="snippetAlias"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Snippet Alias</FormLabel>
-              <FormControl>
-                <Input {...field} disabled={isPending} placeholder="hello_snippets" />
-              </FormControl>
+              <p className="text-xs text-muted-foreground">
+                Letters, numbers, and underscores only. This becomes the prompt placeholder segment.
+              </p>
               <FormMessage />
             </FormItem>
           )}
