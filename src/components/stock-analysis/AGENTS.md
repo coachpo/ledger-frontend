@@ -21,7 +21,7 @@
 - Preview and execution both go through the portfolio-scoped stock-analysis endpoints and hook wrappers.
 - `single_prompt` and `two_step_workflow` have different field requirements and different expectations around version creation.
 - Disabled stock-analysis settings should still allow browsing existing conversation state while blocking execution controls.
-- Archived conversation filtering lives in `run-builder-page.tsx`; `conversation-picker.tsx` only renders the already-filtered list and create/select controls.
+- Archived conversation filtering lives in `../pages/stock-analysis/run-builder.tsx`; `conversation-picker.tsx` only renders the already-filtered list and create/select controls.
 
 ## ANTI-PATTERNS
 - Do not call provider APIs or build prompt payloads outside the backend-backed stock-analysis endpoints.
