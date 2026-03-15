@@ -3,7 +3,7 @@
 > Inherits `/AGENTS.md` and `/frontend/AGENTS.md`. This file only covers `src/hooks/`.
 
 ## OVERVIEW
-`src/hooks/` wraps `src/lib/api.ts` with TanStack Query hooks for portfolios, balances, positions, trading operations, market data, and stock-analysis flows.
+`src/hooks/` wraps `src/lib/api.ts` with TanStack Query hooks for portfolios, balances, positions, trading operations, and market data.
 
 ## WHERE TO LOOK
 | Task | Location | Notes |
@@ -13,14 +13,13 @@
 | Position + CSV flows | `use-positions.ts` | CRUD plus preview/commit imports |
 | Trading operations | `use-trading-operations.ts` | list + create trading operations |
 | Market data | `use-market-data.ts` | quotes/history with symbol guards |
-| Global stock-analysis resources | `use-llm-configs.ts`, `use-prompt-templates.ts`, `use-snippets.ts` | list queries plus create/update/delete mutations with list/detail invalidation |
-| Portfolio stock-analysis flows | `use-stock-analysis.ts` | settings, conversations, runs, versions, responses, preview |
+| Generic timing helper | `use-debounce.ts` | small debounce helper used by interactive portfolio forms |
 
 ## CONVENTIONS
 - Portfolio-scoped query hooks accept `portfolioId | undefined`, derive a resolved id, and gate execution with `enabled`.
 - Mutations invalidate either list/detail keys or `invalidatePortfolioScope()`; do not hand-roll cache clearing in components.
 - Hooks wrap `src/lib/api.ts` only and keep server-state orchestration out of routed screens.
-- `use-stock-analysis.ts` is the authority for prompt-preview, conversation, run, version, and response hook patterns.
+- Generic utility hooks such as `use-debounce.ts` should stay UI-focused and framework-agnostic.
 
 ## ANTI-PATTERNS
 - Do not call `src/lib/api.ts` directly from routed screens when a hook already exists.
@@ -29,5 +28,4 @@
 - Do not hide API errors in hooks; let the caller decide how to surface them.
 
 ## NOTES
-- Global stock-analysis resources use list/detail invalidation, while portfolio-scoped mutations fan out through `invalidatePortfolioScope()`.
-- `usePromptPreview()` intentionally keys on the whole request object so preview output stays aligned with the composed payload.
+- `invalidatePortfolioScope()` is the shared invalidation path for portfolio-scoped mutations.

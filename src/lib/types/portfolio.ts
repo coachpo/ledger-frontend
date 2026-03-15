@@ -19,19 +19,3 @@ export interface PortfolioUpdateInput {
   name?: string;
   description?: string | null;
 }
-
-export interface PortfolioStockAnalysisSettingsRead {
-  id: number;
-  portfolioId: number;
-  enabled: boolean;
-  defaultPromptTemplateId: number | null;
-  compareToOrigin: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface PortfolioStockAnalysisSettingsUpdate {
-  enabled?: boolean | null;
-  defaultPromptTemplateId?: number | null;
-  compareToOrigin?: boolean | null;
-}

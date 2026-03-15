@@ -183,7 +183,3 @@ export function serializeSymbols(symbols: readonly string[]): string {
 export function portfolioPath(portfolioId: IdParam): string {
   return `/portfolios/${toPathSegment(portfolioId)}`;
 }
-
-export function stockAnalysisPath(portfolioId: IdParam): string {
-  return `${portfolioPath(portfolioId)}/stock-analysis`;
-}

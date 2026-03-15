@@ -122,25 +122,9 @@ export const tradingOperationFormSchema = z
     }
   });
 
-export const llmConfigCreateFormSchema = z.object({
-  apiKeySecret: requiredText("API key"),
-  baseUrl: optionalText,
-  displayName: requiredText("Display name"),
-  enabled: z.boolean(),
-});
-
-export const llmConfigUpdateFormSchema = z.object({
-  apiKeySecret: optionalText,
-  baseUrl: optionalText,
-  displayName: requiredText("Display name"),
-  enabled: z.boolean(),
-});
-
 export type BalanceFormValues = z.infer<typeof balanceFormSchema>;
 export type PortfolioCreateFormValues = z.infer<typeof portfolioCreateFormSchema>;
 export type PortfolioUpdateFormValues = z.infer<typeof portfolioUpdateFormSchema>;
 export type PositionCreateFormValues = z.infer<typeof positionCreateFormSchema>;
 export type PositionUpdateFormValues = z.infer<typeof positionUpdateFormSchema>;
 export type TradingOperationFormValues = z.infer<typeof tradingOperationFormSchema>;
-export type LlmConfigCreateFormValues = z.infer<typeof llmConfigCreateFormSchema>;
-export type LlmConfigUpdateFormValues = z.infer<typeof llmConfigUpdateFormSchema>;

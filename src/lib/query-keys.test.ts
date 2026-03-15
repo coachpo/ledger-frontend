@@ -9,9 +9,6 @@ describe("query keys", () => {
     expect(queryKeys.positions.detail("1", "7")).toEqual(
       queryKeys.positions.detail(1, 7),
     );
-    expect(queryKeys.llmConfigs.detail("9")).toEqual(
-      queryKeys.llmConfigs.detail(9),
-    );
   });
 
   it("normalizes symbol filters inside history params", () => {

@@ -1,9 +1,7 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 import {
   Briefcase,
-  BrainCircuit,
   LayoutDashboard,
-  Settings2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -42,7 +40,6 @@ type NavItem = {
 const navItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/" },
   { icon: Briefcase, label: "Portfolios", to: "/portfolios" },
-  { icon: Settings2, label: "LLM Configs", to: "/llm-configs" },
 ];
 
 function isNavItemActive(pathname: string, item: NavItem) {
@@ -64,10 +61,6 @@ function getPageMeta(pathname: string) {
     return { section: "Portfolios", sectionHref: "/portfolios", title: "Portfolio Detail" };
   }
 
-  if (pathname === "/llm-configs") {
-    return { section: "LLM Configs", title: "LLM Configs" };
-  }
-
   return { section: "Workspace", title: "Workspace" };
 }
 
@@ -81,12 +74,12 @@ function AppSidebar() {
       <SidebarHeader className="gap-3 p-4">
         <div className="flex items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <BrainCircuit className="size-5 shrink-0" />
+            <Briefcase className="size-5 shrink-0" />
           </div>
           {showExpandedContent ? (
             <div className="min-w-0">
-              <p className="text-sm font-semibold tracking-tight">Stock Analysis AI</p>
-              <p className="text-xs text-muted-foreground">Workspace</p>
+              <p className="text-sm font-semibold tracking-tight">Ledger</p>
+              <p className="text-xs text-muted-foreground">Portfolio workspace</p>
             </div>
           ) : null}
         </div>

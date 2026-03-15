@@ -110,7 +110,7 @@ export function Dashboard() {
         <div>
           <h1 className="text-2xl tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Self-reflection stock analysis loop overview
+            Portfolio activity and workspace overview
           </p>
         </div>
 
@@ -139,7 +139,7 @@ export function Dashboard() {
       <div>
         <h1 className="text-2xl tracking-tight">Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Live portfolio inventory and stock-analysis workspace health.
+          Live portfolio inventory and workspace health.
         </p>
       </div>
 

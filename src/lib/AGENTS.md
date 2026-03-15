@@ -9,7 +9,7 @@
 | Task | Location | Notes |
 |---|---|---|
 | HTTP wrapper / error mapping | `api-client.ts` | `request()`, `ApiRequestError`, `buildUrl()` |
-| API endpoint functions | `api/*.ts` | domain-specific modules (portfolios, balances, positions, etc.) |
+| API endpoint functions | `api/*.ts` | domain-specific modules for portfolios, balances, positions, trading operations, and market data |
 | Backward compatibility | `api.ts` | barrel re-export file |
 | Shared wire types | `types/*.ts` | domain-specific type definitions |
 | Type re-exports | `api-types.ts` | barrel re-export file for backward compatibility |
@@ -21,7 +21,7 @@
 ## CONVENTIONS
 - `api-client.ts` is the only place that should know the base URL, query-string encoding, and error-envelope parsing.
 - Domain-specific API functions live in `api/*.ts` modules, organized by resource type.
-- `api.ts` and `api-types.ts` are barrel files that re-export everything for backward compatibility.
+- `api.ts` and `api-types.ts` are barrel files that re-export the live modules for backward compatibility.
 - Wire decimals remain strings until shared format/analytics helpers convert them for display math.
 - `query-keys.ts` normalizes symbols and filter params so cache keys stay stable across callers.
 - `invalidatePortfolioScope()` is the default invalidation path for portfolio-scoped mutations.
@@ -35,5 +35,5 @@
 - Do not mix presentation-only formatting into API wrapper code.
 
 ## NOTES
-- `api.ts` separates global stock-analysis resources from portfolio-scoped endpoints.
+- `api.ts` is a convenience barrel for the currently live portfolio, balance, position, trading-operation, and market-data modules.
 - `portfolio-analytics.ts` is where quote-enriched position math belongs, not in routed screens.

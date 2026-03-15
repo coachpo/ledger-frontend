@@ -65,17 +65,7 @@ const marketHistoryQueryKeys = {
     [...portfolioRoot(portfolioId), "marketHistory", "series", normalizeHistoryParams(params)] as const,
 } as const;
 
-const llmConfigsQueryKeys = {
-  all: [...apiRoot, "llmConfigs"] as const,
-  detail: (configId: IdParam) =>
-    [...apiRoot, "llmConfigs", "detail", normalizeId(configId)] as const,
-  details: () => [...apiRoot, "llmConfigs", "detail"] as const,
-  list: () => [...apiRoot, "llmConfigs", "list"] as const,
-  lists: () => [...apiRoot, "llmConfigs", "list"] as const,
-} as const;
-
 export const queryKeys = {
-  llmConfigs: llmConfigsQueryKeys,
   portfolios: portfoliosQueryKeys,
   balances: balancesQueryKeys,
   positions: positionsQueryKeys,

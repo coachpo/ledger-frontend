@@ -32,11 +32,3 @@ test.describe("Portfolio CRUD", () => {
     await expect(page.locator("body")).toBeVisible();
   });
 });
-
-test.describe("LLM Config CRUD", () => {
-  test("llm configs page renders", async ({ page }) => {
-    await page.goto("/llm-configs");
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator("body")).toBeVisible();
-  });
-});
