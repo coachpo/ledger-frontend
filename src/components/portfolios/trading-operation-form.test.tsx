@@ -52,6 +52,8 @@ describe("TradingOperationForm", () => {
 
     const symbolInput = screen.getByLabelText("Symbol");
     expect(symbolInput).toHaveValue("NVDA");
+    expect(screen.getByRole("combobox", { name: "Balance" })).toHaveTextContent("Brokerage Cash · $1,000.00");
+    expect(screen.getByText("Available in selected balance: $1,000.00")).toBeInTheDocument();
 
     const symbolSuggestions = document.getElementById(
       symbolInput.getAttribute("list") ?? "",

@@ -1,8 +1,9 @@
-import { useEffect, useId } from "react";
+import { useEffect, useId, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import type { BalanceRead } from "@/lib/types/balance";
+import { formatCurrency } from "@/lib/format";
 import type { TradingOperationInput } from "@/lib/types/trading";
 import {
   tradingOperationFormSchema,
@@ -26,6 +27,10 @@ type TradingOperationSymbolOption = {
   label: string;
   symbol: string;
 };
+
+function getBalanceOptionLabel(balance: BalanceRead) {
+  return `${balance.label} · ${formatCurrency(balance.amount, balance.currency)}`;
+}
 
 type TradingOperationFormProps = {
   balances: BalanceRead[];
@@ -61,7 +66,12 @@ export function TradingOperationForm({
     resolver: zodResolver(tradingOperationFormSchema),
   });
   const side = form.watch("side");
+  const selectedBalanceId = form.watch("balanceId");
   const requiresBalance = side !== "SPLIT";
+  const selectedBalance = useMemo(
+    () => balances.find((balance) => String(balance.id) === selectedBalanceId),
+    [balances, selectedBalanceId],
+  );
 
   useEffect(() => {
     if (!requiresBalance) {
@@ -171,11 +181,16 @@ export function TradingOperationForm({
                     <SelectContent>
                       {balances.map((balance) => (
                         <SelectItem key={balance.id} value={String(balance.id)}>
-                          {balance.label}
+                          {getBalanceOptionLabel(balance)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {selectedBalance ? (
+                    <FormDescription>
+                      Available in selected balance: {formatCurrency(selectedBalance.amount, selectedBalance.currency)}
+                    </FormDescription>
+                  ) : null}
                   <FormMessage />
                 </FormItem>
               )}
@@ -236,7 +251,7 @@ export function TradingOperationForm({
                       ))}
                     </datalist>
                     <FormDescription>
-                      Existing portfolio symbols are suggested here. You can still type a new symbol for BUY operations.
+                      Portfolio symbols are suggested here. BUY can still use a new symbol.
                     </FormDescription>
                   </>
                 ) : null}

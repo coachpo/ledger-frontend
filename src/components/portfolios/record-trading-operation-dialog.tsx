@@ -29,7 +29,9 @@ export function RecordTradingOperationDialog({
 }: RecordTradingOperationDialogProps) {
   const createMutation = useCreateTradingOperation(portfolioId);
   const depositBalances = useMemo(
-    () => balances.filter((balance) => balance.operationType === "DEPOSIT"),
+    () => balances
+      .filter((balance) => balance.operationType === "DEPOSIT")
+      .sort((left, right) => Number(right.amount) - Number(left.amount)),
     [balances],
   );
   const symbolOptions = useMemo(

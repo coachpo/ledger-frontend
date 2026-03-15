@@ -95,4 +95,53 @@ describe("RecordTradingOperationDialog", () => {
     expect(optionLabels).toContain("AAPL (Apple Inc.)");
     expect(optionLabels).toContain("NVDA (NVIDIA Corporation)");
   });
+
+  it("defaults to the largest deposit balance in the dialog", () => {
+    render(
+      <RecordTradingOperationDialog
+        balances={[
+          {
+            amount: "229.00",
+            createdAt: "2026-03-15T10:00:00Z",
+            currency: "USD",
+            hasTradingOperations: true,
+            id: 1,
+            label: "Primary Cash",
+            operationType: "DEPOSIT",
+            portfolioId: 1,
+            updatedAt: "2026-03-15T10:00:00Z",
+          },
+          {
+            amount: "125.00",
+            createdAt: "2026-03-15T10:00:00Z",
+            currency: "USD",
+            hasTradingOperations: false,
+            id: 2,
+            label: "Cash Withdrawal",
+            operationType: "WITHDRAWAL",
+            portfolioId: 1,
+            updatedAt: "2026-03-15T10:00:00Z",
+          },
+          {
+            amount: "10271.00",
+            createdAt: "2026-03-15T10:00:00Z",
+            currency: "USD",
+            hasTradingOperations: false,
+            id: 3,
+            label: "Reserve Cash",
+            operationType: "DEPOSIT",
+            portfolioId: 1,
+            updatedAt: "2026-03-15T10:00:00Z",
+          },
+        ]}
+        open
+        onOpenChange={() => {}}
+        portfolioId={1}
+        positions={[]}
+      />,
+    );
+
+    expect(screen.getByRole("combobox", { name: "Balance" })).toHaveTextContent("Reserve Cash · $10,271.00");
+    expect(screen.getByText("Available in selected balance: $10,271.00")).toBeInTheDocument();
+  });
 });
