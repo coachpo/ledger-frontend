@@ -1,32 +1,64 @@
 # FRONTEND COMPONENTS GUIDE
 
-> Inherits `/AGENTS.md` and `/frontend/AGENTS.md`. This file covers routed screens and shared component boundaries in `src/components/`.
+> Inherits `/AGENTS.md` and `/frontend/AGENTS.md`. This file covers shared components, feature-specific components, and UI primitives in `src/components/`.
 
 ## OVERVIEW
-`src/components/` contains the routed screen layer, the layout shell, feature folders, and the shared shadcn/ui primitives used throughout the app.
+`src/components/` contains the layout shell, shared component library, feature-specific UI folders, and shadcn/ui primitives. Routed page components live in `src/pages/` and map to routes in `src/routes.ts`.
+
+## STRUCTURE
+```text
+src/components/
+├── layout.tsx              # sidebar shell, route framing
+├── error-boundary.tsx      # top-level error boundary
+├── shared/                 # reusable components across features
+│   ├── header.tsx
+│   ├── footer.tsx
+│   ├── loading-spinner.tsx
+│   ├── empty-state.tsx
+│   ├── data-table.tsx
+│   └── pagination.tsx
+├── forms/                  # form components and form-related utilities
+│   ├── portfolio-form.tsx
+│   ├── trade-form.tsx
+│   ├── llm-config-form.tsx
+│   └── prompt-template-form.tsx
+├── portfolios/             # portfolio feature-specific components
+│   ├── AGENTS.md
+│   ├── portfolio-sections/
+│   ├── portfolio-dialogs/
+│   └── trading-form/
+├── stock-analysis/         # stock-analysis feature-specific components
+│   ├── AGENTS.md
+│   ├── run-builder/
+│   ├── preview/
+│   └── conversation/
+└── ui/                     # shadcn/ui primitives (auto-generated)
+```
 
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |---|---|---|
 | App shell / navigation | `layout.tsx`, `error-boundary.tsx` | sidebar shell, route framing, top-level error boundary |
-| Dashboard landing page | `dashboard.tsx` | home route summary |
-| Global stock-analysis resource pages | `llm-configs.tsx`, `prompt-templates.tsx`, `snippets.tsx` | top-level CRUD pages for global resources |
-| Response browser | `responses-page.tsx` | top-level portfolio/conversation response filtering |
-| Portfolio feature folder | `portfolios/AGENTS.md` | detail page, sections, dialogs, trading form |
-| Stock-analysis feature folder | `stock-analysis/AGENTS.md` | run builder, mode fields, preview, run status |
+| Shared components | `shared/` | reusable UI components across features |
+| Form components | `forms/` | portfolio, trade, and LLM resource forms |
+| Portfolio feature UI | `portfolios/AGENTS.md` | sections, dialogs, trading form, feature-specific logic |
+| Stock-analysis feature UI | `stock-analysis/AGENTS.md` | run builder, preview, conversation, feature-specific logic |
 | Pure UI primitives | `ui/` | shadcn/ui-style presentational components only |
 
 ## CONVENTIONS
-- Top-level routed screens live here when they are not part of a deeper feature folder.
-- Feature-heavy portfolio and stock-analysis rules belong in their child docs; this file only covers parent ownership and shared shell patterns.
-- Routed screens compose hooks, lib helpers, and shadcn/ui primitives, then surface mutation feedback with toasts.
-- `ui/` stays presentational; application state and request logic should stay in routed screens or feature folders.
+- Routed page components live in `src/pages/` and are thin orchestration layers.
+- Shared components in `shared/` are reusable across multiple features and should not contain feature-specific logic.
+- Form components in `forms/` handle form state and validation for portfolio, trade, and LLM resource creation/editing.
+- Feature-specific components in `portfolios/` and `stock-analysis/` own their domain logic and should not be reused outside their feature.
+- `ui/` stays presentational; application state and request logic should stay in pages, shared, forms, or feature folders.
 
 ## ANTI-PATTERNS
 - Do not put business rules or raw request code in `ui/` components.
-- Do not duplicate portfolio or stock-analysis feature rules here when a child doc already owns them.
-- Do not bypass shared layout/error-boundary patterns when adding a new top-level route.
-- Do not move feature-rich routed screens into `ui/` just because they render cards/forms.
+- Do not put feature-specific logic in `shared/` components.
+- Do not duplicate portfolio or stock-analysis feature rules in shared components when a feature folder already owns them.
+- Do not move feature-rich components into `ui/` just because they render cards/forms.
+- Do not create form components in feature folders when they should live in `forms/`.
 
 ## NOTES
-- `responses-page.tsx` stays in this parent folder even though it is stock-analysis-adjacent, because the route is top-level alongside the other routed screens.
+- Page components are the thin orchestration layer; the real complexity lives in shared components, forms, feature folders, and hooks.
+- Feature folders (`portfolios/`, `stock-analysis/`) have their own AGENTS.md files documenting domain-specific patterns.

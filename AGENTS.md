@@ -8,16 +8,18 @@ React 19 + Vite frontend with a flat route shell, TanStack Query for server stat
 ## CHILD DOCS
 - `src/lib/AGENTS.md` — API client, query keys, analytics, formatting
 - `src/hooks/AGENTS.md` — TanStack Query wrappers and invalidation patterns
-- `src/components/AGENTS.md` — routed screens, layout shell, shared component boundaries
-- `src/components/portfolios/AGENTS.md` — portfolio pages, sections, dialogs, trading forms
-- `src/components/stock-analysis/AGENTS.md` — run builder, preview, conversation, and run-status flows
+- `src/pages/AGENTS.md` — routed page components and orchestration patterns
+- `src/components/AGENTS.md` — shared components, forms, feature folders, and UI primitives
+- `src/components/portfolios/AGENTS.md` — portfolio feature-specific components, sections, dialogs, trading forms
+- `src/components/stock-analysis/AGENTS.md` — stock-analysis feature-specific components, run builder, preview, conversation
 
 ## STRUCTURE
 ```text
 frontend/
 ├── src/lib/            # API contract, query keys, formatting, analytics
 ├── src/hooks/          # TanStack Query hooks wrapping lib/api.ts
-├── src/components/     # routed screens, feature folders, shadcn/ui primitives
+├── src/pages/          # routed page components mapping to routes
+├── src/components/     # shared components, forms, feature folders, shadcn/ui primitives
 ├── src/test/           # Vitest jsdom setup
 ├── e2e/                # Playwright smoke + functional specs
 └── scripts/            # Playwright backend/frontend startup helpers
@@ -28,9 +30,10 @@ frontend/
 |---|---|---|
 | App bootstrap | `src/App.tsx`, `src/routes.ts`, `src/components/layout.tsx` | query client, router provider, ten child routes, seven sidebar destinations |
 | Shared API/state logic | `src/lib/AGENTS.md`, `src/hooks/AGENTS.md` | typed fetch, query keys, analytics, TanStack Query wrappers |
-| Routed screens | `src/components/AGENTS.md` | dashboard, layouts, top-level CRUD pages, responses browser |
-| Portfolio feature UI | `src/components/portfolios/AGENTS.md` | detail page, sections, dialogs, trading form |
-| Stock-analysis feature UI | `src/components/stock-analysis/AGENTS.md` | run builder, mode fields, preview, status display |
+| Routed page components | `src/pages/AGENTS.md` | dashboard, LLM resources, responses, portfolio, stock-analysis pages |
+| Shared components | `src/components/AGENTS.md` | layout shell, shared UI, forms, feature folders |
+| Portfolio feature UI | `src/components/portfolios/AGENTS.md` | detail sections, dialogs, trading form |
+| Stock-analysis feature UI | `src/components/stock-analysis/AGENTS.md` | run builder, preview, conversation, feature-specific logic |
 | Unit test setup | `vite.config.ts`, `src/test/setup.ts` | jsdom config + browser API mocks |
 | E2E flow setup | `playwright.config.ts`, `scripts/start-playwright-*.mjs` | backend `8001`, frontend `4173` |
 
