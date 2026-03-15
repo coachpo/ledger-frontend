@@ -186,7 +186,7 @@ export function PortfolioPositionsSection({
           columns={columns}
           data={sortedPositions}
           emptyMessage="No positions yet."
-          initialPageSize={8}
+          initialPageSize={10}
           initialSorting={[{ desc: false, id: "symbol" }]}
         />
       </CardContent>

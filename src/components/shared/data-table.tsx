@@ -52,9 +52,6 @@ export function DataTable<TData, TValue>({
     pageIndex: 0,
     pageSize: initialPageSize,
   });
-  const resolvedPageSizeOptions = Array.from(new Set([...pageSizeOptions, initialPageSize])).sort(
-    (left, right) => left - right,
-  );
 
   const table = useReactTable({
     columns,
@@ -125,7 +122,7 @@ export function DataTable<TData, TValue>({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent side="top">
-                {resolvedPageSizeOptions.map((pageSize) => (
+                {pageSizeOptions.map((pageSize) => (
                   <SelectItem key={pageSize} value={`${pageSize}`}>
                     {pageSize} rows
                   </SelectItem>

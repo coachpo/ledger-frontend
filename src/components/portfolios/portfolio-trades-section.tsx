@@ -113,7 +113,7 @@ export function PortfolioTradesSection({
           columns={columns}
           data={sortedOperations}
           emptyMessage="No operations recorded yet."
-          initialPageSize={8}
+          initialPageSize={10}
           initialSorting={[{ desc: true, id: "executedAt" }]}
         />
       </CardContent>
