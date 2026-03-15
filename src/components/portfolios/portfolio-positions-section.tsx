@@ -259,6 +259,7 @@ export function PortfolioPositionsSection({
           }
         }}
         portfolioId={portfolioId}
+        positions={positions}
       />
     </PortfolioTableSection>
   );

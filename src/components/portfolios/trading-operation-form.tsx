@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,12 +22,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+type TradingOperationSymbolOption = {
+  label: string;
+  symbol: string;
+};
+
 type TradingOperationFormProps = {
   balances: BalanceRead[];
   initialSymbol?: string;
   isPending: boolean;
   onCancel: () => void;
   onSave: (data: TradingOperationInput) => void;
+  symbolOptions: TradingOperationSymbolOption[];
 };
 
 export function TradingOperationForm({
@@ -35,7 +42,9 @@ export function TradingOperationForm({
   isPending,
   onCancel,
   onSave,
+  symbolOptions,
 }: TradingOperationFormProps) {
+  const symbolSuggestionsId = useId();
   const form = useForm<TradingOperationFormValues>({
     defaultValues: {
       balanceId: balances[0]?.id ? String(balances[0].id) : "",
@@ -72,9 +81,20 @@ export function TradingOperationForm({
     ) {
       form.setValue("balanceId", balances[0]?.id ? String(balances[0].id) : "", {
         shouldValidate: true,
-        });
+      });
     }
   }, [balances, form, requiresBalance]);
+
+  useEffect(() => {
+    if (!initialSymbol) {
+      return;
+    }
+
+    const normalizedInitialSymbol = initialSymbol.toUpperCase();
+    if (form.getValues("symbol") !== normalizedInitialSymbol) {
+      form.setValue("symbol", normalizedInitialSymbol, { shouldValidate: true });
+    }
+  }, [form, initialSymbol]);
 
   const requiresQuantityAndPrice = side === "BUY" || side === "SELL";
 
@@ -199,10 +219,27 @@ export function TradingOperationForm({
                 <FormControl>
                   <Input
                     {...field}
+                    autoComplete="off"
                     disabled={isPending}
+                    list={symbolOptions.length > 0 ? symbolSuggestionsId : undefined}
                     onChange={(event) => field.onChange(event.target.value.toUpperCase())}
+                    placeholder={symbolOptions.length > 0 ? "Type or choose a symbol" : undefined}
                   />
                 </FormControl>
+                {symbolOptions.length > 0 ? (
+                  <>
+                    <datalist id={symbolSuggestionsId}>
+                      {symbolOptions.map((option) => (
+                        <option key={option.symbol} value={option.symbol} label={option.label}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </datalist>
+                    <FormDescription>
+                      Existing portfolio symbols are suggested here. You can still type a new symbol for BUY operations.
+                    </FormDescription>
+                  </>
+                ) : null}
                 <FormMessage />
               </FormItem>
             )}

@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 
 import { formatCurrency, formatDateTime, formatDecimal } from "@/lib/format";
 import type { BalanceRead } from "@/lib/types/balance";
+import type { PositionRead } from "@/lib/types/position";
 import type { TradingOperationRead } from "@/lib/types/trading";
 
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
@@ -18,6 +19,7 @@ type PortfolioTradesSectionProps = {
   balances: BalanceRead[];
   operations: TradingOperationRead[];
   hasPositions: boolean;
+  positions: Pick<PositionRead, "name" | "symbol">[];
 };
 
 function describeOperation(operation: TradingOperationRead) {
@@ -37,6 +39,7 @@ export function PortfolioTradesSection({
   balances,
   operations,
   hasPositions,
+  positions,
 }: PortfolioTradesSectionProps) {
   const [showForm, setShowForm] = useState(false);
   const depositBalances = useMemo(
@@ -109,6 +112,7 @@ export function PortfolioTradesSection({
         open={showForm}
         onOpenChange={setShowForm}
         portfolioId={portfolioId}
+        positions={positions}
       />
     </PortfolioTableSection>
   );

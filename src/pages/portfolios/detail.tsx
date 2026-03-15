@@ -142,6 +142,7 @@ export function PortfolioDetailPage() {
             balances={balances}
             operations={operations}
             hasPositions={positions.length > 0}
+            positions={positions}
           />
         </TabsContent>
       </Tabs>
