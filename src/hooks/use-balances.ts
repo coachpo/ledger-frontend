@@ -4,7 +4,7 @@ import {
   deleteBalance,
   listBalances,
   updateBalance,
-} from "@/lib/api";
+} from "@/lib/api/balances";
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
 import type { BalanceUpdateInput, BalanceWriteInput } from "@/lib/api-types";
 

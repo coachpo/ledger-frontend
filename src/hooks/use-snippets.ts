@@ -4,7 +4,7 @@ import {
   deleteUserSnippet,
   listUserSnippets,
   updateUserSnippet,
-} from "@/lib/api";
+} from "@/lib/api/snippets";
 import { queryKeys } from "@/lib/query-keys";
 import type { UserSnippetCreate, UserSnippetUpdate } from "@/lib/api-types";
 

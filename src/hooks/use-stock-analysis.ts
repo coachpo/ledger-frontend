@@ -13,7 +13,7 @@ import {
   previewStockAnalysisPrompt,
   updatePortfolioStockAnalysisSettings,
   updateStockAnalysisConversation,
-} from "@/lib/api";
+} from "@/lib/api/stock-analysis";
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
 import type {
   ListStockAnalysisConversationsParams,

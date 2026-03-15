@@ -5,7 +5,7 @@ import {
   getPortfolio,
   listPortfolios,
   updatePortfolio,
-} from "@/lib/api";
+} from "@/lib/api/portfolios";
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
 import type { PortfolioUpdateInput, PortfolioWriteInput } from "@/lib/api-types";
 

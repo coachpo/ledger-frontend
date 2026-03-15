@@ -4,7 +4,7 @@ import {
   deleteLlmConfig,
   listLlmConfigs,
   updateLlmConfig,
-} from "@/lib/api";
+} from "@/lib/api/llm-configs";
 import { queryKeys } from "@/lib/query-keys";
 import type { LlmConfigUpdate, LlmConfigWrite } from "@/lib/api-types";
 

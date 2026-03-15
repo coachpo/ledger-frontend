@@ -4,7 +4,7 @@ import {
   deletePromptTemplate,
   listPromptTemplates,
   updatePromptTemplate,
-} from "@/lib/api";
+} from "@/lib/api/prompt-templates";
 import { queryKeys } from "@/lib/query-keys";
 import type { PromptTemplateUpdate, PromptTemplateWrite } from "@/lib/api-types";
 

@@ -8,7 +8,7 @@ import {
   useLlmConfigs,
   useUpdateLlmConfig,
 } from "@/hooks/use-llm-configs";
-import { ApiRequestError } from "@/lib/api";
+import { ApiRequestError } from "@/lib/api-client";
 import type { LlmConfigRead, LlmConfigUpdate, LlmConfigWrite } from "@/lib/api-types";
 
 

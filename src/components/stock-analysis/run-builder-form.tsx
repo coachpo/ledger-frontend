@@ -36,7 +36,7 @@ import { cn } from "@/components/ui/utils";
 import { useLlmConfigs } from "@/hooks/use-llm-configs";
 import { usePromptTemplates } from "@/hooks/use-prompt-templates";
 import { useCreateRun, useExecuteRun } from "@/hooks/use-stock-analysis";
-import { ApiRequestError } from "@/lib/api";
+import { ApiRequestError } from "@/lib/api-client";
 import type {
   PortfolioStockAnalysisSettingsRead,
   PromptPreviewRequest,

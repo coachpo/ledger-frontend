@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createTradingOperation,
   listTradingOperations,
-} from "@/lib/api";
+} from "@/lib/api/trading-operations";
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
 import type { TradingOperationInput } from "@/lib/api-types";
 

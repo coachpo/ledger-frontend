@@ -6,7 +6,7 @@ import {
   listPositions,
   previewPositionImport,
   updatePosition,
-} from "@/lib/api";
+} from "@/lib/api/positions";
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
 import type { PositionUpdateInput, PositionWriteInput } from "@/lib/api-types";
 
