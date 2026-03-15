@@ -1,6 +1,6 @@
 import type { Control } from "react-hook-form";
 
-import type { RunBuilderFormValues } from "@/components/form-schemas";
+import type { RunBuilderFormValues } from "@/components/shared/form-schemas";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   FormControl,

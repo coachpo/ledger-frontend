@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import type { PortfolioRead, PortfolioUpdateInput, PortfolioWriteInput } from "@/lib/api-types";
-import { portfolioCreateFormSchema, type PortfolioCreateFormValues } from "@/components/form-schemas";
+import { portfolioCreateFormSchema, type PortfolioCreateFormValues } from "@/components/shared/form-schemas";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

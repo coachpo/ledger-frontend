@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import {
   runBuilderFormSchema,
   type RunBuilderFormValues,
-} from "@/components/form-schemas";
+} from "@/components/shared/form-schemas";
 import { PromptPreviewPanel } from "@/components/stock-analysis/prompt-preview-panel";
 import { RunBuilderModeFields } from "@/components/stock-analysis/run-builder-mode-fields";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";

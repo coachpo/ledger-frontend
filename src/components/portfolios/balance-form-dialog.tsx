@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import type { BalanceRead, BalanceUpdateInput, BalanceWriteInput } from "@/lib/api-types";
-import { balanceFormSchema, type BalanceFormValues } from "@/components/form-schemas";
+import { balanceFormSchema, type BalanceFormValues } from "@/components/shared/form-schemas";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

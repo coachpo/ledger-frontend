@@ -7,7 +7,7 @@ import {
 } from "@/hooks/use-stock-analysis";
 import { usePortfolios } from "@/hooks/use-portfolios";
 import type { StockAnalysisPromptStep } from "@/lib/api-types";
-import { SearchableSelect } from "@/components/searchable-select";
+import { SearchableSelect } from "@/components/shared/searchable-select";
 
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";

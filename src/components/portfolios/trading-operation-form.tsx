@@ -6,7 +6,7 @@ import type { BalanceRead, TradingOperationInput } from "@/lib/api-types";
 import {
   tradingOperationFormSchema,
   type TradingOperationFormValues,
-} from "@/components/form-schemas";
+} from "@/components/shared/form-schemas";
 
 import { Button } from "@/components/ui/button";
 import {

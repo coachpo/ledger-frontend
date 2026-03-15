@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/api-types";
-import { positionCreateFormSchema, type PositionCreateFormValues } from "@/components/form-schemas";
+import { positionCreateFormSchema, type PositionCreateFormValues } from "@/components/shared/form-schemas";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

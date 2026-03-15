@@ -7,7 +7,7 @@ import {
   llmConfigCreateFormSchema,
   llmConfigUpdateFormSchema,
   type LlmConfigCreateFormValues,
-} from "@/components/form-schemas";
+} from "@/components/shared/form-schemas";
 import type {
   LlmConfigRead,
   LlmConfigUpdate,

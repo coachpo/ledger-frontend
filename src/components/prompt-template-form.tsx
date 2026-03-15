@@ -10,7 +10,7 @@ import type {
 import {
   promptTemplateFormSchema,
   type PromptTemplateFormValues,
-} from "@/components/form-schemas";
+} from "@/components/shared/form-schemas";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";

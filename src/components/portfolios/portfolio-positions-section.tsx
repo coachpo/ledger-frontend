@@ -12,8 +12,8 @@ import {
 } from "@/lib/portfolio-analytics";
 import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/api-types";
 
-import { DataTable } from "@/components/data-table";
-import { DataTableColumnHeader } from "@/components/data-table-column-header";
+import { DataTable } from "@/components/shared/data-table";
+import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

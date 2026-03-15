@@ -11,8 +11,8 @@ import { formatDateTime } from "@/lib/format";
 import {
   conversationFormSchema,
   type ConversationFormValues,
-} from "@/components/form-schemas";
-import { SearchableSelect } from "@/components/searchable-select";
+} from "@/components/shared/form-schemas";
+import { SearchableSelect } from "@/components/shared/searchable-select";
 
 import { Button } from "@/components/ui/button";
 import {

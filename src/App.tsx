@@ -1,7 +1,7 @@
 import { RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
-import { ErrorBoundary } from "./components/error-boundary";
+import { ErrorBoundary } from "./components/shared/error-boundary";
 import { router } from "./routes";
 
 const queryClient = new QueryClient({

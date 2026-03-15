@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import type { UserSnippetCreate, UserSnippetRead, UserSnippetUpdate } from "@/lib/api-types";
-import { snippetFormSchema, type SnippetFormValues } from "@/components/form-schemas";
+import { snippetFormSchema, type SnippetFormValues } from "@/components/shared/form-schemas";
 
 import { Button } from "./ui/button";
 import {

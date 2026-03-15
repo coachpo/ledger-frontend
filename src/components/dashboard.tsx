@@ -8,7 +8,7 @@ import {
 
 import { usePortfolios } from "@/hooks/use-portfolios";
 
-import { MetricCard } from "./metric-card";
+import { MetricCard } from "./shared/metric-card";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";

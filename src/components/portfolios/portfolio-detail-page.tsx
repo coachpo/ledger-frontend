@@ -16,7 +16,7 @@ import {
 } from "@/lib/portfolio-analytics";
 import type { PortfolioUpdateInput } from "@/lib/api-types";
 
-import { MetricCard } from "@/components/metric-card";
+import { MetricCard } from "@/components/shared/metric-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
