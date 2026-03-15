@@ -1,11 +1,8 @@
 import { z } from "zod";
 
-import type {
-  PromptTemplateMode,
-  StockAnalysisRunMode,
-  StockAnalysisRunType,
-  TradingSide,
-} from "@/lib/api-types";
+import type { PromptTemplateMode } from "@/lib/types/prompt";
+import type { StockAnalysisRunMode, StockAnalysisRunType } from "@/lib/types/stock-analysis";
+import type { TradingSide } from "@/lib/types/trading";
 
 const promptTemplateModes = ["single", "two_step"] as const satisfies readonly PromptTemplateMode[];
 const tradingSides = ["BUY", "SELL", "DIVIDEND", "SPLIT"] as const satisfies readonly TradingSide[];

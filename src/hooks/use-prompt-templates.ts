@@ -6,7 +6,7 @@ import {
   updatePromptTemplate,
 } from "@/lib/api/prompt-templates";
 import { queryKeys } from "@/lib/query-keys";
-import type { PromptTemplateUpdate, PromptTemplateWrite } from "@/lib/api-types";
+import type { PromptTemplateUpdate, PromptTemplateWrite } from "@/lib/types/prompt";
 
 type UpdatePromptTemplateVariables = {
   templateId: number;

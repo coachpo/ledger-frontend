@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
-import type * as ApiTypes from "./api-types";
+import type { ListStockAnalysisConversationsParams, ListStockAnalysisResponsesParams, ListStockAnalysisVersionsParams, PromptPreviewRequest } from "./types/stock-analysis";
+import type { GetMarketHistoryParams, GetMarketQuotesParams } from "./types/market-data";
 
 const apiRoot = ["api"] as const;
 type IdParam = number | string;
@@ -21,7 +22,7 @@ function normalizeSymbols(symbols: readonly string[]) {
 }
 
 function normalizeConversationParams(
-  params: ApiTypes.ListStockAnalysisConversationsParams = {},
+  params: ListStockAnalysisConversationsParams = {},
 ) {
   return {
     includeArchived: params.includeArchived ?? false,
@@ -29,7 +30,7 @@ function normalizeConversationParams(
   };
 }
 
-function normalizeResponseParams(params: ApiTypes.ListStockAnalysisResponsesParams = {}) {
+function normalizeResponseParams(params: ListStockAnalysisResponsesParams = {}) {
   return {
     conversationId:
       params.conversationId === undefined || params.conversationId === null
@@ -39,13 +40,13 @@ function normalizeResponseParams(params: ApiTypes.ListStockAnalysisResponsesPara
   };
 }
 
-function normalizeVersionParams(params: ApiTypes.ListStockAnalysisVersionsParams = {}) {
+function normalizeVersionParams(params: ListStockAnalysisVersionsParams = {}) {
   return {
     symbol: params.symbol ?? null,
   };
 }
 
-function normalizeHistoryParams(params: ApiTypes.GetMarketHistoryParams) {
+function normalizeHistoryParams(params: GetMarketHistoryParams) {
   return {
     range: params.range ?? "3mo",
     symbols: normalizeSymbols(params.symbols),
@@ -84,13 +85,13 @@ const tradesQueryKeys = {
 
 const marketDataQueryKeys = {
   all: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "marketData"] as const,
-  quotes: (portfolioId: IdParam, params: ApiTypes.GetMarketQuotesParams) =>
+  quotes: (portfolioId: IdParam, params: GetMarketQuotesParams) =>
     [...portfolioRoot(portfolioId), "marketData", "quotes", normalizeSymbols(params.symbols)] as const,
 } as const;
 
 const marketHistoryQueryKeys = {
   all: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "marketHistory"] as const,
-  series: (portfolioId: IdParam, params: ApiTypes.GetMarketHistoryParams) =>
+  series: (portfolioId: IdParam, params: GetMarketHistoryParams) =>
     [...portfolioRoot(portfolioId), "marketHistory", "series", normalizeHistoryParams(params)] as const,
 } as const;
 
@@ -110,7 +111,7 @@ const promptTemplatesQueryKeys = {
   details: () => [...apiRoot, "promptTemplates", "detail"] as const,
   list: () => [...apiRoot, "promptTemplates", "list"] as const,
   lists: () => [...apiRoot, "promptTemplates", "list"] as const,
-  preview: (request: ApiTypes.PromptPreviewRequest) =>
+  preview: (request: PromptPreviewRequest) =>
     [...apiRoot, "promptTemplates", "preview", request] as const,
 } as const;
 
@@ -125,7 +126,7 @@ const snippetsQueryKeys = {
 
 const stockAnalysisQueryKeys = {
   all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId)] as const,
-  promptPreview: (portfolioId: IdParam, request?: ApiTypes.PromptPreviewRequest) =>
+  promptPreview: (portfolioId: IdParam, request?: PromptPreviewRequest) =>
     [...stockAnalysisRoot(portfolioId), "promptPreview", request ?? null] as const,
   settings: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "settings"] as const,
   conversations: {
@@ -139,7 +140,7 @@ const stockAnalysisQueryKeys = {
       ] as const,
     list: (
       portfolioId: IdParam,
-      params: ApiTypes.ListStockAnalysisConversationsParams = {},
+      params: ListStockAnalysisConversationsParams = {},
     ) =>
       [
         ...stockAnalysisRoot(portfolioId),
@@ -152,7 +153,7 @@ const stockAnalysisQueryKeys = {
     all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "responses"] as const,
     list: (
       portfolioId: IdParam,
-      params: ApiTypes.ListStockAnalysisResponsesParams = {},
+      params: ListStockAnalysisResponsesParams = {},
     ) =>
       [...stockAnalysisRoot(portfolioId), "responses", "list", normalizeResponseParams(params)] as const,
   },
@@ -174,7 +175,7 @@ const stockAnalysisQueryKeys = {
       ] as const,
     list: (
       portfolioId: IdParam,
-      params: ApiTypes.ListStockAnalysisVersionsParams = {},
+      params: ListStockAnalysisVersionsParams = {},
     ) =>
       [...stockAnalysisRoot(portfolioId), "versions", "list", normalizeVersionParams(params)] as const,
   },

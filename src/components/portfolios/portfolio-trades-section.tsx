@@ -5,7 +5,8 @@ import { toast } from "sonner";
 
 import { useCreateTradingOperation } from "@/hooks/use-trading-operations";
 import { formatCurrency, formatDateTime, formatDecimal } from "@/lib/format";
-import type { BalanceRead, TradingOperationInput, TradingOperationRead } from "@/lib/api-types";
+import type { BalanceRead } from "@/lib/types/balance";
+import type { TradingOperationInput, TradingOperationRead } from "@/lib/types/trading";
 
 import { DataTable } from "@/components/shared/data-table";
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";

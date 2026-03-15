@@ -1,15 +1,15 @@
-import type * as ApiTypes from "../api-types";
+import type { PortfolioRead, PortfolioWriteInput, PortfolioUpdateInput } from "../types/portfolio";
 import { type IdParam, portfolioPath, request } from "../api-client";
 
-export function listPortfolios(signal?: AbortSignal): Promise<ApiTypes.PortfolioRead[]> {
-  return request<ApiTypes.PortfolioRead[]>("/portfolios", { signal });
+export function listPortfolios(signal?: AbortSignal): Promise<PortfolioRead[]> {
+  return request<PortfolioRead[]>("/portfolios", { signal });
 }
 
 export function createPortfolio(
-  input: ApiTypes.PortfolioWriteInput,
+  input: PortfolioWriteInput,
   signal?: AbortSignal,
-): Promise<ApiTypes.PortfolioRead> {
-  return request<ApiTypes.PortfolioRead>("/portfolios", {
+): Promise<PortfolioRead> {
+  return request<PortfolioRead>("/portfolios", {
     body: input,
     method: "POST",
     signal,
@@ -19,16 +19,16 @@ export function createPortfolio(
 export function getPortfolio(
   portfolioId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.PortfolioRead> {
-  return request<ApiTypes.PortfolioRead>(portfolioPath(portfolioId), { signal });
+): Promise<PortfolioRead> {
+  return request<PortfolioRead>(portfolioPath(portfolioId), { signal });
 }
 
 export function updatePortfolio(
   portfolioId: IdParam,
-  input: ApiTypes.PortfolioUpdateInput,
+  input: PortfolioUpdateInput,
   signal?: AbortSignal,
-): Promise<ApiTypes.PortfolioRead> {
-  return request<ApiTypes.PortfolioRead>(portfolioPath(portfolioId), {
+): Promise<PortfolioRead> {
+  return request<PortfolioRead>(portfolioPath(portfolioId), {
     body: input,
     method: "PATCH",
     signal,

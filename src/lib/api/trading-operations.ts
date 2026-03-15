@@ -1,11 +1,11 @@
-import type * as ApiTypes from "../api-types";
+import type { TradingOperationRead, TradingOperationInput, TradingOperationResult } from "../types/trading";
 import { type IdParam, portfolioPath, request } from "../api-client";
 
 export function listTradingOperations(
   portfolioId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.TradingOperationRead[]> {
-  return request<ApiTypes.TradingOperationRead[]>(
+): Promise<TradingOperationRead[]> {
+  return request<TradingOperationRead[]>(
     `${portfolioPath(portfolioId)}/trading-operations`,
     { signal },
   );
@@ -13,10 +13,10 @@ export function listTradingOperations(
 
 export function createTradingOperation(
   portfolioId: IdParam,
-  input: ApiTypes.TradingOperationInput,
+  input: TradingOperationInput,
   signal?: AbortSignal,
-): Promise<ApiTypes.TradingOperationResult> {
-  return request<ApiTypes.TradingOperationResult>(`${portfolioPath(portfolioId)}/trading-operations`, {
+): Promise<TradingOperationResult> {
+  return request<TradingOperationResult>(`${portfolioPath(portfolioId)}/trading-operations`, {
     body: input,
     method: "POST",
     signal,

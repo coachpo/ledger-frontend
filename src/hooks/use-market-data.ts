@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getMarketHistory, getMarketQuotes } from "@/lib/api/market-data";
 import { queryKeys } from "@/lib/query-keys";
-import type { GetMarketHistoryParams, GetMarketQuotesParams } from "@/lib/api-types";
+import type { GetMarketHistoryParams, GetMarketQuotesParams } from "@/lib/types/market-data";
 
 type IdParam = number | string;
 

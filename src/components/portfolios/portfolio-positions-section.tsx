@@ -10,7 +10,7 @@ import {
   computePositionPnl,
   type PositionWithMarketData,
 } from "@/lib/portfolio-analytics";
-import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/api-types";
+import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/types/position";
 
 import { DataTable } from "@/components/shared/data-table";
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";

@@ -8,11 +8,7 @@ import {
   llmConfigUpdateFormSchema,
   type LlmConfigCreateFormValues,
 } from "@/components/shared/form-schemas";
-import type {
-  LlmConfigRead,
-  LlmConfigUpdate,
-  LlmConfigWrite,
-} from "@/lib/api-types";
+import type { LlmConfigRead, LlmConfigUpdate, LlmConfigWrite } from "@/lib/types/llm";
 import { Button } from "@/components/ui/button";
 import {
   Form,

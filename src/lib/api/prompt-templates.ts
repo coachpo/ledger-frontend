@@ -1,15 +1,16 @@
-import type * as ApiTypes from "../api-types";
+import type { PromptTemplateRead, PromptTemplateWrite, PromptTemplateUpdate } from "../types/prompt";
+import type { PromptPreviewRequest, PromptPreviewResponse } from "../types/stock-analysis";
 import { type IdParam, request, toPathSegment } from "../api-client";
 
-export function listPromptTemplates(signal?: AbortSignal): Promise<ApiTypes.PromptTemplateRead[]> {
-  return request<ApiTypes.PromptTemplateRead[]>("/stock-analysis/prompt-templates", { signal });
+export function listPromptTemplates(signal?: AbortSignal): Promise<PromptTemplateRead[]> {
+  return request<PromptTemplateRead[]>("/stock-analysis/prompt-templates", { signal });
 }
 
 export function createPromptTemplate(
-  input: ApiTypes.PromptTemplateWrite,
+  input: PromptTemplateWrite,
   signal?: AbortSignal,
-): Promise<ApiTypes.PromptTemplateRead> {
-  return request<ApiTypes.PromptTemplateRead>("/stock-analysis/prompt-templates", {
+): Promise<PromptTemplateRead> {
+  return request<PromptTemplateRead>("/stock-analysis/prompt-templates", {
     body: input,
     method: "POST",
     signal,
@@ -19,8 +20,8 @@ export function createPromptTemplate(
 export function getPromptTemplate(
   templateId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.PromptTemplateRead> {
-  return request<ApiTypes.PromptTemplateRead>(
+): Promise<PromptTemplateRead> {
+  return request<PromptTemplateRead>(
     `/stock-analysis/prompt-templates/${toPathSegment(templateId)}`,
     { signal },
   );
@@ -28,10 +29,10 @@ export function getPromptTemplate(
 
 export function updatePromptTemplate(
   templateId: IdParam,
-  input: ApiTypes.PromptTemplateUpdate,
+  input: PromptTemplateUpdate,
   signal?: AbortSignal,
-): Promise<ApiTypes.PromptTemplateRead> {
-  return request<ApiTypes.PromptTemplateRead>(
+): Promise<PromptTemplateRead> {
+  return request<PromptTemplateRead>(
     `/stock-analysis/prompt-templates/${toPathSegment(templateId)}`,
     {
       body: input,
@@ -49,10 +50,10 @@ export function deletePromptTemplate(templateId: IdParam, signal?: AbortSignal):
 }
 
 export function previewPromptTemplate(
-  input: ApiTypes.PromptPreviewRequest,
+  input: PromptPreviewRequest,
   signal?: AbortSignal,
-): Promise<ApiTypes.PromptPreviewResponse> {
-  return request<ApiTypes.PromptPreviewResponse>("/stock-analysis/prompt-templates/preview", {
+): Promise<PromptPreviewResponse> {
+  return request<PromptPreviewResponse>("/stock-analysis/prompt-templates/preview", {
     body: input,
     method: "POST",
     signal,

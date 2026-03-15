@@ -1,21 +1,22 @@
-import type * as ApiTypes from "../api-types";
+import type { PortfolioStockAnalysisSettingsRead, PortfolioStockAnalysisSettingsUpdate } from "../types/portfolio";
+import type { ListStockAnalysisConversationsParams, StockAnalysisConversationRead, StockAnalysisConversationWrite, StockAnalysisConversationUpdate, StockAnalysisRunRead, StockAnalysisRunCreate, ListStockAnalysisResponsesParams, StockAnalysisResponseSummary, ListStockAnalysisVersionsParams, StockAnalysisVersionRead, PromptPreviewRequest, PromptPreviewResponse } from "../types/stock-analysis";
 import { type IdParam, request, stockAnalysisPath, toPathSegment } from "../api-client";
 
 export function getPortfolioStockAnalysisSettings(
   portfolioId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.PortfolioStockAnalysisSettingsRead> {
-  return request<ApiTypes.PortfolioStockAnalysisSettingsRead>(`${stockAnalysisPath(portfolioId)}/settings`, {
+): Promise<PortfolioStockAnalysisSettingsRead> {
+  return request<PortfolioStockAnalysisSettingsRead>(`${stockAnalysisPath(portfolioId)}/settings`, {
     signal,
   });
 }
 
 export function updatePortfolioStockAnalysisSettings(
   portfolioId: IdParam,
-  input: ApiTypes.PortfolioStockAnalysisSettingsUpdate,
+  input: PortfolioStockAnalysisSettingsUpdate,
   signal?: AbortSignal,
-): Promise<ApiTypes.PortfolioStockAnalysisSettingsRead> {
-  return request<ApiTypes.PortfolioStockAnalysisSettingsRead>(`${stockAnalysisPath(portfolioId)}/settings`, {
+): Promise<PortfolioStockAnalysisSettingsRead> {
+  return request<PortfolioStockAnalysisSettingsRead>(`${stockAnalysisPath(portfolioId)}/settings`, {
     body: input,
     method: "PATCH",
     signal,
@@ -24,10 +25,10 @@ export function updatePortfolioStockAnalysisSettings(
 
 export function listStockAnalysisConversations(
   portfolioId: IdParam,
-  params: ApiTypes.ListStockAnalysisConversationsParams = {},
+  params: ListStockAnalysisConversationsParams = {},
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisConversationRead[]> {
-  return request<ApiTypes.StockAnalysisConversationRead[]>(`${stockAnalysisPath(portfolioId)}/conversations`, {
+): Promise<StockAnalysisConversationRead[]> {
+  return request<StockAnalysisConversationRead[]>(`${stockAnalysisPath(portfolioId)}/conversations`, {
     query: {
       include_archived: params.includeArchived,
       symbol: params.symbol,
@@ -38,10 +39,10 @@ export function listStockAnalysisConversations(
 
 export function createStockAnalysisConversation(
   portfolioId: IdParam,
-  input: ApiTypes.StockAnalysisConversationWrite,
+  input: StockAnalysisConversationWrite,
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisConversationRead> {
-  return request<ApiTypes.StockAnalysisConversationRead>(`${stockAnalysisPath(portfolioId)}/conversations`, {
+): Promise<StockAnalysisConversationRead> {
+  return request<StockAnalysisConversationRead>(`${stockAnalysisPath(portfolioId)}/conversations`, {
     body: input,
     method: "POST",
     signal,
@@ -52,8 +53,8 @@ export function getStockAnalysisConversation(
   portfolioId: IdParam,
   conversationId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisConversationRead> {
-  return request<ApiTypes.StockAnalysisConversationRead>(
+): Promise<StockAnalysisConversationRead> {
+  return request<StockAnalysisConversationRead>(
     `${stockAnalysisPath(portfolioId)}/conversations/${toPathSegment(conversationId)}`,
     { signal },
   );
@@ -62,10 +63,10 @@ export function getStockAnalysisConversation(
 export function updateStockAnalysisConversation(
   portfolioId: IdParam,
   conversationId: IdParam,
-  input: ApiTypes.StockAnalysisConversationUpdate,
+  input: StockAnalysisConversationUpdate,
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisConversationRead> {
-  return request<ApiTypes.StockAnalysisConversationRead>(
+): Promise<StockAnalysisConversationRead> {
+  return request<StockAnalysisConversationRead>(
     `${stockAnalysisPath(portfolioId)}/conversations/${toPathSegment(conversationId)}`,
     {
       body: input,
@@ -79,8 +80,8 @@ export function listStockAnalysisRuns(
   portfolioId: IdParam,
   conversationId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisRunRead[]> {
-  return request<ApiTypes.StockAnalysisRunRead[]>(
+): Promise<StockAnalysisRunRead[]> {
+  return request<StockAnalysisRunRead[]>(
     `${stockAnalysisPath(portfolioId)}/conversations/${toPathSegment(conversationId)}/runs`,
     { signal },
   );
@@ -89,10 +90,10 @@ export function listStockAnalysisRuns(
 export function createStockAnalysisRun(
   portfolioId: IdParam,
   conversationId: IdParam,
-  input: ApiTypes.StockAnalysisRunCreate,
+  input: StockAnalysisRunCreate,
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisRunRead> {
-  return request<ApiTypes.StockAnalysisRunRead>(
+): Promise<StockAnalysisRunRead> {
+  return request<StockAnalysisRunRead>(
     `${stockAnalysisPath(portfolioId)}/conversations/${toPathSegment(conversationId)}/runs`,
     {
       body: input,
@@ -106,8 +107,8 @@ export function getStockAnalysisRun(
   portfolioId: IdParam,
   runId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisRunRead> {
-  return request<ApiTypes.StockAnalysisRunRead>(
+): Promise<StockAnalysisRunRead> {
+  return request<StockAnalysisRunRead>(
     `${stockAnalysisPath(portfolioId)}/runs/${toPathSegment(runId)}`,
     {
       signal,
@@ -119,8 +120,8 @@ export function executeStockAnalysisRun(
   portfolioId: IdParam,
   runId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisRunRead> {
-  return request<ApiTypes.StockAnalysisRunRead>(
+): Promise<StockAnalysisRunRead> {
+  return request<StockAnalysisRunRead>(
     `${stockAnalysisPath(portfolioId)}/runs/${toPathSegment(runId)}/execute`,
     {
       method: "POST",
@@ -131,10 +132,10 @@ export function executeStockAnalysisRun(
 
 export function listStockAnalysisResponses(
   portfolioId: IdParam,
-  params: ApiTypes.ListStockAnalysisResponsesParams = {},
+  params: ListStockAnalysisResponsesParams = {},
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisResponseSummary[]> {
-  return request<ApiTypes.StockAnalysisResponseSummary[]>(`${stockAnalysisPath(portfolioId)}/responses`, {
+): Promise<StockAnalysisResponseSummary[]> {
+  return request<StockAnalysisResponseSummary[]>(`${stockAnalysisPath(portfolioId)}/responses`, {
     query: {
       conversation_id: params.conversationId,
       limit: params.limit,
@@ -145,10 +146,10 @@ export function listStockAnalysisResponses(
 
 export function listStockAnalysisVersions(
   portfolioId: IdParam,
-  params: ApiTypes.ListStockAnalysisVersionsParams = {},
+  params: ListStockAnalysisVersionsParams = {},
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisVersionRead[]> {
-  return request<ApiTypes.StockAnalysisVersionRead[]>(`${stockAnalysisPath(portfolioId)}/versions`, {
+): Promise<StockAnalysisVersionRead[]> {
+  return request<StockAnalysisVersionRead[]>(`${stockAnalysisPath(portfolioId)}/versions`, {
     query: { symbol: params.symbol },
     signal,
   });
@@ -158,8 +159,8 @@ export function getStockAnalysisVersion(
   portfolioId: IdParam,
   versionId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.StockAnalysisVersionRead> {
-  return request<ApiTypes.StockAnalysisVersionRead>(
+): Promise<StockAnalysisVersionRead> {
+  return request<StockAnalysisVersionRead>(
     `${stockAnalysisPath(portfolioId)}/versions/${toPathSegment(versionId)}`,
     { signal },
   );
@@ -167,10 +168,10 @@ export function getStockAnalysisVersion(
 
 export function previewStockAnalysisPrompt(
   portfolioId: IdParam,
-  input: ApiTypes.PromptPreviewRequest,
+  input: PromptPreviewRequest,
   signal?: AbortSignal,
-): Promise<ApiTypes.PromptPreviewResponse> {
-  return request<ApiTypes.PromptPreviewResponse>(`${stockAnalysisPath(portfolioId)}/prompt-preview`, {
+): Promise<PromptPreviewResponse> {
+  return request<PromptPreviewResponse>(`${stockAnalysisPath(portfolioId)}/prompt-preview`, {
     body: input,
     method: "POST",
     signal,

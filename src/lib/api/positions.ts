@@ -1,21 +1,22 @@
-import type * as ApiTypes from "../api-types";
+import type { PositionRead, PositionWriteInput, PositionUpdateInput } from "../types/position";
+import type { CsvPreviewRead, CsvCommitRead } from "../types/csv";
 import { type IdParam, createCsvFormData, portfolioPath, request, toPathSegment } from "../api-client";
 
 export function listPositions(
   portfolioId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.PositionRead[]> {
-  return request<ApiTypes.PositionRead[]>(`${portfolioPath(portfolioId)}/positions`, {
+): Promise<PositionRead[]> {
+  return request<PositionRead[]>(`${portfolioPath(portfolioId)}/positions`, {
     signal,
   });
 }
 
 export function createPosition(
   portfolioId: IdParam,
-  input: ApiTypes.PositionWriteInput,
+  input: PositionWriteInput,
   signal?: AbortSignal,
-): Promise<ApiTypes.PositionRead> {
-  return request<ApiTypes.PositionRead>(`${portfolioPath(portfolioId)}/positions`, {
+): Promise<PositionRead> {
+  return request<PositionRead>(`${portfolioPath(portfolioId)}/positions`, {
     body: input,
     method: "POST",
     signal,
@@ -25,10 +26,10 @@ export function createPosition(
 export function updatePosition(
   portfolioId: IdParam,
   positionId: IdParam,
-  input: ApiTypes.PositionUpdateInput,
+  input: PositionUpdateInput,
   signal?: AbortSignal,
-): Promise<ApiTypes.PositionRead> {
-  return request<ApiTypes.PositionRead>(
+): Promise<PositionRead> {
+  return request<PositionRead>(
     `${portfolioPath(portfolioId)}/positions/${toPathSegment(positionId)}`,
     {
       body: input,
@@ -53,8 +54,8 @@ export function previewPositionImport(
   portfolioId: IdParam,
   file: File,
   signal?: AbortSignal,
-): Promise<ApiTypes.CsvPreviewRead> {
-  return request<ApiTypes.CsvPreviewRead>(`${portfolioPath(portfolioId)}/positions/imports/preview`, {
+): Promise<CsvPreviewRead> {
+  return request<CsvPreviewRead>(`${portfolioPath(portfolioId)}/positions/imports/preview`, {
     body: createCsvFormData(file),
     method: "POST",
     signal,
@@ -65,8 +66,8 @@ export function commitPositionImport(
   portfolioId: IdParam,
   file: File,
   signal?: AbortSignal,
-): Promise<ApiTypes.CsvCommitRead> {
-  return request<ApiTypes.CsvCommitRead>(`${portfolioPath(portfolioId)}/positions/imports/commit`, {
+): Promise<CsvCommitRead> {
+  return request<CsvCommitRead>(`${portfolioPath(portfolioId)}/positions/imports/commit`, {
     body: createCsvFormData(file),
     method: "POST",
     signal,

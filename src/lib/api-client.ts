@@ -1,4 +1,4 @@
-import type * as ApiTypes from "./api-types";
+import type { ApiErrorDetail, ApiErrorResponse } from "./types/common";
 
 export type RequestMethod = "DELETE" | "GET" | "PATCH" | "POST";
 export type RequestQueryValue = boolean | number | string | null | undefined;
@@ -13,7 +13,7 @@ export interface RequestOptions {
 
 export interface ApiRequestErrorOptions {
   code: string;
-  details?: ApiTypes.ApiErrorDetail[];
+  details?: ApiErrorDetail[];
   message: string;
   status: number;
 }
@@ -25,7 +25,7 @@ const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
 export class ApiRequestError extends Error {
   readonly code: string;
-  readonly details: ApiTypes.ApiErrorDetail[];
+  readonly details: ApiErrorDetail[];
   readonly status: number;
 
   constructor({ status, code, message, details = [] }: ApiRequestErrorOptions) {
@@ -81,7 +81,7 @@ function buildUrl(path: string, query?: Record<string, RequestQueryValue>): stri
   return `${API_BASE_URL}${normalizedPath}?${queryString}`;
 }
 
-function isApiErrorDetail(value: unknown): value is ApiTypes.ApiErrorDetail {
+function isApiErrorDetail(value: unknown): value is ApiErrorDetail {
   if (!value || typeof value !== "object") {
     return false;
   }
@@ -98,7 +98,7 @@ async function toApiRequestError(response: Response): Promise<ApiRequestError> {
 
   if (contentType.includes("application/json")) {
     const payload = (await response.json()) as
-      | (Partial<ApiTypes.ApiErrorResponse> & { detail?: unknown })
+      | (Partial<ApiErrorResponse> & { detail?: unknown })
       | null;
 
     return new ApiRequestError({

@@ -15,16 +15,8 @@ import {
   updateStockAnalysisConversation,
 } from "@/lib/api/stock-analysis";
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
-import type {
-  ListStockAnalysisConversationsParams,
-  ListStockAnalysisResponsesParams,
-  ListStockAnalysisVersionsParams,
-  PortfolioStockAnalysisSettingsUpdate,
-  PromptPreviewRequest,
-  StockAnalysisConversationUpdate,
-  StockAnalysisConversationWrite,
-  StockAnalysisRunCreate,
-} from "@/lib/api-types";
+import type { ListStockAnalysisConversationsParams, ListStockAnalysisResponsesParams, ListStockAnalysisVersionsParams, PromptPreviewRequest, StockAnalysisConversationUpdate, StockAnalysisConversationWrite, StockAnalysisRunCreate } from "@/lib/types/stock-analysis";
+import type { PortfolioStockAnalysisSettingsUpdate } from "@/lib/types/portfolio";
 
 type IdParam = number | string;
 

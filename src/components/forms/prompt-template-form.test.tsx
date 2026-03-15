@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { PromptTemplateRead } from "@/lib/api-types";
+import type { PromptTemplateRead } from "@/lib/types/prompt";
 
 import { PromptTemplateForm } from "./prompt-template-form";
 

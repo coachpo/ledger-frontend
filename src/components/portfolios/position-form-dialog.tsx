@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/api-types";
+import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/types/position";
 import { positionCreateFormSchema, type PositionCreateFormValues } from "@/components/shared/form-schemas";
 
 import { Button } from "@/components/ui/button";

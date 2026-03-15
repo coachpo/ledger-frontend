@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import type { BalanceRead, MarketQuoteRead, PositionRead } from "./api-types";
+import type { BalanceRead } from "./types/balance";
+import type { MarketQuoteRead } from "./types/market-data";
+import type { PositionRead } from "./types/position";
 import {
   computePortfolioAllocation,
   computePortfolioTotalValue,

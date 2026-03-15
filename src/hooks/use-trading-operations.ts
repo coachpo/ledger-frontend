@@ -4,7 +4,7 @@ import {
   listTradingOperations,
 } from "@/lib/api/trading-operations";
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
-import type { TradingOperationInput } from "@/lib/api-types";
+import type { TradingOperationInput } from "@/lib/types/trading";
 
 type IdParam = number | string;
 

@@ -7,7 +7,7 @@ import {
   updatePortfolio,
 } from "@/lib/api/portfolios";
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
-import type { PortfolioUpdateInput, PortfolioWriteInput } from "@/lib/api-types";
+import type { PortfolioUpdateInput, PortfolioWriteInput } from "@/lib/types/portfolio";
 
 type IdParam = number | string;
 

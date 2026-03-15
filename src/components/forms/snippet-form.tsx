@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import type { UserSnippetCreate, UserSnippetRead, UserSnippetUpdate } from "@/lib/api-types";
+import type { UserSnippetCreate, UserSnippetRead, UserSnippetUpdate } from "@/lib/types/snippet";
 import { snippetFormSchema, type SnippetFormValues } from "@/components/shared/form-schemas";
 
 import { Button } from "@/components/ui/button";

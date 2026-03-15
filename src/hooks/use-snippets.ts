@@ -6,7 +6,7 @@ import {
   updateUserSnippet,
 } from "@/lib/api/snippets";
 import { queryKeys } from "@/lib/query-keys";
-import type { UserSnippetCreate, UserSnippetUpdate } from "@/lib/api-types";
+import type { UserSnippetCreate, UserSnippetUpdate } from "@/lib/types/snippet";
 
 type UpdateSnippetVariables = {
   snippetId: number;

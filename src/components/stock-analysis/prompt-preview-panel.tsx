@@ -4,7 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePromptPreview } from "@/hooks/use-stock-analysis";
-import type { PromptPreviewRequest } from "@/lib/api-types";
+import type { PromptPreviewRequest } from "@/lib/types/stock-analysis";
 
 type PromptPreviewPanelProps = {
   request: PromptPreviewRequest | undefined;

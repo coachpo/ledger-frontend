@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import type { PortfolioRead, PortfolioUpdateInput, PortfolioWriteInput } from "@/lib/api-types";
+import type { PortfolioRead, PortfolioUpdateInput, PortfolioWriteInput } from "@/lib/types/portfolio";
 import { portfolioCreateFormSchema, type PortfolioCreateFormValues } from "@/components/shared/form-schemas";
 
 import { Button } from "@/components/ui/button";

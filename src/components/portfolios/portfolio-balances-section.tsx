@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 import { useCreateBalance, useDeleteBalance, useUpdateBalance } from "@/hooks/use-balances";
 import { formatCurrency, formatDateTime } from "@/lib/format";
-import type { BalanceRead, BalanceUpdateInput, BalanceWriteInput } from "@/lib/api-types";
+import type { BalanceRead, BalanceUpdateInput, BalanceWriteInput } from "@/lib/types/balance";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

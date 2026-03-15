@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import type { BalanceRead, BalanceUpdateInput, BalanceWriteInput } from "@/lib/api-types";
+import type { BalanceRead, BalanceUpdateInput, BalanceWriteInput } from "@/lib/types/balance";
 import { balanceFormSchema, type BalanceFormValues } from "@/components/shared/form-schemas";
 
 import { Button } from "@/components/ui/button";

@@ -6,7 +6,7 @@ import {
   updateBalance,
 } from "@/lib/api/balances";
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
-import type { BalanceUpdateInput, BalanceWriteInput } from "@/lib/api-types";
+import type { BalanceUpdateInput, BalanceWriteInput } from "@/lib/types/balance";
 
 type IdParam = number | string;
 

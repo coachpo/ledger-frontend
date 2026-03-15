@@ -3,10 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import type {
-  StockAnalysisConversationRead,
-  StockAnalysisConversationWrite,
-} from "@/lib/api-types";
+import type { StockAnalysisConversationRead, StockAnalysisConversationWrite } from "@/lib/types/stock-analysis";
 import { formatDateTime } from "@/lib/format";
 import {
   conversationFormSchema,

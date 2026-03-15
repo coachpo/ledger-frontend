@@ -6,7 +6,7 @@ import {
   updateLlmConfig,
 } from "@/lib/api/llm-configs";
 import { queryKeys } from "@/lib/query-keys";
-import type { LlmConfigUpdate, LlmConfigWrite } from "@/lib/api-types";
+import type { LlmConfigUpdate, LlmConfigWrite } from "@/lib/types/llm";
 
 type UpdateLlmConfigVariables = {
   configId: number;

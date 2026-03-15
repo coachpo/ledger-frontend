@@ -1,4 +1,6 @@
-import type { PositionRead, MarketQuoteRead, BalanceRead } from "./api-types";
+import type { PositionRead } from "./types/position";
+import type { MarketQuoteRead } from "./types/market-data";
+import type { BalanceRead } from "./types/balance";
 
 export interface PositionWithMarketData extends PositionRead {
   currentPrice?: string;

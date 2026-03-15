@@ -1,21 +1,21 @@
-import type * as ApiTypes from "../api-types";
+import type { BalanceRead, BalanceWriteInput, BalanceUpdateInput } from "../types/balance";
 import { type IdParam, portfolioPath, request, toPathSegment } from "../api-client";
 
 export function listBalances(
   portfolioId: IdParam,
   signal?: AbortSignal,
-): Promise<ApiTypes.BalanceRead[]> {
-  return request<ApiTypes.BalanceRead[]>(`${portfolioPath(portfolioId)}/balances`, {
+): Promise<BalanceRead[]> {
+  return request<BalanceRead[]>(`${portfolioPath(portfolioId)}/balances`, {
     signal,
   });
 }
 
 export function createBalance(
   portfolioId: IdParam,
-  input: ApiTypes.BalanceWriteInput,
+  input: BalanceWriteInput,
   signal?: AbortSignal,
-): Promise<ApiTypes.BalanceRead> {
-  return request<ApiTypes.BalanceRead>(`${portfolioPath(portfolioId)}/balances`, {
+): Promise<BalanceRead> {
+  return request<BalanceRead>(`${portfolioPath(portfolioId)}/balances`, {
     body: input,
     method: "POST",
     signal,
@@ -25,10 +25,10 @@ export function createBalance(
 export function updateBalance(
   portfolioId: IdParam,
   balanceId: IdParam,
-  input: ApiTypes.BalanceUpdateInput,
+  input: BalanceUpdateInput,
   signal?: AbortSignal,
-): Promise<ApiTypes.BalanceRead> {
-  return request<ApiTypes.BalanceRead>(
+): Promise<BalanceRead> {
+  return request<BalanceRead>(
     `${portfolioPath(portfolioId)}/balances/${toPathSegment(balanceId)}`,
     {
       body: input,

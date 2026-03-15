@@ -1,8 +1,5 @@
-import type {
-  LlmProvider,
-  OpenaiEndpointMode,
-  UnknownRecord,
-} from "@/lib/api-types";
+import type { LlmProvider, OpenaiEndpointMode } from "@/lib/types/llm";
+import type { UnknownRecord } from "@/lib/types/common";
 
 export const DEFAULT_TEMPERATURE = 0.5;
 export const DEFAULT_MAX_TOKENS = 4096;

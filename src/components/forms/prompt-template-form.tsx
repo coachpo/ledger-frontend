@@ -2,11 +2,7 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import type {
-  PromptTemplateRead,
-  PromptTemplateUpdate,
-  PromptTemplateWrite,
-} from "@/lib/api-types";
+import type { PromptTemplateRead, PromptTemplateUpdate, PromptTemplateWrite } from "@/lib/types/prompt";
 import {
   promptTemplateFormSchema,
   type PromptTemplateFormValues,

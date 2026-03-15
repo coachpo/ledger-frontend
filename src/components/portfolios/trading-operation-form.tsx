@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import type { BalanceRead, TradingOperationInput } from "@/lib/api-types";
+import type { BalanceRead } from "@/lib/types/balance";
+import type { TradingOperationInput } from "@/lib/types/trading";
 import {
   tradingOperationFormSchema,
   type TradingOperationFormValues,

@@ -8,7 +8,7 @@ import {
   updatePosition,
 } from "@/lib/api/positions";
 import { invalidatePortfolioScope, queryKeys } from "@/lib/query-keys";
-import type { PositionUpdateInput, PositionWriteInput } from "@/lib/api-types";
+import type { PositionUpdateInput, PositionWriteInput } from "@/lib/types/position";
 
 type IdParam = number | string;
 

@@ -37,13 +37,8 @@ import { useLlmConfigs } from "@/hooks/use-llm-configs";
 import { usePromptTemplates } from "@/hooks/use-prompt-templates";
 import { useCreateRun, useExecuteRun } from "@/hooks/use-stock-analysis";
 import { ApiRequestError } from "@/lib/api-client";
-import type {
-  PortfolioStockAnalysisSettingsRead,
-  PromptPreviewRequest,
-  StockAnalysisRunCreate,
-  StockAnalysisRunMode,
-  StockAnalysisRunType,
-} from "@/lib/api-types";
+import type { PortfolioStockAnalysisSettingsRead } from "@/lib/types/portfolio";
+import type { PromptPreviewRequest, StockAnalysisRunCreate, StockAnalysisRunMode, StockAnalysisRunType } from "@/lib/types/stock-analysis";
 
 const EMPTY_SELECT_VALUE = "__none__";
 
