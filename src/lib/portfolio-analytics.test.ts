@@ -9,6 +9,7 @@ import {
   computePositionMarketValue,
   computePositionPnl,
   enrichPositionsWithQuotes,
+  getSignedBalanceAmount,
   type PositionWithMarketData,
 } from "./portfolio-analytics";
 
@@ -50,6 +51,7 @@ function makeBalance(overrides: Partial<BalanceRead> = {}): BalanceRead {
     label: "Broker Cash",
     amount: "500.25",
     currency: "USD",
+    hasTradingOperations: overrides.hasTradingOperations ?? false,
     createdAt: FIXTURE_TIME,
     updatedAt: FIXTURE_TIME,
     ...overrides,
@@ -106,6 +108,15 @@ describe("portfolio analytics", () => {
     const balances = [makeBalance(), makeBalance({ id: 2, label: "FX", amount: "invalid" })];
 
     expect(computePortfolioTotalValue(positions, balances)).toBeCloseTo(2400.25);
+  });
+
+  it("treats withdrawals as negative cash", () => {
+    const deposit = makeBalance({ amount: "1000" });
+    const withdrawal = makeBalance({ id: 2, label: "Cash Out", amount: "200", operationType: "WITHDRAWAL" });
+
+    expect(getSignedBalanceAmount(deposit)).toBe(1000);
+    expect(getSignedBalanceAmount(withdrawal)).toBe(-200);
+    expect(computePortfolioTotalValue([], [deposit, withdrawal])).toBe(800);
   });
 
   it("builds sorted allocation data and handles zero total portfolios", () => {

@@ -5,6 +5,7 @@ export interface BalanceRead {
   amount: string;
   currency: string;
   operationType: "DEPOSIT" | "WITHDRAWAL";
+  hasTradingOperations: boolean;
   createdAt: string;
   updatedAt: string;
 }

@@ -21,6 +21,7 @@ type PortfolioTradesSectionProps = {
   portfolioId: number | string;
   balances: BalanceRead[];
   operations: TradingOperationRead[];
+  hasPositions: boolean;
 };
 
 function describeOperation(operation: TradingOperationRead) {
@@ -39,9 +40,14 @@ export function PortfolioTradesSection({
   portfolioId,
   balances,
   operations,
+  hasPositions,
 }: PortfolioTradesSectionProps) {
   const createMutation = useCreateTradingOperation(portfolioId);
   const [showForm, setShowForm] = useState(false);
+  const depositBalances = useMemo(
+    () => balances.filter((balance) => balance.operationType === "DEPOSIT"),
+    [balances],
+  );
   const sortedOperations = useMemo(
     () => [...operations].sort((left, right) => right.executedAt.localeCompare(left.executedAt)),
     [operations],
@@ -91,14 +97,16 @@ export function PortfolioTradesSection({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-4">
         <CardTitle>Trading Operations</CardTitle>
-        <Button onClick={() => setShowForm(true)} disabled={balances.length === 0}>
+        <Button onClick={() => setShowForm(true)} disabled={depositBalances.length === 0 && !hasPositions}>
           <Plus className="mr-1 size-4" /> Add Operation
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
-        {balances.length === 0 ? (
+        {depositBalances.length === 0 ? (
           <div className="rounded-xl border border-dashed px-4 py-6 text-sm text-muted-foreground">
-            Add a balance before recording BUY, SELL, DIVIDEND, or SPLIT operations.
+            {hasPositions
+              ? "Add a deposit balance for BUY, SELL, or DIVIDEND operations. SPLIT remains available for existing positions."
+              : "Add a deposit balance before recording BUY, SELL, or DIVIDEND operations. SPLIT requires an existing position."}
           </div>
         ) : null}
         <DataTable
@@ -116,7 +124,7 @@ export function PortfolioTradesSection({
             <DialogTitle>Record Trading Operation</DialogTitle>
           </DialogHeader>
           <TradingOperationForm
-            balances={balances}
+            balances={depositBalances}
             isPending={createMutation.isPending}
             onCancel={() => setShowForm(false)}
             onSave={(data: TradingOperationInput) => {

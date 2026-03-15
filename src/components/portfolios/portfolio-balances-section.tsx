@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { useCreateBalance, useDeleteBalance, useUpdateBalance } from "@/hooks/use-balances";
 import { formatCurrency, formatDateTime } from "@/lib/format";
+import { getSignedBalanceAmount } from "@/lib/portfolio-analytics";
 import type { BalanceRead, BalanceUpdateInput, BalanceWriteInput } from "@/lib/types/balance";
 
 import { Button } from "@/components/ui/button";
@@ -60,7 +61,9 @@ export function PortfolioBalancesSection({
                     </Button>
                   </div>
                 </div>
-                <p className="text-2xl tracking-tight">{formatCurrency(balance.amount, balance.currency)}</p>
+                <p className="text-2xl tracking-tight">
+                  {formatCurrency(getSignedBalanceAmount(balance) ?? 0, balance.currency)}
+                </p>
                 <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{balance.currency}</p>
               </CardContent>
             </Card>

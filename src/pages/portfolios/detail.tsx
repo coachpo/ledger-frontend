@@ -11,6 +11,7 @@ import { useTradingOperations } from "@/hooks/use-trading-operations";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import {
   computePortfolioTotalValue,
+  getSignedBalanceAmount,
   computePositionPnl,
   enrichPositionsWithQuotes,
 } from "@/lib/portfolio-analytics";
@@ -50,7 +51,7 @@ export function PortfolioDetailPage() {
   );
   const portfolio = portfolioQuery.data;
   const totalValue = computePortfolioTotalValue(enrichedPositions, balances);
-  const cashValue = balances.reduce((sum, balance) => sum + Number.parseFloat(balance.amount), 0);
+  const cashValue = balances.reduce((sum, balance) => sum + (getSignedBalanceAmount(balance) ?? 0), 0);
   const unrealizedPnl = enrichedPositions.reduce(
     (sum, position) => sum + (computePositionPnl(position).unrealized ?? 0),
     0,
@@ -135,7 +136,12 @@ export function PortfolioDetailPage() {
           <PortfolioBalancesSection portfolioId={portfolio.id} balances={balances} />
         </TabsContent>
         <TabsContent value="trades">
-          <PortfolioTradesSection portfolioId={portfolio.id} balances={balances} operations={operations} />
+          <PortfolioTradesSection
+            portfolioId={portfolio.id}
+            balances={balances}
+            operations={operations}
+            hasPositions={positions.length > 0}
+          />
         </TabsContent>
       </Tabs>
 

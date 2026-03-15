@@ -52,7 +52,7 @@ export const positionUpdateFormSchema = z.object({
 
 export const tradingOperationFormSchema = z
   .object({
-    balanceId: requiredText("Balance"),
+    balanceId: optionalText,
     commission: optionalText,
     dividendAmount: optionalText,
     executedAt: validDateTimeText,
@@ -64,6 +64,14 @@ export const tradingOperationFormSchema = z
   })
   .superRefine((value, ctx) => {
     if (value.side === "BUY" || value.side === "SELL") {
+      if (!value.balanceId.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Balance is required",
+          path: ["balanceId"],
+        });
+      }
+
       if (!value.quantity.trim()) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -96,6 +104,14 @@ export const tradingOperationFormSchema = z
     }
 
     if (value.side === "DIVIDEND") {
+      if (!value.balanceId.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Balance is required",
+          path: ["balanceId"],
+        });
+      }
+
       if (!value.dividendAmount.trim()) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

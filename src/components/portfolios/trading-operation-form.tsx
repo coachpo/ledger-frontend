@@ -42,7 +42,7 @@ export function TradingOperationForm({
       executedAt: new Date().toISOString().slice(0, 16),
       price: "",
       quantity: "",
-      side: "BUY",
+      side: balances.length > 0 ? "BUY" : "SPLIT",
       splitRatio: "",
       symbol: "",
     },
@@ -50,8 +50,14 @@ export function TradingOperationForm({
     resolver: zodResolver(tradingOperationFormSchema),
   });
   const side = form.watch("side");
+  const requiresBalance = side !== "SPLIT";
 
   useEffect(() => {
+    if (!requiresBalance) {
+      form.setValue("balanceId", "", { shouldValidate: true });
+      return;
+    }
+
     const selectedBalanceId = form.getValues("balanceId");
     if (!selectedBalanceId && balances[0]?.id) {
       form.setValue("balanceId", String(balances[0].id), { shouldValidate: true });
@@ -64,9 +70,9 @@ export function TradingOperationForm({
     ) {
       form.setValue("balanceId", balances[0]?.id ? String(balances[0].id) : "", {
         shouldValidate: true,
-      });
+        });
     }
-  }, [balances, form]);
+  }, [balances, form, requiresBalance]);
 
   const requiresQuantityAndPrice = side === "BUY" || side === "SELL";
 
@@ -76,7 +82,6 @@ export function TradingOperationForm({
         className="space-y-4"
         onSubmit={form.handleSubmit((values) => {
           const common = {
-            balanceId: Number(values.balanceId),
             executedAt: new Date(values.executedAt).toISOString(),
             symbol: values.symbol.trim().toUpperCase(),
           };
@@ -84,6 +89,7 @@ export function TradingOperationForm({
           if (values.side === "BUY") {
             onSave({
               ...common,
+              balanceId: Number(values.balanceId),
               commission: values.commission.trim() || undefined,
               price: values.price.trim(),
               quantity: values.quantity.trim(),
@@ -95,6 +101,7 @@ export function TradingOperationForm({
           if (values.side === "SELL") {
             onSave({
               ...common,
+              balanceId: Number(values.balanceId),
               commission: values.commission.trim() || undefined,
               price: values.price.trim(),
               quantity: values.quantity.trim(),
@@ -106,6 +113,7 @@ export function TradingOperationForm({
           if (values.side === "DIVIDEND") {
             onSave({
               ...common,
+              balanceId: Number(values.balanceId),
               commission: values.commission.trim() || undefined,
               dividendAmount: values.dividendAmount.trim(),
               side: "DIVIDEND",
@@ -121,34 +129,40 @@ export function TradingOperationForm({
         })}
       >
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="balanceId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Balance</FormLabel>
-                <Select
-                  disabled={isPending || balances.length === 0}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select balance" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {balances.map((balance) => (
-                      <SelectItem key={balance.id} value={String(balance.id)}>
-                        {balance.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {requiresBalance ? (
+            <FormField
+              control={form.control}
+              name="balanceId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Balance</FormLabel>
+                  <Select
+                    disabled={isPending || balances.length === 0}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select balance" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {balances.map((balance) => (
+                        <SelectItem key={balance.id} value={String(balance.id)}>
+                          {balance.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            <div className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
+              Split operations do not require a cash balance.
+            </div>
+          )}
           <FormField
             control={form.control}
             name="side"

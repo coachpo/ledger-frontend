@@ -34,6 +34,8 @@ export function BalanceFormDialog({
   onOpenChange,
   onSave,
 }: BalanceFormDialogProps) {
+  const operationTypeLocked = Boolean(initial?.hasTradingOperations);
+
   const form = useForm<BalanceFormValues>({
     defaultValues: {
       amount: initial?.amount ?? "0",
@@ -74,7 +76,11 @@ export function BalanceFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Operation Type</FormLabel>
-                  <Select disabled={isPending} value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    disabled={isPending || operationTypeLocked}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select operation type" />
@@ -85,6 +91,11 @@ export function BalanceFormDialog({
                       <SelectItem value="WITHDRAWAL">WITHDRAWAL</SelectItem>
                     </SelectContent>
                   </Select>
+                  {operationTypeLocked ? (
+                    <p className="text-sm text-muted-foreground">
+                      Operation type is locked once this balance has trading history.
+                    </p>
+                  ) : null}
                   <FormMessage />
                 </FormItem>
               )}

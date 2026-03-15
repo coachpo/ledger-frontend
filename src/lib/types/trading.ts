@@ -4,26 +4,29 @@ import type { BalanceCompactRead } from "./balance";
 export type TradingSide = "BUY" | "SELL" | "DIVIDEND" | "SPLIT";
 
 export interface TradingOperationBase {
-  balanceId: number;
   symbol: string;
   executedAt: string;
 }
 
-export interface BuyOperationInput extends TradingOperationBase {
+export interface CashTradingOperationBase extends TradingOperationBase {
+  balanceId: number;
+}
+
+export interface BuyOperationInput extends CashTradingOperationBase {
   side: "BUY";
   quantity: string;
   price: string;
   commission?: string;
 }
 
-export interface SellOperationInput extends TradingOperationBase {
+export interface SellOperationInput extends CashTradingOperationBase {
   side: "SELL";
   quantity: string;
   price: string;
   commission?: string;
 }
 
-export interface DividendOperationInput extends TradingOperationBase {
+export interface DividendOperationInput extends CashTradingOperationBase {
   side: "DIVIDEND";
   dividendAmount: string;
   commission?: string;
@@ -60,5 +63,5 @@ export interface TradingOperationRead {
 export interface TradingOperationResult {
   operation: TradingOperationRead;
   updatedPosition: PositionCompactRead | null;
-  updatedBalance: BalanceCompactRead;
+  updatedBalance: BalanceCompactRead | null;
 }

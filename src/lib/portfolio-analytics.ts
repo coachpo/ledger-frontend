@@ -58,6 +58,15 @@ export function computePositionPnl(
   return { unrealized, unrealizedPercent };
 }
 
+export function getSignedBalanceAmount(balance: BalanceRead): number | null {
+  const amount = parseFloat(balance.amount);
+  if (isNaN(amount)) {
+    return null;
+  }
+
+  return balance.operationType === "WITHDRAWAL" ? -amount : amount;
+}
+
 export function computePortfolioTotalValue(
   positions: PositionWithMarketData[],
   balances: BalanceRead[]
@@ -72,8 +81,8 @@ export function computePortfolioTotalValue(
   }
 
   for (const balance of balances) {
-    const amount = parseFloat(balance.amount);
-    if (!isNaN(amount)) {
+    const amount = getSignedBalanceAmount(balance);
+    if (amount !== null) {
       total += amount;
     }
   }
