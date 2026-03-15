@@ -24,7 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { PromptTemplateForm } from "./prompt-template-form";
+import { PromptTemplateForm } from "@/components/forms/prompt-template-form";
 
 function templateClipboardText(template: PromptTemplateRead) {
   if (template.templateMode === "single") {

@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useCreateSnippet } from "@/hooks/use-snippets";
 import type { UserSnippetCreate } from "@/lib/api-types";
 
-import { SnippetForm } from "./snippet-form";
+import { SnippetForm } from "@/components/forms/snippet-form";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 export function SnippetCreatePage() {

@@ -12,7 +12,7 @@ import type { UserSnippetRead, UserSnippetUpdate } from "@/lib/api-types";
 import { formatDateTime } from "@/lib/format";
 
 import { ConfirmDeleteDialog } from "./portfolios/confirm-delete-dialog";
-import { SnippetForm } from "./snippet-form";
+import { SnippetForm } from "@/components/forms/snippet-form";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardTitle } from "./ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";

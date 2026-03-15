@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
 import { PortfolioBalancesSection } from "./portfolio-balances-section";
-import { PortfolioFormDialog } from "./portfolio-form-dialog";
+import { PortfolioFormDialog } from "@/components/forms/portfolio-form-dialog";
 import { PortfolioPositionsSection } from "./portfolio-positions-section";
 import { PortfolioTradesSection } from "./portfolio-trades-section";
 

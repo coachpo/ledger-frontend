@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
-import { PortfolioFormDialog } from "./portfolio-form-dialog";
+import { PortfolioFormDialog } from "@/components/forms/portfolio-form-dialog";
 
 export function PortfolioListPage() {
   const navigate = useNavigate();

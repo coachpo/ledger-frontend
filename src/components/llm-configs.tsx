@@ -12,7 +12,7 @@ import { ApiRequestError } from "@/lib/api";
 import type { LlmConfigRead, LlmConfigUpdate, LlmConfigWrite } from "@/lib/api-types";
 
 
-import { LLMConfigForm } from "./llm-config-form";
+import { LLMConfigForm } from "@/components/forms/llm-config-form";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardTitle } from "./ui/card";
