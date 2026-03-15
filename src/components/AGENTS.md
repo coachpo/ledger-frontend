@@ -21,16 +21,22 @@ src/components/
 │   ├── portfolio-form-dialog.tsx
 │   ├── prompt-template-form.tsx
 │   └── snippet-form.tsx
-├── portfolios/             # portfolio feature-specific components
+├── portfolios/             # portfolio feature-specific components (flat structure)
 │   ├── AGENTS.md
-│   ├── portfolio-sections/
-│   ├── portfolio-dialogs/
-│   └── trading-form/
-├── stock-analysis/         # stock-analysis feature-specific components
+│   ├── balance-form-dialog.tsx
+│   ├── confirm-delete-dialog.tsx
+│   ├── portfolio-balances-section.tsx
+│   ├── portfolio-positions-section.tsx
+│   ├── portfolio-trades-section.tsx
+│   ├── position-form-dialog.tsx
+│   └── trading-operation-form.tsx
+├── stock-analysis/         # stock-analysis feature-specific components (flat structure)
 │   ├── AGENTS.md
-│   ├── run-builder/
-│   ├── preview/
-│   └── conversation/
+│   ├── conversation-picker.tsx
+│   ├── prompt-preview-panel.tsx
+│   ├── run-builder-form.tsx
+│   ├── run-builder-mode-fields.tsx
+│   └── run-status-display.tsx
 └── ui/                     # shadcn/ui primitives (auto-generated)
 ```
 
