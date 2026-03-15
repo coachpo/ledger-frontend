@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCreatePosition, useDeletePosition, useUpdatePosition } from "@/hooks/use-positions";
@@ -11,10 +12,17 @@ import {
 } from "@/lib/portfolio-analytics";
 import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/api-types";
 
+import { DataTable } from "@/components/data-table";
+import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
 import { PositionFormDialog } from "./position-form-dialog";
@@ -41,6 +49,120 @@ export function PortfolioPositionsSection({
     () => [...positions].sort((left, right) => left.symbol.localeCompare(right.symbol)),
     [positions],
   );
+  const columns = useMemo<ColumnDef<PositionWithMarketData>[]>(
+    () => [
+      {
+        accessorKey: "symbol",
+        cell: ({ row }) => <span className="font-medium">{row.original.symbol}</span>,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Symbol" />,
+      },
+      {
+        accessorKey: "name",
+        cell: ({ row }) => row.original.name || "-",
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+      },
+      {
+        accessorFn: (row) => Number(row.quantity),
+        cell: ({ row }) => <span className="text-right">{formatDecimal(row.original.quantity, 4)}</span>,
+        header: ({ column }) => (
+          <DataTableColumnHeader className="justify-end" column={column} title="Quantity" />
+        ),
+        id: "quantity",
+      },
+      {
+        accessorFn: (row) => Number(row.averageCost),
+        cell: ({ row }) => (
+          <span className="text-right">{formatCurrency(row.original.averageCost, row.original.currency)}</span>
+        ),
+        header: ({ column }) => (
+          <DataTableColumnHeader className="justify-end" column={column} title="Average Cost" />
+        ),
+        id: "averageCost",
+      },
+      {
+        accessorFn: (row) => (row.currentPrice ? Number(row.currentPrice) : Number.NEGATIVE_INFINITY),
+        cell: ({ row }) => (
+          <span className="text-right">
+            {row.original.currentPrice
+              ? formatCurrency(row.original.currentPrice, row.original.currency)
+              : "--"}
+          </span>
+        ),
+        header: ({ column }) => (
+          <DataTableColumnHeader className="justify-end" column={column} title="Current Price" />
+        ),
+        id: "currentPrice",
+      },
+      {
+        accessorFn: (row) => computePositionMarketValue(row) ?? Number.NEGATIVE_INFINITY,
+        cell: ({ row }) => {
+          const marketValue = computePositionMarketValue(row.original);
+
+          return (
+            <span className="text-right">
+              {marketValue === null ? "--" : formatCurrency(marketValue, row.original.currency)}
+            </span>
+          );
+        },
+        header: ({ column }) => (
+          <DataTableColumnHeader className="justify-end" column={column} title="Market Value" />
+        ),
+        id: "marketValue",
+      },
+      {
+        accessorFn: (row) => computePositionPnl(row).unrealized ?? Number.NEGATIVE_INFINITY,
+        cell: ({ row }) => {
+          const pnl = computePositionPnl(row.original);
+
+          if (pnl.unrealized === null) {
+            return <span className="text-right">--</span>;
+          }
+
+          return (
+            <div className={pnl.unrealized >= 0 ? "text-right text-emerald-600" : "text-right text-red-600"}>
+              <div>{formatCurrency(pnl.unrealized, row.original.currency)}</div>
+              <div className="text-xs">{formatPercent(pnl.unrealizedPercent ?? 0)}</div>
+            </div>
+          );
+        },
+        header: ({ column }) => (
+          <DataTableColumnHeader className="justify-end" column={column} title="Unrealized" />
+        ),
+        id: "unrealized",
+      },
+      {
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button aria-label={`Open actions for ${row.original.symbol}`} size="icon" variant="ghost">
+                  <MoreHorizontal className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setEditing(row.original);
+                    setShowForm(true);
+                  }}
+                >
+                  <Pencil className="size-4" />
+                  Edit position
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setDeleting(row.original)} variant="destructive">
+                  <Trash2 className="size-4" />
+                  Delete position
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ),
+        enableSorting: false,
+        id: "actions",
+      },
+    ],
+    [],
+  );
 
   return (
     <Card>
@@ -60,66 +182,13 @@ export function PortfolioPositionsSection({
         </Button>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Symbol</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead className="text-right">Average Cost</TableHead>
-              <TableHead className="text-right">Current Price</TableHead>
-              <TableHead className="text-right">Market Value</TableHead>
-              <TableHead className="text-right">Unrealized</TableHead>
-              <TableHead className="w-[96px]" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedPositions.map((position) => {
-              const marketValue = computePositionMarketValue(position);
-              const pnl = computePositionPnl(position);
-
-              return (
-                <TableRow key={position.id}>
-                  <TableCell className="font-medium">{position.symbol}</TableCell>
-                  <TableCell>{position.name || "-"}</TableCell>
-                  <TableCell className="text-right">{formatDecimal(position.quantity, 4)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(position.averageCost, position.currency)}</TableCell>
-                  <TableCell className="text-right">
-                    {position.currentPrice ? formatCurrency(position.currentPrice, position.currency) : "--"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {marketValue === null ? "--" : formatCurrency(marketValue, position.currency)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {pnl.unrealized === null ? "--" : (
-                      <div className={pnl.unrealized >= 0 ? "text-emerald-600" : "text-red-600"}>
-                        <div>{formatCurrency(pnl.unrealized, position.currency)}</div>
-                        <div className="text-xs">{formatPercent(pnl.unrealizedPercent ?? 0)}</div>
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => { setEditing(position); setShowForm(true); }}>
-                        <Pencil className="size-3" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setDeleting(position)}>
-                        <Trash2 className="size-3" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {sortedPositions.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
-                  No positions yet.
-                </TableCell>
-              </TableRow>
-            ) : null}
-          </TableBody>
-        </Table>
+        <DataTable
+          columns={columns}
+          data={sortedPositions}
+          emptyMessage="No positions yet."
+          initialPageSize={8}
+          initialSorting={[{ desc: false, id: "symbol" }]}
+        />
       </CardContent>
 
       <PositionFormDialog

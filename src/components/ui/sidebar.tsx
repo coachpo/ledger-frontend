@@ -3,9 +3,11 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { PanelLeftIcon } from "lucide-react";
 
 import { useIsMobile } from "./use-mobile";
 import { cn } from "./utils";
+import { Button } from "./button";
 import { Input } from "./input";
 import { Separator } from "./separator";
 import {
@@ -25,11 +27,14 @@ import {
 
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
+const SIDEBAR_WIDTH_COLLAPSED = "4rem";
 
 type SidebarContextProps = {
+  open: boolean;
   openMobile: boolean;
-  setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenMobile: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
@@ -45,15 +50,18 @@ function useSidebar() {
 
 function SidebarProvider({ className, style, children, ...props }: React.ComponentProps<"div">) {
   const isMobile = useIsMobile();
+  const [open, setOpen] = React.useState(true);
   const [openMobile, setOpenMobile] = React.useState(false);
 
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
       isMobile,
+      open,
       openMobile,
+      setOpen,
       setOpenMobile,
     }),
-    [isMobile, openMobile, setOpenMobile],
+    [isMobile, open, openMobile],
   );
 
   return (
@@ -64,6 +72,7 @@ function SidebarProvider({ className, style, children, ...props }: React.Compone
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH,
+              "--sidebar-width-collapsed": SIDEBAR_WIDTH_COLLAPSED,
               ...style,
             } as React.CSSProperties
           }
@@ -90,7 +99,7 @@ function Sidebar({
   side?: "left" | "right";
   variant?: "sidebar" | "floating" | "inset";
 }) {
-  const { isMobile, openMobile, setOpenMobile } = useSidebar();
+  const { isMobile, open, openMobile, setOpenMobile } = useSidebar();
 
   if (isMobile) {
     return (
@@ -120,6 +129,7 @@ function Sidebar({
   return (
     <div
       className="peer text-sidebar-foreground hidden md:block"
+      data-state={open ? "expanded" : "collapsed"}
       data-variant={variant}
       data-side={side}
       data-slot="sidebar"
@@ -127,15 +137,21 @@ function Sidebar({
       <div
         data-slot="sidebar-gap"
         className={cn(
-          variant === "floating" || variant === "inset"
-            ? "w-[calc(var(--sidebar-width)+1rem)]"
-            : "w-(--sidebar-width)",
+          "transition-[width] duration-200 ease-out",
+          open
+            ? variant === "floating" || variant === "inset"
+              ? "w-[calc(var(--sidebar-width)+1rem)]"
+              : "w-(--sidebar-width)"
+            : variant === "floating" || variant === "inset"
+              ? "w-[calc(var(--sidebar-width-collapsed)+1rem)]"
+              : "w-(--sidebar-width-collapsed)",
         )}
       />
       <div
         data-slot="sidebar-container"
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) md:flex",
+          "fixed inset-y-0 z-10 hidden h-svh transition-[width] duration-200 ease-out md:flex",
+          open ? "w-(--sidebar-width)" : "w-(--sidebar-width-collapsed)",
           side === "left" ? "left-0" : "right-0",
           variant === "floating" || variant === "inset"
             ? "p-2"
@@ -169,6 +185,39 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
       )}
       {...props}
     />
+  );
+}
+
+function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<typeof Button>) {
+  const { isMobile, setOpen, setOpenMobile } = useSidebar();
+
+  return (
+    <Button
+      className={cn("size-8", className)}
+      data-sidebar="trigger"
+      data-slot="sidebar-trigger"
+      onClick={(event) => {
+        onClick?.(event);
+
+        if (event.defaultPrevented) {
+          return;
+        }
+
+        if (isMobile) {
+          setOpenMobile(true);
+          return;
+        }
+
+        setOpen((open) => !open);
+      }}
+      size="icon"
+      type="button"
+      variant="ghost"
+      {...props}
+    >
+      <PanelLeftIcon className="size-4" />
+      <span className="sr-only">Open sidebar</span>
+    </Button>
   );
 }
 
@@ -555,6 +604,7 @@ export {
   SidebarHeader,
   SidebarInput,
   SidebarInset,
+  SidebarTrigger,
   SidebarMenu,
   SidebarMenuAction,
   SidebarMenuBadge,

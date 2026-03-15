@@ -1,4 +1,3 @@
-import { Link } from "react-router";
 import {
   ArrowUpRight,
   BarChart3,
@@ -9,8 +8,9 @@ import {
 
 import { usePortfolios } from "@/hooks/use-portfolios";
 
+import { MetricCard } from "./metric-card";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardHeader } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 
 function formatDateLabel(value: string | null) {
@@ -144,88 +144,37 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Link
+        <MetricCard
+          icon={Briefcase}
+          iconClassName="bg-blue-100 text-blue-700"
+          note="Portfolio records syncing from the API"
+          title="Active Portfolios"
           to="/portfolios"
-          className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border text-left transition-shadow hover:shadow-md"
-        >
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">
-              Active Portfolios
-            </CardTitle>
-            <Briefcase className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl">{portfolioCount}</div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Portfolio records syncing from the API
-            </p>
-          </CardContent>
-        </Link>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">
-              Total Positions
-            </CardTitle>
-            <BarChart3 className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl">{totalPositions}</div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {averagePositions} positions per portfolio on average
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">
-              Balance Accounts
-            </CardTitle>
-            <DollarSign className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl">{totalBalances}</div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Cash and settlement balances tracked across portfolios
-            </p>
-          </CardContent>
-        </Card>
-
-        {mostRecentlyUpdatedPortfolio ? (
-          <Link
-            to={`/portfolios/${mostRecentlyUpdatedPortfolio.id}`}
-            className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border text-left transition-shadow hover:shadow-md"
-          >
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm text-muted-foreground">
-                Latest Update
-              </CardTitle>
-              <ArrowUpRight className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg leading-tight">
-                {mostRecentlyUpdatedPortfolio.name}
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {formatDateLabel(mostRecentlyUpdatedPortfolio.updatedAt)}
-              </p>
-            </CardContent>
-          </Link>
-        ) : (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm text-muted-foreground">
-                Latest Update
-              </CardTitle>
-              <ArrowUpRight className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg leading-tight">No portfolio data</div>
-              <p className="mt-1 text-xs text-muted-foreground">No updates yet</p>
-            </CardContent>
-          </Card>
-        )}
+          value={String(portfolioCount)}
+        />
+        <MetricCard
+          icon={BarChart3}
+          iconClassName="bg-emerald-100 text-emerald-700"
+          note={`${averagePositions} positions per portfolio on average`}
+          title="Total Positions"
+          value={String(totalPositions)}
+        />
+        <MetricCard
+          icon={DollarSign}
+          iconClassName="bg-amber-100 text-amber-700"
+          note="Cash and settlement balances tracked across portfolios"
+          title="Balance Accounts"
+          value={String(totalBalances)}
+        />
+        <MetricCard
+          icon={ArrowUpRight}
+          iconClassName="bg-sky-100 text-sky-700"
+          note={formatDateLabel(mostRecentlyUpdatedPortfolio?.updatedAt ?? null)}
+          title="Latest Update"
+          to={mostRecentlyUpdatedPortfolio ? `/portfolios/${mostRecentlyUpdatedPortfolio.id}` : undefined}
+          value={mostRecentlyUpdatedPortfolio?.name ?? "No portfolio data"}
+          valueClassName="text-lg leading-tight"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

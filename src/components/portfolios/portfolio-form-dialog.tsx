@@ -1,12 +1,22 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 import type { PortfolioRead, PortfolioUpdateInput, PortfolioWriteInput } from "@/lib/api-types";
+import { portfolioCreateFormSchema, type PortfolioCreateFormValues } from "@/components/form-schemas";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 type PortfolioFormDialogProps = {
@@ -24,9 +34,23 @@ export function PortfolioFormDialog({
   onOpenChange,
   onSave,
 }: PortfolioFormDialogProps) {
-  const [name, setName] = useState(initial?.name ?? "");
-  const [description, setDescription] = useState(initial?.description ?? "");
-  const [baseCurrency, setBaseCurrency] = useState(initial?.baseCurrency ?? "USD");
+  const initialBaseCurrency = initial?.baseCurrency ?? "USD";
+  const form = useForm<PortfolioCreateFormValues>({
+    defaultValues: {
+      baseCurrency: initialBaseCurrency,
+      description: initial?.description ?? "",
+      name: initial?.name ?? "",
+    },
+    resolver: zodResolver(portfolioCreateFormSchema),
+  });
+
+  useEffect(() => {
+    form.reset({
+      baseCurrency: initialBaseCurrency,
+      description: initial?.description ?? "",
+      name: initial?.name ?? "",
+    });
+  }, [form, initial, initialBaseCurrency, open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -34,53 +58,82 @@ export function PortfolioFormDialog({
         <DialogHeader>
           <DialogTitle>{initial ? "Edit Portfolio" : "Create Portfolio"}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label>Name</Label>
-            <Input value={name} onChange={(event) => setName(event.target.value)} disabled={isPending} />
-          </div>
-          <div>
-            <Label>Description</Label>
-            <Textarea
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              rows={4}
-              disabled={isPending}
-            />
-          </div>
-          <div>
-            <Label>Base Currency</Label>
-            <Input
-              value={baseCurrency}
-              onChange={(event) => setBaseCurrency(event.target.value.toUpperCase())}
-              disabled={isPending || Boolean(initial)}
-              maxLength={3}
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-              Cancel
-            </Button>
-            <Button
-              disabled={isPending || !name.trim() || (!initial && baseCurrency.trim().length !== 3)}
-              onClick={() => {
-                if (initial) {
-                  onSave({ name: name.trim(), description: description.trim() || null });
-                  return;
-                }
+        <Form {...form}>
+          <form
+            className="space-y-4"
+            onSubmit={form.handleSubmit((values) => {
+              const payload = {
+                description: values.description.trim() || null,
+                name: values.name.trim(),
+              };
 
-                onSave({
-                  name: name.trim(),
-                  description: description.trim() || null,
-                  baseCurrency: baseCurrency.trim().toUpperCase(),
-                });
-              }}
-            >
-              {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-              Save
-            </Button>
-          </div>
-        </div>
+              if (initial) {
+                onSave(payload satisfies PortfolioUpdateInput);
+                return;
+              }
+
+              onSave({
+                ...payload,
+                baseCurrency: values.baseCurrency.trim().toUpperCase(),
+              } satisfies PortfolioWriteInput);
+            })}
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} disabled={isPending} rows={4} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="baseCurrency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Base Currency</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending || Boolean(initial)}
+                      maxLength={3}
+                      onChange={(event) => field.onChange(event.target.value.toUpperCase())}
+                      placeholder="USD"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => onOpenChange(false)} type="button" variant="outline" disabled={isPending}>
+                Cancel
+              </Button>
+              <Button disabled={isPending} type="submit">
+                {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                Save
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

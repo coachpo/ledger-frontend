@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Copy, FileText, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Copy, FileText, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
@@ -18,6 +18,12 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { PromptTemplateForm } from "./prompt-template-form";
 
 function templateClipboardText(template: PromptTemplateRead) {
@@ -122,38 +128,48 @@ export function PromptTemplates() {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-1">
-                <Button
-                  aria-label={`Copy template ${template.name}`}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    void navigator.clipboard.writeText(templateClipboardText(template));
-                    toast.success("Template copied");
-                  }}
-                >
-                  <Copy className="size-3" />
-                </Button>
-                <Button aria-label={`Edit template ${template.name}`} variant="ghost" size="sm" onClick={() => { setEditing(template); setShowForm(true); }}>
-                  <Pencil className="size-3" />
-                </Button>
-                <Button
-                  aria-label={`Delete template ${template.name}`}
-                  variant="ghost"
-                  size="sm"
-                  disabled={deleteMutation.isPending}
-                  onClick={() => {
-                    deleteMutation.mutate(template.id, {
-                      onError: (error) => {
-                        toast.error(error instanceof Error ? error.message : "Failed to delete template");
-                      },
-                      onSuccess: () => toast.success("Template deleted"),
-                    });
-                  }}
-                >
-                  <Trash2 className="size-3" />
-                </Button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button aria-label={`Open actions for ${template.name}`} size="icon" variant="ghost">
+                    <MoreHorizontal className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      void navigator.clipboard.writeText(templateClipboardText(template));
+                      toast.success("Template copied");
+                    }}
+                  >
+                    <Copy className="size-4" />
+                    Copy template
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setEditing(template);
+                      setShowForm(true);
+                    }}
+                  >
+                    <Pencil className="size-4" />
+                    Edit template
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    disabled={deleteMutation.isPending}
+                    onSelect={() => {
+                      deleteMutation.mutate(template.id, {
+                        onError: (error) => {
+                          toast.error(error instanceof Error ? error.message : "Failed to delete template");
+                        },
+                        onSuccess: () => toast.success("Template deleted"),
+                      });
+                    }}
+                    variant="destructive"
+                  >
+                    <Trash2 className="size-4" />
+                    Delete template
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </CardHeader>
             <CardContent className="grid gap-4 lg:grid-cols-2">
               {template.templateMode === "single" ? (

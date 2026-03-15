@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -6,11 +7,12 @@ import { useCreateTradingOperation } from "@/hooks/use-trading-operations";
 import { formatCurrency, formatDateTime, formatDecimal } from "@/lib/format";
 import type { BalanceRead, TradingOperationInput, TradingOperationRead } from "@/lib/api-types";
 
+import { DataTable } from "@/components/data-table";
+import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { TradingOperationForm } from "./trading-operation-form";
 
@@ -43,6 +45,46 @@ export function PortfolioTradesSection({
     () => [...operations].sort((left, right) => right.executedAt.localeCompare(left.executedAt)),
     [operations],
   );
+  const columns = useMemo<ColumnDef<TradingOperationRead>[]>(
+    () => [
+      {
+        accessorKey: "executedAt",
+        cell: ({ row }) => formatDateTime(row.original.executedAt),
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Executed" />,
+      },
+      {
+        accessorKey: "symbol",
+        cell: ({ row }) => <span className="font-medium">{row.original.symbol}</span>,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Symbol" />,
+      },
+      {
+        accessorKey: "side",
+        cell: ({ row }) => <Badge variant="secondary">{row.original.side}</Badge>,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Side" />,
+      },
+      {
+        accessorKey: "balanceLabel",
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Balance" />,
+      },
+      {
+        accessorFn: (row) => describeOperation(row),
+        cell: ({ row }) => describeOperation(row.original),
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Details" />,
+        id: "details",
+      },
+      {
+        accessorFn: (row) => Number(row.commission),
+        cell: ({ row }) => (
+          <span className="text-right">{formatCurrency(row.original.commission, row.original.currency)}</span>
+        ),
+        header: ({ column }) => (
+          <DataTableColumnHeader className="justify-end" column={column} title="Commission" />
+        ),
+        id: "commission",
+      },
+    ],
+    [],
+  );
 
   return (
     <Card>
@@ -58,37 +100,13 @@ export function PortfolioTradesSection({
             Add a balance before recording BUY, SELL, DIVIDEND, or SPLIT operations.
           </div>
         ) : null}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Executed</TableHead>
-              <TableHead>Symbol</TableHead>
-              <TableHead>Side</TableHead>
-              <TableHead>Balance</TableHead>
-              <TableHead>Details</TableHead>
-              <TableHead className="text-right">Commission</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedOperations.map((operation) => (
-              <TableRow key={operation.id}>
-                <TableCell>{formatDateTime(operation.executedAt)}</TableCell>
-                <TableCell className="font-medium">{operation.symbol}</TableCell>
-                <TableCell><Badge variant="secondary">{operation.side}</Badge></TableCell>
-                <TableCell>{operation.balanceLabel}</TableCell>
-                <TableCell>{describeOperation(operation)}</TableCell>
-                <TableCell className="text-right">{formatCurrency(operation.commission, operation.currency)}</TableCell>
-              </TableRow>
-            ))}
-            {sortedOperations.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
-                  No operations recorded yet.
-                </TableCell>
-              </TableRow>
-            ) : null}
-          </TableBody>
-        </Table>
+        <DataTable
+          columns={columns}
+          data={sortedOperations}
+          emptyMessage="No operations recorded yet."
+          initialPageSize={8}
+          initialSorting={[{ desc: true, id: "executedAt" }]}
+        />
       </CardContent>
 
       <Dialog open={showForm} onOpenChange={setShowForm}>

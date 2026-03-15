@@ -1,5 +1,5 @@
-import { useEffect, useId, useMemo, useState } from "react";
-import { Loader2, Pencil, Plus, Settings2, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, MoreHorizontal, Pencil, Plus, Settings2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -9,45 +9,27 @@ import {
   useUpdateLlmConfig,
 } from "@/hooks/use-llm-configs";
 import { ApiRequestError } from "@/lib/api";
-import type {
-  LlmConfigRead,
-  LlmConfigUpdate,
-  LlmConfigWrite,
-  LlmProvider,
-  OpenaiEndpointMode,
-  UnknownRecord,
-} from "@/lib/api-types";
+import type { LlmConfigRead, LlmConfigUpdate, LlmConfigWrite } from "@/lib/api-types";
 
+import {
+  DEFAULT_MAX_TOKENS,
+  DEFAULT_TEMPERATURE,
+  DEFAULT_TOP_P,
+  getNumberSetting,
+  OPENAI_ENDPOINT_LABELS,
+  PROVIDER_LABELS,
+} from "./llm-config-form.constants";
+import { LLMConfigForm } from "./llm-config-form";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Slider } from "./ui/slider";
-import { Switch } from "./ui/switch";
-
-const DEFAULT_TEMPERATURE = 0.5;
-const DEFAULT_MAX_TOKENS = 4096;
-const DEFAULT_TOP_P = 0.9;
-
-const PROVIDER_LABELS: Record<LlmProvider, string> = {
-  openai: "OpenAI",
-  anthropic: "Anthropic",
-  gemini: "Gemini",
-};
-
-const DEFAULT_MODELS: Record<LlmProvider, string> = {
-  openai: "gpt-4o-mini",
-  anthropic: "claude-sonnet-4-20250514",
-  gemini: "gemini-2.0-flash",
-};
-
-const OPENAI_ENDPOINT_LABELS: Record<OpenaiEndpointMode, string> = {
-  chat_completions: "Chat Completions",
-  responses: "Responses",
-};
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof ApiRequestError || error instanceof Error) {
@@ -55,321 +37,6 @@ function getErrorMessage(error: unknown, fallback: string): string {
   }
 
   return fallback;
-}
-
-function getNumberSetting(
-  settings: UnknownRecord | null | undefined,
-  key: "maxTokens" | "temperature" | "topP",
-  fallback: number,
-): number {
-  const value = settings?.[key];
-
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value;
-  }
-
-  if (typeof value === "string") {
-    const parsed = Number(value);
-
-    if (Number.isFinite(parsed)) {
-      return parsed;
-    }
-  }
-
-  return fallback;
-}
-
-function buildGenerationSettings(
-  temperature: number,
-  maxTokens: number,
-  topP: number,
-): UnknownRecord {
-  return {
-    temperature,
-    maxTokens,
-    topP,
-  };
-}
-
-type ConfigFormProps = {
-  initial?: LlmConfigRead;
-  isPending: boolean;
-  onCancel: () => void;
-  onSave: (data: LlmConfigUpdate | LlmConfigWrite) => void;
-};
-
-function ConfigForm({ initial, isPending, onCancel, onSave }: ConfigFormProps) {
-  const displayNameId = useId();
-  const displayNameLabelId = useId();
-  const providerId = useId();
-  const providerLabelId = useId();
-  const modelId = useId();
-  const modelLabelId = useId();
-  const openaiEndpointModeId = useId();
-  const openaiEndpointModeLabelId = useId();
-  const replaceApiKeyId = useId();
-  const replaceApiKeyLabelId = useId();
-  const apiKeyId = useId();
-  const apiKeyLabelId = useId();
-  const temperatureId = useId();
-  const temperatureLabelId = useId();
-  const maxTokensId = useId();
-  const maxTokensLabelId = useId();
-  const topPId = useId();
-  const topPLabelId = useId();
-  const enabledId = useId();
-  const enabledLabelId = useId();
-  const [displayName, setDisplayName] = useState(initial?.displayName ?? "");
-  const [provider, setProvider] = useState<LlmProvider>(initial?.provider ?? "openai");
-  const [model, setModel] = useState(initial?.model ?? DEFAULT_MODELS.openai);
-  const [openaiEndpointMode, setOpenaiEndpointMode] = useState<OpenaiEndpointMode | null>(
-    initial?.openaiEndpointMode ?? "responses",
-  );
-  const [apiKeySecret, setApiKeySecret] = useState("");
-  const [enabled, setEnabled] = useState(initial?.enabled ?? true);
-  const [temperature, setTemperature] = useState(
-    getNumberSetting(initial?.defaultGenerationSettings, "temperature", DEFAULT_TEMPERATURE),
-  );
-  const [maxTokens, setMaxTokens] = useState(
-    getNumberSetting(initial?.defaultGenerationSettings, "maxTokens", DEFAULT_MAX_TOKENS),
-  );
-  const [topP, setTopP] = useState(
-    getNumberSetting(initial?.defaultGenerationSettings, "topP", DEFAULT_TOP_P),
-  );
-
-  const isEditing = Boolean(initial);
-  const isSaveDisabled =
-    isPending ||
-    displayName.trim().length === 0 ||
-    model.trim().length === 0 ||
-    (!isEditing && apiKeySecret.trim().length === 0);
-
-  function handleProviderChange(nextProvider: LlmProvider) {
-    setProvider(nextProvider);
-    setModel(DEFAULT_MODELS[nextProvider]);
-    setOpenaiEndpointMode(nextProvider === "openai" ? "responses" : null);
-  }
-
-  function handleSave() {
-    const generationSettings = buildGenerationSettings(temperature, maxTokens, topP);
-
-    if (initial) {
-      const payload: LlmConfigUpdate = {
-        displayName: displayName.trim(),
-        model: model.trim(),
-        openaiEndpointMode: provider === "openai" ? openaiEndpointMode ?? "responses" : null,
-        enabled,
-        defaultGenerationSettings: generationSettings,
-      };
-
-      if (apiKeySecret.trim().length > 0) {
-        payload.apiKeySecret = apiKeySecret.trim();
-      }
-
-      onSave(payload);
-      return;
-    }
-
-    const payload: LlmConfigWrite = {
-      provider,
-      displayName: displayName.trim(),
-      model: model.trim(),
-      apiKeySecret: apiKeySecret.trim(),
-      enabled,
-      defaultGenerationSettings: generationSettings,
-      openaiEndpointMode: provider === "openai" ? openaiEndpointMode ?? "responses" : null,
-    };
-
-    onSave(payload);
-  }
-
-  return (
-    <div className="space-y-4">
-      <div>
-        <Label id={displayNameLabelId} htmlFor={displayNameId}>Display Name</Label>
-        <Input
-          aria-label="Display Name"
-          aria-labelledby={displayNameLabelId}
-          id={displayNameId}
-          value={displayName}
-          onChange={(event) => setDisplayName(event.target.value)}
-          placeholder="Config name"
-          disabled={isPending}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label id={providerLabelId} htmlFor={providerId}>Provider</Label>
-          <Select value={provider} onValueChange={handleProviderChange} disabled={isPending || isEditing}>
-            <SelectTrigger aria-label="Provider" aria-labelledby={providerLabelId} id={providerId}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(PROVIDER_LABELS).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label id={modelLabelId} htmlFor={modelId}>Model</Label>
-          <Input
-            aria-label="Model"
-            aria-labelledby={modelLabelId}
-            id={modelId}
-            value={model}
-            onChange={(event) => setModel(event.target.value)}
-            placeholder={DEFAULT_MODELS[provider]}
-            disabled={isPending}
-          />
-        </div>
-      </div>
-
-      {provider === "openai" ? (
-        <div>
-          <Label id={openaiEndpointModeLabelId} htmlFor={openaiEndpointModeId}>OpenAI Endpoint Mode</Label>
-          <Select
-            value={openaiEndpointMode ?? "responses"}
-            onValueChange={(value) => setOpenaiEndpointMode(value as OpenaiEndpointMode)}
-            disabled={isPending}
-          >
-            <SelectTrigger aria-label="OpenAI Endpoint Mode" aria-labelledby={openaiEndpointModeLabelId} id={openaiEndpointModeId}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(OPENAI_ENDPOINT_LABELS).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      ) : null}
-
-      {initial ? (
-        <div className="space-y-3 rounded-lg border p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <Label>API Key</Label>
-              <p className="text-xs text-muted-foreground">Stored secrets are write-only.</p>
-            </div>
-            <Badge variant={initial.hasApiKey ? "secondary" : "outline"}>
-              {initial.hasApiKey ? "API key set" : "No API key stored"}
-            </Badge>
-          </div>
-          <div>
-            <Label id={replaceApiKeyLabelId} htmlFor={replaceApiKeyId}>Replace API Key</Label>
-            <Input
-              aria-label="Replace API Key"
-              aria-labelledby={replaceApiKeyLabelId}
-              id={replaceApiKeyId}
-              type="password"
-              value={apiKeySecret}
-              onChange={(event) => setApiKeySecret(event.target.value)}
-              placeholder="Leave blank to keep the current key"
-              disabled={isPending}
-            />
-          </div>
-        </div>
-      ) : (
-        <div>
-          <Label id={apiKeyLabelId} htmlFor={apiKeyId}>API Key</Label>
-          <Input
-            aria-label="API Key"
-            aria-labelledby={apiKeyLabelId}
-            id={apiKeyId}
-            type="password"
-            value={apiKeySecret}
-            onChange={(event) => setApiKeySecret(event.target.value)}
-            placeholder="Paste provider API key"
-            disabled={isPending}
-          />
-        </div>
-      )}
-
-      <div className="space-y-3 rounded-lg border p-4">
-        <div>
-          <Label>Default Generation Settings</Label>
-          <p className="text-xs text-muted-foreground">
-            Temperature, max tokens, and top P are saved inside
-            {" "}
-            <code className="rounded bg-muted px-1">defaultGenerationSettings</code>.
-          </p>
-        </div>
-
-        <div>
-          <Label id={temperatureLabelId} htmlFor={temperatureId}>Temperature: {temperature.toFixed(2)}</Label>
-          <Slider
-            aria-label="Temperature"
-            aria-labelledby={temperatureLabelId}
-            id={temperatureId}
-            min={0}
-            max={2}
-            step={0.01}
-            value={[temperature]}
-            onValueChange={([value]) => setTemperature(value ?? DEFAULT_TEMPERATURE)}
-            className="mt-2"
-            disabled={isPending}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label id={maxTokensLabelId} htmlFor={maxTokensId}>Max Tokens</Label>
-            <Input
-              aria-label="Max Tokens"
-              aria-labelledby={maxTokensLabelId}
-              id={maxTokensId}
-              type="number"
-              min={1}
-              value={maxTokens}
-              onChange={(event) => setMaxTokens(Number.parseInt(event.target.value, 10) || 0)}
-              disabled={isPending}
-            />
-          </div>
-
-          <div>
-            <Label id={topPLabelId} htmlFor={topPId}>Top P: {topP.toFixed(2)}</Label>
-            <Slider
-              aria-label="Top P"
-              aria-labelledby={topPLabelId}
-              id={topPId}
-              min={0}
-              max={1}
-              step={0.01}
-              value={[topP]}
-              onValueChange={([value]) => setTopP(value ?? DEFAULT_TOP_P)}
-              className="mt-2"
-              disabled={isPending}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between rounded-lg border p-4">
-        <div>
-          <Label id={enabledLabelId} htmlFor={enabledId}>Enabled</Label>
-          <p className="text-xs text-muted-foreground">Disabled configs stay in the library but cannot be selected.</p>
-        </div>
-        <Switch aria-label="Enabled" aria-labelledby={enabledLabelId} id={enabledId} checked={enabled} onCheckedChange={setEnabled} disabled={isPending} />
-      </div>
-
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancel} disabled={isPending}>
-          Cancel
-        </Button>
-        <Button onClick={handleSave} disabled={isSaveDisabled}>
-          {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-          Save
-        </Button>
-      </div>
-    </div>
-  );
 }
 
 export function LLMConfigs() {
@@ -444,15 +111,15 @@ export function LLMConfigs() {
         <div>
           <h1 className="text-2xl tracking-tight">LLM Configurations</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage model configurations for stock analysis
+            Manage model configurations for stock analysis.
           </p>
         </div>
         <Button
+          disabled={isMutating}
           onClick={() => {
             setEditing(null);
             setShowForm(true);
           }}
-          disabled={isMutating}
         >
           <Plus className="mr-1 size-4" /> New Config
         </Button>
@@ -495,7 +162,11 @@ export function LLMConfigs() {
                 "maxTokens",
                 DEFAULT_MAX_TOKENS,
               );
-              const topP = getNumberSetting(config.defaultGenerationSettings, "topP", DEFAULT_TOP_P);
+              const topP = getNumberSetting(
+                config.defaultGenerationSettings,
+                "topP",
+                DEFAULT_TOP_P,
+              );
 
               return (
                 <Card key={config.id}>
@@ -527,29 +198,35 @@ export function LLMConfigs() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 self-start lg:self-center">
-                      <Button
-                        aria-label={`Edit configuration ${config.displayName}`}
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setEditing(config);
-                          setShowForm(true);
-                        }}
-                        disabled={isMutating}
-                      >
-                        <Pencil className="size-3" />
-                      </Button>
-                      <Button
-                        aria-label={`Delete configuration ${config.displayName}`}
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(config.id)}
-                        disabled={isMutating}
-                      >
-                        <Trash2 className="size-3" />
-                      </Button>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          aria-label={`Open actions for configuration ${config.displayName}`}
+                          size="icon"
+                          variant="ghost"
+                        >
+                          <MoreHorizontal className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setEditing(config);
+                            setShowForm(true);
+                          }}
+                        >
+                          <Pencil className="size-4" />
+                          Edit configuration
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => handleDelete(config.id)}
+                          variant="destructive"
+                        >
+                          <Trash2 className="size-4" />
+                          Delete configuration
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </CardContent>
                 </Card>
               );
@@ -575,8 +252,7 @@ export function LLMConfigs() {
           <DialogHeader>
             <DialogTitle>{editing ? "Edit Configuration" : "New Configuration"}</DialogTitle>
           </DialogHeader>
-          <ConfigForm
-            key={editing?.id ?? "new"}
+          <LLMConfigForm
             initial={editing ?? undefined}
             isPending={createMutation.isPending || updateMutation.isPending}
             onCancel={() => {

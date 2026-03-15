@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, Code2, Copy, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, Code2, Copy, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
@@ -17,6 +17,12 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardTitle } from "./ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 export function Snippets() {
   const navigate = useNavigate();
@@ -122,23 +128,37 @@ export function Snippets() {
                           {isExpanded ? "Hide" : "Show"}
                         </Button>
                       </CollapsibleTrigger>
-                      <Button
-                        aria-label={`Copy snippet reference for ${snippet.name}`}
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          void navigator.clipboard.writeText(`{{user.snippet.${snippet.snippetAlias}}}`);
-                          toast.success("Snippet reference copied");
-                        }}
-                      >
-                        <Copy className="size-3" />
-                      </Button>
-                      <Button aria-label={`Edit snippet ${snippet.name}`} variant="ghost" size="sm" onClick={() => { setEditing(snippet); setShowForm(true); }}>
-                        <Pencil className="size-3" />
-                      </Button>
-                      <Button aria-label={`Delete snippet ${snippet.name}`} variant="ghost" size="sm" onClick={() => setDeleting(snippet)}>
-                        <Trash2 className="size-3" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button aria-label={`Open actions for ${snippet.name}`} size="icon" variant="ghost">
+                            <MoreHorizontal className="size-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onSelect={() => {
+                              void navigator.clipboard.writeText(`{{user.snippet.${snippet.snippetAlias}}}`);
+                              toast.success("Snippet reference copied");
+                            }}
+                          >
+                            <Copy className="size-4" />
+                            Copy reference
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => {
+                              setEditing(snippet);
+                              setShowForm(true);
+                            }}
+                          >
+                            <Pencil className="size-4" />
+                            Edit snippet
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => setDeleting(snippet)} variant="destructive">
+                            <Trash2 className="size-4" />
+                            Delete snippet
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                   <CollapsibleContent className="pt-4">

@@ -1,67 +1,52 @@
+import type { Control } from "react-hook-form";
+
+import type { RunBuilderFormValues } from "@/components/form-schemas";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 
 type Props = {
-  compareInputOverride: string;
-  compareInstructionsOverride: string;
-  compareToOrigin: boolean;
+  control: Control<RunBuilderFormValues>;
   disabled: boolean;
-  freshInputOverride: string;
-  freshInstructionsOverride: string;
-  inputText: string;
-  instructionsText: string;
   isSinglePrompt: boolean;
-  onCompareInputOverrideChange: (value: string) => void;
-  onCompareInstructionsOverrideChange: (value: string) => void;
-  onCompareToOriginChange: (value: boolean) => void;
-  onFreshInputOverrideChange: (value: string) => void;
-  onFreshInstructionsOverrideChange: (value: string) => void;
-  onInputTextChange: (value: string) => void;
-  onInstructionsTextChange: (value: string) => void;
 };
 
-export function RunBuilderModeFields({
-  compareInputOverride,
-  compareInstructionsOverride,
-  compareToOrigin,
-  disabled,
-  freshInputOverride,
-  freshInstructionsOverride,
-  inputText,
-  instructionsText,
-  isSinglePrompt,
-  onCompareInputOverrideChange,
-  onCompareInstructionsOverrideChange,
-  onCompareToOriginChange,
-  onFreshInputOverrideChange,
-  onFreshInstructionsOverrideChange,
-  onInputTextChange,
-  onInstructionsTextChange,
-}: Props) {
+export function RunBuilderModeFields({ control, disabled, isSinglePrompt }: Props) {
   if (isSinglePrompt) {
     return (
       <div className="grid gap-4 rounded-xl border border-border/70 p-4 lg:grid-cols-2">
-        <div className="space-y-2">
-          <Label>Instructions</Label>
-          <Textarea
-            value={instructionsText}
-            onChange={(event) => onInstructionsTextChange(event.target.value)}
-            rows={10}
-            className="font-mono text-sm"
-            disabled={disabled}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Input</Label>
-          <Textarea
-            value={inputText}
-            onChange={(event) => onInputTextChange(event.target.value)}
-            rows={10}
-            className="font-mono text-sm"
-            disabled={disabled}
-          />
-        </div>
+        <FormField
+          control={control}
+          name="instructionsText"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Instructions</FormLabel>
+              <FormControl>
+                <Textarea {...field} className="font-mono text-sm" disabled={disabled} rows={10} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="inputText"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Input</FormLabel>
+              <FormControl>
+                <Textarea {...field} className="font-mono text-sm" disabled={disabled} rows={10} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
     );
   }
@@ -69,59 +54,83 @@ export function RunBuilderModeFields({
   return (
     <div className="space-y-4 rounded-xl border border-border/70 p-4">
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="space-y-2">
-          <Label>Fresh Instructions</Label>
-          <Textarea
-            value={freshInstructionsOverride}
-            onChange={(event) => onFreshInstructionsOverrideChange(event.target.value)}
-            rows={8}
-            className="font-mono text-sm"
-            disabled={disabled}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Fresh Input</Label>
-          <Textarea
-            value={freshInputOverride}
-            onChange={(event) => onFreshInputOverrideChange(event.target.value)}
-            rows={8}
-            className="font-mono text-sm"
-            disabled={disabled}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Compare Instructions</Label>
-          <Textarea
-            value={compareInstructionsOverride}
-            onChange={(event) => onCompareInstructionsOverrideChange(event.target.value)}
-            rows={8}
-            className="font-mono text-sm"
-            disabled={disabled}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Compare Input</Label>
-          <Textarea
-            value={compareInputOverride}
-            onChange={(event) => onCompareInputOverrideChange(event.target.value)}
-            rows={8}
-            className="font-mono text-sm"
-            disabled={disabled}
-          />
-        </div>
-      </div>
-      <label className="flex items-start gap-3 rounded-xl border border-border/70 p-4">
-        <Checkbox
-          checked={compareToOrigin}
-          onCheckedChange={(checked) => onCompareToOriginChange(checked === true)}
+        <FormField
+          control={control}
+          name="freshInstructionsOverride"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Fresh Instructions</FormLabel>
+              <FormControl>
+                <Textarea {...field} className="font-mono text-sm" disabled={disabled} rows={8} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        <div className="space-y-1">
-          <p className="text-sm font-medium">Compare to origin thesis</p>
-          <p className="text-xs text-muted-foreground">
-            Include the original thesis context during the compare-and-reflect step.
-          </p>
-        </div>
-      </label>
+        <FormField
+          control={control}
+          name="freshInputOverride"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Fresh Input</FormLabel>
+              <FormControl>
+                <Textarea {...field} className="font-mono text-sm" disabled={disabled} rows={8} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="compareInstructionsOverride"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Compare Instructions</FormLabel>
+              <FormControl>
+                <Textarea {...field} className="font-mono text-sm" disabled={disabled} rows={8} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="compareInputOverride"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Compare Input</FormLabel>
+              <FormControl>
+                <Textarea {...field} className="font-mono text-sm" disabled={disabled} rows={8} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+      <FormField
+        control={control}
+        name="compareToOrigin"
+        render={({ field }) => (
+          <FormItem className="rounded-xl border border-border/70 p-4">
+            <label className="flex items-start gap-3">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  disabled={disabled}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                />
+              </FormControl>
+              <div className="space-y-1">
+                <FormLabel className="text-sm font-medium">Compare to origin thesis</FormLabel>
+                <p className="text-xs text-muted-foreground">
+                  Include the original thesis context during the compare-and-reflect step.
+                </p>
+              </div>
+            </label>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 }

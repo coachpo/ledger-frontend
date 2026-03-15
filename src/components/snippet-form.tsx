@@ -1,10 +1,20 @@
-import { useId, useState } from "react";
+import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 import type { UserSnippetCreate, UserSnippetRead, UserSnippetUpdate } from "@/lib/api-types";
+import { snippetFormSchema, type SnippetFormValues } from "@/components/form-schemas";
 
 import { Button } from "./ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
 import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 
 type SnippetFormProps = {
@@ -15,64 +25,99 @@ type SnippetFormProps = {
 };
 
 export function SnippetForm({ initial, isPending, onCancel, onSave }: SnippetFormProps) {
-  const nameId = useId();
-  const snippetAliasId = useId();
-  const descriptionId = useId();
-  const contentId = useId();
-  const [name, setName] = useState(initial?.name ?? "");
-  const [snippetAlias, setSnippetAlias] = useState(initial?.snippetAlias ?? "");
-  const [description, setDescription] = useState(initial?.description ?? "");
-  const [content, setContent] = useState(initial?.content ?? "");
+  const form = useForm<SnippetFormValues>({
+    defaultValues: {
+      content: initial?.content ?? "",
+      description: initial?.description ?? "",
+      name: initial?.name ?? "",
+      snippetAlias: initial?.snippetAlias ?? "",
+    },
+    resolver: zodResolver(snippetFormSchema),
+  });
+
+  useEffect(() => {
+    form.reset({
+      content: initial?.content ?? "",
+      description: initial?.description ?? "",
+      name: initial?.name ?? "",
+      snippetAlias: initial?.snippetAlias ?? "",
+    });
+  }, [form, initial]);
 
   return (
-    <div className="space-y-4">
-      <div>
-        <Label htmlFor={nameId}>Name</Label>
-        <Input id={nameId} value={name} onChange={(event) => setName(event.target.value)} disabled={isPending} />
-      </div>
-      <div>
-        <Label htmlFor={snippetAliasId}>Snippet Alias</Label>
-        <Input
-          id={snippetAliasId}
-          value={snippetAlias}
-          onChange={(event) => setSnippetAlias(event.target.value)}
-          placeholder="hello_snippets"
-          disabled={isPending}
+    <Form {...form}>
+      <form
+        className="space-y-4"
+        onSubmit={form.handleSubmit((values) =>
+          onSave({
+            content: values.content.trim(),
+            description: values.description.trim() || null,
+            name: values.name.trim(),
+            snippetAlias: values.snippetAlias.trim() || null,
+          } satisfies UserSnippetCreate | UserSnippetUpdate),
+        )}
+      >
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input {...field} disabled={isPending} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      <div>
-        <Label htmlFor={descriptionId}>Description</Label>
-        <Input id={descriptionId} value={description} onChange={(event) => setDescription(event.target.value)} disabled={isPending} />
-      </div>
-      <div>
-        <Label htmlFor={contentId}>Content</Label>
-        <Textarea
-          id={contentId}
-          value={content}
-          onChange={(event) => setContent(event.target.value)}
-          rows={8}
-          className="font-mono text-sm"
-          disabled={isPending}
+        <FormField
+          control={form.control}
+          name="snippetAlias"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Snippet Alias</FormLabel>
+              <FormControl>
+                <Input {...field} disabled={isPending} placeholder="hello_snippets" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancel} disabled={isPending}>
-          Cancel
-        </Button>
-        <Button
-          onClick={() =>
-            onSave({
-              name: name.trim(),
-              snippetAlias: snippetAlias.trim() || null,
-              description: description.trim() || null,
-              content: content.trim(),
-            })
-          }
-          disabled={isPending || !name.trim() || !content.trim()}
-        >
-          Save
-        </Button>
-      </div>
-    </div>
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input {...field} disabled={isPending} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="content"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Content</FormLabel>
+              <FormControl>
+                <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex justify-end gap-2">
+          <Button onClick={onCancel} type="button" variant="outline" disabled={isPending}>
+            Cancel
+          </Button>
+          <Button disabled={isPending} type="submit">
+            Save
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

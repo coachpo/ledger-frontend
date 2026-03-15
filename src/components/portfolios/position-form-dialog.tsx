@@ -1,12 +1,22 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/api-types";
+import { positionCreateFormSchema, type PositionCreateFormValues } from "@/components/form-schemas";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 type PositionFormDialogProps = {
   open: boolean;
@@ -23,10 +33,24 @@ export function PositionFormDialog({
   onOpenChange,
   onSave,
 }: PositionFormDialogProps) {
-  const [symbol, setSymbol] = useState(initial?.symbol ?? "");
-  const [name, setName] = useState(initial?.name ?? "");
-  const [quantity, setQuantity] = useState(initial?.quantity ?? "");
-  const [averageCost, setAverageCost] = useState(initial?.averageCost ?? "");
+  const form = useForm<PositionCreateFormValues>({
+    defaultValues: {
+      averageCost: initial?.averageCost ?? "",
+      name: initial?.name ?? "",
+      quantity: initial?.quantity ?? "",
+      symbol: initial?.symbol ?? "",
+    },
+    resolver: zodResolver(positionCreateFormSchema),
+  });
+
+  useEffect(() => {
+    form.reset({
+      averageCost: initial?.averageCost ?? "",
+      name: initial?.name ?? "",
+      quantity: initial?.quantity ?? "",
+      symbol: initial?.symbol ?? "",
+    });
+  }, [form, initial, open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -34,55 +58,96 @@ export function PositionFormDialog({
         <DialogHeader>
           <DialogTitle>{initial ? "Edit Position" : "Add Position"}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label>Symbol</Label>
-            <Input
-              value={symbol}
-              onChange={(event) => setSymbol(event.target.value.toUpperCase())}
-              disabled={isPending || Boolean(initial)}
+        <Form {...form}>
+          <form
+            className="space-y-4"
+            onSubmit={form.handleSubmit((values) => {
+              const payload = {
+                averageCost: values.averageCost.trim(),
+                name: values.name.trim() || null,
+                quantity: values.quantity.trim(),
+              };
+
+              if (initial) {
+                onSave(payload satisfies PositionUpdateInput);
+                return;
+              }
+
+              onSave({
+                ...payload,
+                symbol: values.symbol.trim().toUpperCase(),
+              } satisfies PositionWriteInput);
+            })}
+          >
+            <FormField
+              control={form.control}
+              name="symbol"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Symbol</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending || Boolean(initial)}
+                      onChange={(event) => field.onChange(event.target.value.toUpperCase())}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div>
-            <Label>Name</Label>
-            <Input value={name} onChange={(event) => setName(event.target.value)} disabled={isPending} />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <Label>Quantity</Label>
-              <Input value={quantity} onChange={(event) => setQuantity(event.target.value)} disabled={isPending} />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="quantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Quantity</FormLabel>
+                    <FormControl>
+                      <Input {...field} disabled={isPending} inputMode="decimal" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="averageCost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Average Cost</FormLabel>
+                    <FormControl>
+                      <Input {...field} disabled={isPending} inputMode="decimal" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            <div>
-              <Label>Average Cost</Label>
-              <Input value={averageCost} onChange={(event) => setAverageCost(event.target.value)} disabled={isPending} />
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => onOpenChange(false)} type="button" variant="outline" disabled={isPending}>
+                Cancel
+              </Button>
+              <Button disabled={isPending} type="submit">
+                {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                Save
+              </Button>
             </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-              Cancel
-            </Button>
-            <Button
-              disabled={isPending || !quantity.trim() || !averageCost.trim() || (!initial && !symbol.trim())}
-              onClick={() => {
-                const payload = {
-                  name: name.trim() || null,
-                  quantity: quantity.trim(),
-                  averageCost: averageCost.trim(),
-                };
-
-                if (initial) {
-                  onSave(payload);
-                  return;
-                }
-
-                onSave({ ...payload, symbol: symbol.trim().toUpperCase() });
-              }}
-            >
-              {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-              Save
-            </Button>
-          </div>
-        </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

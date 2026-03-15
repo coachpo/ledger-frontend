@@ -1,12 +1,22 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 import type { BalanceRead, BalanceUpdateInput, BalanceWriteInput } from "@/lib/api-types";
+import { balanceFormSchema, type BalanceFormValues } from "@/components/form-schemas";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 type BalanceFormDialogProps = {
   open: boolean;
@@ -23,8 +33,20 @@ export function BalanceFormDialog({
   onOpenChange,
   onSave,
 }: BalanceFormDialogProps) {
-  const [label, setLabel] = useState(initial?.label ?? "");
-  const [amount, setAmount] = useState(initial?.amount ?? "0");
+  const form = useForm<BalanceFormValues>({
+    defaultValues: {
+      amount: initial?.amount ?? "0",
+      label: initial?.label ?? "",
+    },
+    resolver: zodResolver(balanceFormSchema),
+  });
+
+  useEffect(() => {
+    form.reset({
+      amount: initial?.amount ?? "0",
+      label: initial?.label ?? "",
+    });
+  }, [form, initial, open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -32,28 +54,50 @@ export function BalanceFormDialog({
         <DialogHeader>
           <DialogTitle>{initial ? "Edit Balance" : "Add Balance"}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label>Label</Label>
-            <Input value={label} onChange={(event) => setLabel(event.target.value)} disabled={isPending} />
-          </div>
-          <div>
-            <Label>Amount</Label>
-            <Input value={amount} onChange={(event) => setAmount(event.target.value)} disabled={isPending} />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-              Cancel
-            </Button>
-            <Button
-              disabled={isPending || !label.trim() || !amount.trim()}
-              onClick={() => onSave({ label: label.trim(), amount: amount.trim() })}
-            >
-              {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-              Save
-            </Button>
-          </div>
-        </div>
+        <Form {...form}>
+          <form
+            className="space-y-4"
+            onSubmit={form.handleSubmit((values) =>
+              onSave({ amount: values.amount.trim(), label: values.label.trim() }),
+            )}
+          >
+            <FormField
+              control={form.control}
+              name="label"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Label</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} inputMode="decimal" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => onOpenChange(false)} type="button" variant="outline" disabled={isPending}>
+                Cancel
+              </Button>
+              <Button disabled={isPending} type="submit">
+                {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                Save
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

@@ -3,6 +3,7 @@ import { Layout } from "./components/layout";
 import { Dashboard } from "./components/dashboard";
 import { PortfolioDetailPage } from "./components/portfolios/portfolio-detail-page";
 import { PortfolioListPage } from "./components/portfolios/portfolio-list-page";
+import { RunBuilderPage } from "./components/stock-analysis/run-builder-page";
 import { LLMConfigs } from "./components/llm-configs";
 import { PromptTemplateCreatePage } from "./components/prompt-template-create-page";
 import { PromptTemplates } from "./components/prompt-templates";
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
       { path: "templates", Component: PromptTemplates },
       { path: "snippets/new", Component: SnippetCreatePage },
       { path: "snippets", Component: Snippets },
+      { path: "requests", Component: RunBuilderPage },
       { path: "responses", Component: ResponsesPage },
     ],
   },

@@ -7,17 +7,11 @@ import {
 } from "@/hooks/use-stock-analysis";
 import { usePortfolios } from "@/hooks/use-portfolios";
 import type { StockAnalysisPromptStep } from "@/lib/api-types";
+import { SearchableSelect } from "@/components/searchable-select";
 
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
 import { Skeleton } from "./ui/skeleton";
 
 const ALL_CONVERSATIONS = "__all_conversations__";
@@ -124,7 +118,25 @@ export function ResponsesPage() {
     responseParams,
   );
 
-  const conversations = conversationsQuery.data ?? [];
+  const conversations = useMemo(
+    () => conversationsQuery.data ?? [],
+    [conversationsQuery.data],
+  );
+  const portfolioOptions = portfolios.map((portfolio) => ({
+    description: `${portfolio.positionCount} positions · ${portfolio.balanceCount} balances`,
+    keywords: [portfolio.baseCurrency],
+    label: portfolio.name,
+    value: String(portfolio.id),
+  }));
+  const conversationOptions = [
+    { label: "All conversations", value: ALL_CONVERSATIONS },
+    ...conversations.map((conversation) => ({
+      description: conversation.symbol,
+      keywords: [conversation.symbol],
+      label: conversation.title?.trim() || conversation.symbol,
+      value: String(conversation.id),
+    })),
+  ];
   const responses = useMemo(
     () => [...(responsesQuery.data ?? [])].sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
     [responsesQuery.data],
@@ -198,44 +210,27 @@ export function ResponsesPage() {
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
                 Portfolio
               </p>
-              <Select
-                value={selectedPortfolioId || undefined}
+              <SearchableSelect
                 onValueChange={setSelectedPortfolioId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a portfolio" />
-                </SelectTrigger>
-                  <SelectContent>
-                    {portfolios.map((portfolio) => (
-                      <SelectItem key={portfolio.id} value={String(portfolio.id)}>
-                        {portfolio.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+                options={portfolioOptions}
+                placeholder="Select a portfolio"
+                searchPlaceholder="Search portfolios..."
+                value={selectedPortfolioId}
+              />
             </div>
 
             <div className="space-y-2">
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
                 Conversation Filter
               </p>
-              <Select
+              <SearchableSelect
                 disabled={!selectedPortfolioId || conversationsQuery.isPending}
-                value={selectedConversationId}
                 onValueChange={setSelectedConversationId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All conversations" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_CONVERSATIONS}>All conversations</SelectItem>
-                  {conversations.map((conversation) => (
-                    <SelectItem key={conversation.id} value={String(conversation.id)}>
-                      {conversation.title?.trim() || conversation.symbol}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={conversationOptions}
+                placeholder="All conversations"
+                searchPlaceholder="Search conversations..."
+                value={selectedConversationId}
+              />
               {selectedPortfolioId && conversationsQuery.isError ? (
                 <p className="text-xs text-muted-foreground">
                   Conversation filters are unavailable right now.

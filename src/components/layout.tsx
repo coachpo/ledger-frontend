@@ -1,146 +1,206 @@
-import { useEffect, useMemo, useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router";
+import { Link, NavLink, Outlet, useLocation } from "react-router";
 import {
   Briefcase,
   BrainCircuit,
   Code2,
   FileText,
   LayoutDashboard,
-  Menu,
   MessageSquare,
   Send,
   Settings2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { Button } from "./ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "./ui/breadcrumb";
 import { ScrollArea } from "./ui/scroll-area";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "./ui/sheet";
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarSeparator,
+  SidebarTrigger,
+  useSidebar,
+} from "./ui/sidebar";
 
 type NavItem = {
-  to: string;
   icon: LucideIcon;
   label: string;
+  to: string;
 };
 
 const navItems: NavItem[] = [
-  { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/portfolios", icon: Briefcase, label: "Portfolios" },
-  { to: "/llm-configs", icon: Settings2, label: "LLM Configs" },
-  { to: "/templates", icon: FileText, label: "Templates" },
-  { to: "/snippets", icon: Code2, label: "Snippets" },
-  { to: "/requests", icon: Send, label: "Run Builder" },
-  { to: "/responses", icon: MessageSquare, label: "Responses" },
+  { icon: LayoutDashboard, label: "Dashboard", to: "/" },
+  { icon: Briefcase, label: "Portfolios", to: "/portfolios" },
+  { icon: Settings2, label: "LLM Configs", to: "/llm-configs" },
+  { icon: FileText, label: "Templates", to: "/templates" },
+  { icon: Code2, label: "Snippets", to: "/snippets" },
+  { icon: Send, label: "Run Builder", to: "/requests" },
+  { icon: MessageSquare, label: "Responses", to: "/responses" },
 ];
 
-function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+function isNavItemActive(pathname: string, item: NavItem) {
+  return item.to === "/"
+    ? pathname === "/"
+    : pathname === item.to || pathname.startsWith(`${item.to}/`);
+}
+
+function getPageMeta(pathname: string) {
+  if (pathname === "/") {
+    return { section: "Dashboard", title: "Dashboard" };
+  }
+
+  if (pathname === "/portfolios") {
+    return { section: "Portfolios", title: "Portfolios" };
+  }
+
+  if (pathname.startsWith("/portfolios/")) {
+    return { section: "Portfolios", sectionHref: "/portfolios", title: "Portfolio Detail" };
+  }
+
+  if (pathname === "/llm-configs") {
+    return { section: "LLM Configs", title: "LLM Configs" };
+  }
+
+  if (pathname === "/templates") {
+    return { section: "Templates", title: "Templates" };
+  }
+
+  if (pathname === "/templates/new") {
+    return { section: "Templates", sectionHref: "/templates", title: "New Template" };
+  }
+
+  if (pathname === "/snippets") {
+    return { section: "Snippets", title: "Snippets" };
+  }
+
+  if (pathname === "/snippets/new") {
+    return { section: "Snippets", sectionHref: "/snippets", title: "New Snippet" };
+  }
+
+  if (pathname === "/requests") {
+    return { section: "Run Builder", title: "Run Builder" };
+  }
+
+  if (pathname === "/responses") {
+    return { section: "Responses", title: "Responses" };
+  }
+
+  return { section: "Workspace", title: "Workspace" };
+}
+
+function AppSidebar() {
+  const location = useLocation();
+  const { isMobile, open, setOpenMobile } = useSidebar();
+  const showExpandedContent = open || isMobile;
+
   return (
-    <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-3">
-      {navItems.map((item) => (
-        <NavLink
-          key={item.to}
-          end={item.to === "/"}
-          to={item.to}
-          onClick={onNavigate}
-          className={({ isActive }) =>
-            [
-              "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all",
-              isActive
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            ].join(" ")
-          }
-        >
-          <item.icon className="size-4 shrink-0" />
-          <span>{item.label}</span>
-        </NavLink>
-      ))}
-    </nav>
+    <Sidebar variant="inset">
+      <SidebarHeader className="gap-3 p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <BrainCircuit className="size-5 shrink-0" />
+          </div>
+          {showExpandedContent ? (
+            <div className="min-w-0">
+              <p className="text-sm font-semibold tracking-tight">Stock Analysis AI</p>
+              <p className="text-xs text-muted-foreground">Workspace</p>
+            </div>
+          ) : null}
+        </div>
+      </SidebarHeader>
+      <SidebarSeparator />
+      <SidebarContent>
+        <SidebarGroup>
+          {showExpandedContent ? <SidebarGroupLabel>Workspace</SidebarGroupLabel> : null}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.to}>
+                  <SidebarMenuButton
+                    asChild
+                    className={!showExpandedContent ? "justify-center" : undefined}
+                    isActive={isNavItemActive(location.pathname, item)}
+                    tooltip={!showExpandedContent ? item.label : undefined}
+                  >
+                    <NavLink
+                      end={item.to === "/"}
+                      onClick={() => setOpenMobile(false)}
+                      to={item.to}
+                    >
+                      <item.icon className="size-4 shrink-0" />
+                      <span className={!showExpandedContent ? "sr-only" : undefined}>
+                        {item.label}
+                      </span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
   );
 }
 
 export function Layout() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
-
-  const activeItem = useMemo(
-    () =>
-      navItems.find((item) =>
-        item.to === "/"
-          ? location.pathname === "/"
-          : location.pathname.startsWith(item.to),
-      ) ?? navItems[0],
-    [location.pathname],
-  );
+  const pageMeta = getPageMeta(location.pathname);
 
   return (
-    <div className="flex h-svh flex-col overflow-hidden bg-background md:flex-row">
-      <aside className="hidden shrink-0 border-r border-border bg-card/80 backdrop-blur md:flex md:h-svh md:w-64 md:flex-col">
-        <div className="flex h-14 items-center gap-3 border-b border-border px-4">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <BrainCircuit className="size-5 shrink-0" />
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur">
+          <SidebarTrigger />
+          <div className="min-w-0 flex-1">
+            <Breadcrumb>
+              <BreadcrumbList>
+                {pageMeta.sectionHref ? (
+                  <>
+                    <BreadcrumbItem>
+                      <BreadcrumbLink asChild>
+                        <Link to={pageMeta.sectionHref}>{pageMeta.section}</Link>
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>{pageMeta.title}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </>
+                ) : (
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>{pageMeta.title}</BreadcrumbPage>
+                  </BreadcrumbItem>
+                )}
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold tracking-tight">Stock Analysis AI</p>
-            <p className="text-xs text-muted-foreground">Workspace</p>
-          </div>
-        </div>
-
-        <SidebarNav />
-      </aside>
-
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-80 p-0 sm:max-w-none">
-          <SheetHeader className="border-b border-border text-left">
-            <SheetTitle className="flex items-center gap-3">
-              <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <BrainCircuit className="size-5" />
-              </div>
-              <span>Stock Analysis AI</span>
-            </SheetTitle>
-            <SheetDescription>Navigate between all seven workspace routes.</SheetDescription>
-          </SheetHeader>
-          <div className="flex h-full flex-col">
-            <SidebarNav onNavigate={() => setMobileOpen(false)} />
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur md:hidden">
-          <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Workspace</p>
-            <p className="truncate text-sm font-medium">{activeItem.label}</p>
-          </div>
-          <Button
-            size="icon"
-            type="button"
-            variant="outline"
-            onClick={() => setMobileOpen(true)}
-          >
-            <Menu className="size-4" />
-            <span className="sr-only">Open navigation</span>
-          </Button>
         </header>
 
-        <main className="min-h-0 min-w-0 flex-1">
+        <main className="min-h-0 min-w-0 flex-1 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="min-h-full [&>*]:mx-auto [&>*]:w-full">
               <Outlet />
             </div>
           </ScrollArea>
         </main>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

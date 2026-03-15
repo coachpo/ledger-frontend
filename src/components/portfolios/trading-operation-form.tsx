@@ -1,10 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
-import type { BalanceRead, TradingOperationInput, TradingSide } from "@/lib/api-types";
+import type { BalanceRead, TradingOperationInput } from "@/lib/api-types";
+import {
+  tradingOperationFormSchema,
+  type TradingOperationFormValues,
+} from "@/components/form-schemas";
 
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type TradingOperationFormProps = {
@@ -20,143 +33,274 @@ export function TradingOperationForm({
   onCancel,
   onSave,
 }: TradingOperationFormProps) {
-  const [balanceId, setBalanceId] = useState("");
-  const [side, setSide] = useState<TradingSide>("BUY");
-  const [symbol, setSymbol] = useState("");
-  const [executedAt, setExecutedAt] = useState(new Date().toISOString().slice(0, 16));
-  const [quantity, setQuantity] = useState("");
-  const [price, setPrice] = useState("");
-  const [commission, setCommission] = useState("");
-  const [dividendAmount, setDividendAmount] = useState("");
-  const [splitRatio, setSplitRatio] = useState("");
+  const form = useForm<TradingOperationFormValues>({
+    defaultValues: {
+      balanceId: balances[0]?.id ? String(balances[0].id) : "",
+      commission: "",
+      dividendAmount: "",
+      executedAt: new Date().toISOString().slice(0, 16),
+      price: "",
+      quantity: "",
+      side: "BUY",
+      splitRatio: "",
+      symbol: "",
+    },
+    mode: "onChange",
+    resolver: zodResolver(tradingOperationFormSchema),
+  });
+  const side = form.watch("side");
 
   useEffect(() => {
-    if (!balanceId && balances[0]?.id) {
-      setBalanceId(String(balances[0].id));
+    const selectedBalanceId = form.getValues("balanceId");
+    if (!selectedBalanceId && balances[0]?.id) {
+      form.setValue("balanceId", String(balances[0].id), { shouldValidate: true });
+      return;
     }
-  }, [balanceId, balances]);
+
+    if (
+      selectedBalanceId
+      && !balances.some((balance) => String(balance.id) === selectedBalanceId)
+    ) {
+      form.setValue("balanceId", balances[0]?.id ? String(balances[0].id) : "", {
+        shouldValidate: true,
+      });
+    }
+  }, [balances, form]);
 
   const requiresQuantityAndPrice = side === "BUY" || side === "SELL";
-  const canSubmit = Boolean(
-    balanceId
-      && symbol.trim()
-      && executedAt
-      && ((requiresQuantityAndPrice && quantity.trim() && price.trim())
-        || (side === "DIVIDEND" && dividendAmount.trim())
-        || (side === "SPLIT" && splitRatio.trim())),
-  );
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <Label>Balance</Label>
-          <Select value={balanceId} onValueChange={setBalanceId} disabled={isPending || balances.length === 0}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select balance" />
-            </SelectTrigger>
-            <SelectContent>
-              {balances.map((balance) => (
-                <SelectItem key={balance.id} value={String(balance.id)}>
-                  {balance.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label>Operation</Label>
-          <Select value={side} onValueChange={(value) => setSide(value as TradingSide)} disabled={isPending}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="BUY">BUY</SelectItem>
-              <SelectItem value="SELL">SELL</SelectItem>
-              <SelectItem value="DIVIDEND">DIVIDEND</SelectItem>
-              <SelectItem value="SPLIT">SPLIT</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <Label>Symbol</Label>
-          <Input value={symbol} onChange={(event) => setSymbol(event.target.value.toUpperCase())} disabled={isPending} />
-        </div>
-        <div>
-          <Label>Executed At</Label>
-          <Input type="datetime-local" value={executedAt} onChange={(event) => setExecutedAt(event.target.value)} disabled={isPending} />
-        </div>
-      </div>
-      {requiresQuantityAndPrice ? (
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <Label>Quantity</Label>
-            <Input value={quantity} onChange={(event) => setQuantity(event.target.value)} disabled={isPending} />
-          </div>
-          <div>
-            <Label>Price</Label>
-            <Input value={price} onChange={(event) => setPrice(event.target.value)} disabled={isPending} />
-          </div>
-          <div>
-            <Label>Commission</Label>
-            <Input value={commission} onChange={(event) => setCommission(event.target.value)} disabled={isPending} />
-          </div>
-        </div>
-      ) : null}
-      {side === "DIVIDEND" ? (
+    <Form {...form}>
+      <form
+        className="space-y-4"
+        onSubmit={form.handleSubmit((values) => {
+          const common = {
+            balanceId: Number(values.balanceId),
+            executedAt: new Date(values.executedAt).toISOString(),
+            symbol: values.symbol.trim().toUpperCase(),
+          };
+
+          if (values.side === "BUY") {
+            onSave({
+              ...common,
+              commission: values.commission.trim() || undefined,
+              price: values.price.trim(),
+              quantity: values.quantity.trim(),
+              side: "BUY",
+            });
+            return;
+          }
+
+          if (values.side === "SELL") {
+            onSave({
+              ...common,
+              commission: values.commission.trim() || undefined,
+              price: values.price.trim(),
+              quantity: values.quantity.trim(),
+              side: "SELL",
+            });
+            return;
+          }
+
+          if (values.side === "DIVIDEND") {
+            onSave({
+              ...common,
+              commission: values.commission.trim() || undefined,
+              dividendAmount: values.dividendAmount.trim(),
+              side: "DIVIDEND",
+            });
+            return;
+          }
+
+          onSave({
+            ...common,
+            side: "SPLIT",
+            splitRatio: values.splitRatio.trim(),
+          });
+        })}
+      >
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label>Dividend Amount</Label>
-            <Input value={dividendAmount} onChange={(event) => setDividendAmount(event.target.value)} disabled={isPending} />
-          </div>
-          <div>
-            <Label>Commission</Label>
-            <Input value={commission} onChange={(event) => setCommission(event.target.value)} disabled={isPending} />
-          </div>
+          <FormField
+            control={form.control}
+            name="balanceId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Balance</FormLabel>
+                <Select
+                  disabled={isPending || balances.length === 0}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select balance" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {balances.map((balance) => (
+                      <SelectItem key={balance.id} value={String(balance.id)}>
+                        {balance.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="side"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Operation</FormLabel>
+                <Select disabled={isPending} value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="BUY">BUY</SelectItem>
+                    <SelectItem value="SELL">SELL</SelectItem>
+                    <SelectItem value="DIVIDEND">DIVIDEND</SelectItem>
+                    <SelectItem value="SPLIT">SPLIT</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-      ) : null}
-      {side === "SPLIT" ? (
-        <div>
-          <Label>Split Ratio</Label>
-          <Input value={splitRatio} onChange={(event) => setSplitRatio(event.target.value)} placeholder="2:1 or 1.5" disabled={isPending} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="symbol"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Symbol</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    onChange={(event) => field.onChange(event.target.value.toUpperCase())}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="executedAt"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Executed At</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled={isPending} type="datetime-local" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-      ) : null}
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancel} disabled={isPending}>
-          Cancel
-        </Button>
-        <Button
-          disabled={isPending || !canSubmit}
-          onClick={() => {
-            const common = {
-              balanceId: Number(balanceId),
-              symbol: symbol.trim().toUpperCase(),
-              executedAt: new Date(executedAt).toISOString(),
-            };
-
-            if (side === "BUY") {
-              onSave({ ...common, side: "BUY", quantity: quantity.trim(), price: price.trim(), commission: commission.trim() || undefined });
-              return;
-            }
-
-            if (side === "SELL") {
-              onSave({ ...common, side: "SELL", quantity: quantity.trim(), price: price.trim(), commission: commission.trim() || undefined });
-              return;
-            }
-
-            if (side === "DIVIDEND") {
-              onSave({ ...common, side, dividendAmount: dividendAmount.trim(), commission: commission.trim() || undefined });
-              return;
-            }
-
-            onSave({ ...common, side, splitRatio: splitRatio.trim() });
-          }}
-        >
-          Save Operation
-        </Button>
-      </div>
-    </div>
+        {requiresQuantityAndPrice ? (
+          <div className="grid gap-4 sm:grid-cols-3">
+            <FormField
+              control={form.control}
+              name="quantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Quantity</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} inputMode="decimal" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} inputMode="decimal" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="commission"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Commission</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} inputMode="decimal" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        ) : null}
+        {side === "DIVIDEND" ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="dividendAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dividend Amount</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} inputMode="decimal" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="commission"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Commission</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} inputMode="decimal" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        ) : null}
+        {side === "SPLIT" ? (
+          <FormField
+            control={form.control}
+            name="splitRatio"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Split Ratio</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled={isPending} placeholder="2:1 or 1.5" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : null}
+        <div className="flex justify-end gap-2">
+          <Button onClick={onCancel} type="button" variant="outline" disabled={isPending}>
+            Cancel
+          </Button>
+          <Button disabled={isPending || !form.formState.isValid} type="submit">
+            Save Operation
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

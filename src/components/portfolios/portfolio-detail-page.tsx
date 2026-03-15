@@ -16,6 +16,7 @@ import {
 } from "@/lib/portfolio-analytics";
 import type { PortfolioUpdateInput } from "@/lib/api-types";
 
+import { MetricCard } from "@/components/metric-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,18 +26,6 @@ import { PortfolioBalancesSection } from "./portfolio-balances-section";
 import { PortfolioFormDialog } from "./portfolio-form-dialog";
 import { PortfolioPositionsSection } from "./portfolio-positions-section";
 import { PortfolioTradesSection } from "./portfolio-trades-section";
-
-function MetricCard({ title, value, note }: { title: string; value: string; note: string }) {
-  return (
-    <Card>
-      <CardContent className="pt-6">
-        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{title}</p>
-        <p className="mt-2 text-2xl tracking-tight">{value}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{note}</p>
-      </CardContent>
-    </Card>
-  );
-}
 
 export function PortfolioDetailPage() {
   const navigate = useNavigate();
@@ -50,9 +39,9 @@ export function PortfolioDetailPage() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const positions = positionsQuery.data ?? [];
-  const balances = balancesQuery.data ?? [];
-  const operations = tradingQuery.data ?? [];
+  const positions = useMemo(() => positionsQuery.data ?? [], [positionsQuery.data]);
+  const balances = useMemo(() => balancesQuery.data ?? [], [balancesQuery.data]);
+  const operations = useMemo(() => tradingQuery.data ?? [], [tradingQuery.data]);
   const symbols = useMemo(() => positions.map((position) => position.symbol), [positions]);
   const quotesQuery = useMarketQuotes(portfolioId, symbols);
   const enrichedPositions = useMemo(

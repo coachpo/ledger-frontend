@@ -1,16 +1,28 @@
-import { useId, useState } from "react";
+import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 import type {
-  PromptTemplateMode,
   PromptTemplateRead,
   PromptTemplateUpdate,
   PromptTemplateWrite,
 } from "@/lib/api-types";
+import {
+  promptTemplateFormSchema,
+  type PromptTemplateFormValues,
+} from "@/components/form-schemas";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
 import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { Textarea } from "./ui/textarea";
 
@@ -91,197 +103,218 @@ function emptyText(value: string | null | undefined) {
   return value ?? "";
 }
 
+function getDefaultValues(initial?: PromptTemplateRead): PromptTemplateFormValues {
+  return {
+    compareInputTemplate: emptyText(initial?.compareInputTemplate),
+    compareInstructionsTemplate: emptyText(initial?.compareInstructionsTemplate),
+    description: initial?.description ?? "",
+    freshInputTemplate: emptyText(initial?.freshInputTemplate),
+    freshInstructionsTemplate: emptyText(initial?.freshInstructionsTemplate),
+    inputTemplate: emptyText(initial?.inputTemplate),
+    instructionsTemplate: emptyText(initial?.instructionsTemplate),
+    name: initial?.name ?? "",
+    templateMode: initial?.templateMode ?? "single",
+  };
+}
+
 export function PromptTemplateForm({
   initial,
   isPending,
   onCancel,
   onSave,
 }: PromptTemplateFormProps) {
-  const nameId = useId();
-  const descriptionId = useId();
-  const instructionsId = useId();
-  const inputId = useId();
-  const freshInstructionsId = useId();
-  const freshInputId = useId();
-  const compareInstructionsId = useId();
-  const compareInputId = useId();
-  const [name, setName] = useState(initial?.name ?? "");
-  const [description, setDescription] = useState(initial?.description ?? "");
-  const [templateMode, setTemplateMode] = useState<PromptTemplateMode>(
-    initial?.templateMode ?? "single",
-  );
-  const [instructionsTemplate, setInstructionsTemplate] = useState(
-    emptyText(initial?.instructionsTemplate),
-  );
-  const [inputTemplate, setInputTemplate] = useState(emptyText(initial?.inputTemplate));
-  const [freshInstructionsTemplate, setFreshInstructionsTemplate] = useState(
-    emptyText(initial?.freshInstructionsTemplate),
-  );
-  const [freshInputTemplate, setFreshInputTemplate] = useState(
-    emptyText(initial?.freshInputTemplate),
-  );
-  const [compareInstructionsTemplate, setCompareInstructionsTemplate] = useState(
-    emptyText(initial?.compareInstructionsTemplate),
-  );
-  const [compareInputTemplate, setCompareInputTemplate] = useState(
-    emptyText(initial?.compareInputTemplate),
-  );
-
+  const form = useForm<PromptTemplateFormValues>({
+    defaultValues: getDefaultValues(initial),
+    resolver: zodResolver(promptTemplateFormSchema),
+  });
+  const templateMode = form.watch("templateMode");
   const isSingle = templateMode === "single";
-  const hasRequiredFields = isSingle
-    ? name.trim() && instructionsTemplate.trim() && inputTemplate.trim()
-    : name.trim() &&
-      freshInstructionsTemplate.trim() &&
-      freshInputTemplate.trim() &&
-      compareInstructionsTemplate.trim() &&
-      compareInputTemplate.trim();
 
-  function handleSave() {
-    const shared = {
-      name: name.trim(),
-      description: description.trim() || null,
-      templateMode,
-    };
-
-    if (isSingle) {
-      onSave({
-        ...shared,
-        instructionsTemplate: instructionsTemplate.trim(),
-        inputTemplate: inputTemplate.trim(),
-        freshInstructionsTemplate: null,
-        freshInputTemplate: null,
-        compareInstructionsTemplate: null,
-        compareInputTemplate: null,
-      });
-      return;
-    }
-
-    onSave({
-      ...shared,
-      instructionsTemplate: null,
-      inputTemplate: null,
-      freshInstructionsTemplate: freshInstructionsTemplate.trim(),
-      freshInputTemplate: freshInputTemplate.trim(),
-      compareInstructionsTemplate: compareInstructionsTemplate.trim(),
-      compareInputTemplate: compareInputTemplate.trim(),
-    });
-  }
+  useEffect(() => {
+    form.reset(getDefaultValues(initial));
+  }, [form, initial]);
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <Label htmlFor={nameId}>Name</Label>
-          <Input id={nameId} value={name} onChange={(event) => setName(event.target.value)} disabled={isPending} />
-        </div>
-        <div>
-          <Label htmlFor={descriptionId}>Description</Label>
-          <Input
-            id={descriptionId}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            disabled={isPending}
+    <Form {...form}>
+      <form
+        className="space-y-4"
+        onSubmit={form.handleSubmit((values) => {
+          const shared = {
+            description: values.description.trim() || null,
+            name: values.name.trim(),
+            templateMode: values.templateMode,
+          };
+
+          if (values.templateMode === "single") {
+            onSave({
+              ...shared,
+              compareInputTemplate: null,
+              compareInstructionsTemplate: null,
+              freshInputTemplate: null,
+              freshInstructionsTemplate: null,
+              inputTemplate: values.inputTemplate.trim(),
+              instructionsTemplate: values.instructionsTemplate.trim(),
+            } satisfies PromptTemplateWrite | PromptTemplateUpdate);
+            return;
+          }
+
+          onSave({
+            ...shared,
+            compareInputTemplate: values.compareInputTemplate.trim(),
+            compareInstructionsTemplate: values.compareInstructionsTemplate.trim(),
+            freshInputTemplate: values.freshInputTemplate.trim(),
+            freshInstructionsTemplate: values.freshInstructionsTemplate.trim(),
+            inputTemplate: null,
+            instructionsTemplate: null,
+          } satisfies PromptTemplateWrite | PromptTemplateUpdate);
+        })}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled={isPending} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled={isPending} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
-      </div>
 
-      <div className="space-y-2">
-        <Label>Template Mode</Label>
-        <Tabs value={templateMode} onValueChange={(value) => setTemplateMode(value as PromptTemplateMode)}>
-          <TabsList aria-label="Template Mode" className="grid w-full grid-cols-2">
-            <TabsTrigger value="single">Single Prompt</TabsTrigger>
-            <TabsTrigger value="two_step">Two Step</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+        <FormField
+          control={form.control}
+          name="templateMode"
+          render={({ field }) => (
+            <FormItem className="space-y-2">
+              <FormLabel>Template Mode</FormLabel>
+              <Tabs value={field.value} onValueChange={field.onChange}>
+                <TabsList aria-label="Template Mode" className="grid w-full grid-cols-2">
+                  <TabsTrigger value="single">Single Prompt</TabsTrigger>
+                  <TabsTrigger value="two_step">Two Step</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      {isSingle ? (
-        <div className="space-y-4 rounded-xl border p-4">
-          <div>
-            <Label htmlFor={instructionsId}>Instructions Template</Label>
-            <Textarea
-              id={instructionsId}
-              value={instructionsTemplate}
-              onChange={(event) => setInstructionsTemplate(event.target.value)}
-              rows={8}
-              className="font-mono text-sm"
-              disabled={isPending}
+        {isSingle ? (
+          <div className="space-y-4 rounded-xl border p-4">
+            <FormField
+              control={form.control}
+              name="instructionsTemplate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Instructions Template</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="inputTemplate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Input Template</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
-          <div>
-            <Label htmlFor={inputId}>Input Template</Label>
-            <Textarea
-              id={inputId}
-              value={inputTemplate}
-              onChange={(event) => setInputTemplate(event.target.value)}
-              rows={8}
-              className="font-mono text-sm"
-              disabled={isPending}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-4 rounded-xl border p-4">
-          <div className="grid gap-4 lg:grid-cols-2">
-            <div>
-              <Label htmlFor={freshInstructionsId}>Fresh Instructions Template</Label>
-              <Textarea
-                id={freshInstructionsId}
-                value={freshInstructionsTemplate}
-                onChange={(event) => setFreshInstructionsTemplate(event.target.value)}
-                rows={8}
-                className="font-mono text-sm"
-                disabled={isPending}
+        ) : (
+          <div className="space-y-4 rounded-xl border p-4">
+            <div className="grid gap-4 lg:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="freshInstructionsTemplate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fresh Instructions Template</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="freshInputTemplate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fresh Input Template</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            <div>
-              <Label htmlFor={freshInputId}>Fresh Input Template</Label>
-              <Textarea
-                id={freshInputId}
-                value={freshInputTemplate}
-                onChange={(event) => setFreshInputTemplate(event.target.value)}
-                rows={8}
-                className="font-mono text-sm"
-                disabled={isPending}
+            <div className="grid gap-4 lg:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="compareInstructionsTemplate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Compare Instructions Template</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-          </div>
-          <div className="grid gap-4 lg:grid-cols-2">
-            <div>
-              <Label htmlFor={compareInstructionsId}>Compare Instructions Template</Label>
-              <Textarea
-                id={compareInstructionsId}
-                value={compareInstructionsTemplate}
-                onChange={(event) => setCompareInstructionsTemplate(event.target.value)}
-                rows={8}
-                className="font-mono text-sm"
-                disabled={isPending}
-              />
-            </div>
-            <div>
-              <Label htmlFor={compareInputId}>Compare Input Template</Label>
-              <Textarea
-                id={compareInputId}
-                value={compareInputTemplate}
-                onChange={(event) => setCompareInputTemplate(event.target.value)}
-                rows={8}
-                className="font-mono text-sm"
-                disabled={isPending}
+              <FormField
+                control={form.control}
+                name="compareInputTemplate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Compare Input Template</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} className="font-mono text-sm" disabled={isPending} rows={8} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancel} disabled={isPending}>
-          Cancel
-        </Button>
-        <Button onClick={handleSave} disabled={isPending || !hasRequiredFields}>
-          Save
-        </Button>
-      </div>
-    </div>
+        <div className="flex justify-end gap-2">
+          <Button onClick={onCancel} type="button" variant="outline" disabled={isPending}>
+            Cancel
+          </Button>
+          <Button disabled={isPending} type="submit">
+            Save
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
 

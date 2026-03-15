@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
@@ -15,6 +15,12 @@ import type { PortfolioRead, PortfolioUpdateInput, PortfolioWriteInput } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
 import { PortfolioFormDialog } from "./portfolio-form-dialog";
@@ -80,12 +86,28 @@ export function PortfolioListPage() {
                 <p className="text-xs text-muted-foreground">Updated {formatDateTime(portfolio.updatedAt)}</p>
               </div>
               <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                <Button aria-label={`Edit portfolio ${portfolio.name}`} variant="ghost" size="sm" onClick={() => { setEditing(portfolio); setShowForm(true); }}>
-                  <Pencil className="size-3" />
-                </Button>
-                <Button aria-label={`Delete portfolio ${portfolio.name}`} variant="ghost" size="sm" onClick={() => setDeleting(portfolio)}>
-                  <Trash2 className="size-3" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button aria-label={`Open actions for ${portfolio.name}`} size="icon" variant="ghost">
+                      <MoreHorizontal className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        setEditing(portfolio);
+                        setShowForm(true);
+                      }}
+                    >
+                      <Pencil className="size-4" />
+                      Edit portfolio
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => setDeleting(portfolio)} variant="destructive">
+                      <Trash2 className="size-4" />
+                      Delete portfolio
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Button variant="outline" onClick={() => navigate(`/portfolios/${portfolio.id}`)}>
                   Open Portfolio
                 </Button>

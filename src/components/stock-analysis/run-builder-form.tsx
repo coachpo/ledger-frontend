@@ -1,15 +1,28 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import {
+  runBuilderFormSchema,
+  type RunBuilderFormValues,
+} from "@/components/form-schemas";
 import { PromptPreviewPanel } from "@/components/stock-analysis/prompt-preview-panel";
 import { RunBuilderModeFields } from "@/components/stock-analysis/run-builder-mode-fields";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -94,22 +107,38 @@ export function RunBuilderForm({
   const tplQ = usePromptTemplates();
   const createRun = useCreateRun(portfolioId, conversationId);
   const execRun = useExecuteRun(portfolioId);
+  const form = useForm<RunBuilderFormValues>({
+    defaultValues: {
+      compareInputOverride: "",
+      compareInstructionsOverride: "",
+      compareToOrigin: settings?.compareToOrigin ?? false,
+      freshInputOverride: "",
+      freshInstructionsOverride: "",
+      inputText: "",
+      instructionsText: "",
+      llmConfigId: "",
+      mode: "single_prompt",
+      promptTemplateId: "",
+      reviewTrigger: "",
+      runType: "initial_review",
+      userNote: "",
+    },
+    mode: "onChange",
+    resolver: zodResolver(runBuilderFormSchema),
+  });
 
-  const [mode, setMode] = useState<StockAnalysisRunMode>("single_prompt");
-  const [runType, setRunType] = useState<StockAnalysisRunType>("initial_review");
-  const [llmConfigId, setLlmConfigId] = useState("");
-  const [promptTemplateId, setPromptTemplateId] = useState<string | null>(null);
-  const [reviewTrigger, setReviewTrigger] = useState("");
-  const [userNote, setUserNote] = useState("");
-  const [compareToOrigin, setCompareToOrigin] = useState(
-    settings?.compareToOrigin ?? false,
-  );
-  const [instructionsText, setInstructionsText] = useState("");
-  const [inputText, setInputText] = useState("");
-  const [freshInstructionsOverride, setFreshInstructionsOverride] = useState("");
-  const [freshInputOverride, setFreshInputOverride] = useState("");
-  const [compareInstructionsOverride, setCompareInstructionsOverride] = useState("");
-  const [compareInputOverride, setCompareInputOverride] = useState("");
+  const mode = form.watch("mode");
+  const runType = form.watch("runType");
+  const llmConfigId = form.watch("llmConfigId");
+  const promptTemplateId = form.watch("promptTemplateId");
+  const reviewTrigger = form.watch("reviewTrigger");
+  const userNote = form.watch("userNote");
+  const instructionsText = form.watch("instructionsText");
+  const inputText = form.watch("inputText");
+  const freshInstructionsOverride = form.watch("freshInstructionsOverride");
+  const freshInputOverride = form.watch("freshInputOverride");
+  const compareInstructionsOverride = form.watch("compareInstructionsOverride");
+  const compareInputOverride = form.watch("compareInputOverride");
 
   const configs = useMemo(
     () => (cfgQ.data ?? []).filter((config) => config.enabled),
@@ -127,8 +156,11 @@ export function RunBuilderForm({
   const busy = createRun.isPending || execRun.isPending;
 
   useEffect(() => {
-    setCompareToOrigin(settings?.compareToOrigin ?? false);
-  }, [settings?.compareToOrigin]);
+    form.setValue("compareToOrigin", settings?.compareToOrigin ?? false, {
+      shouldDirty: false,
+      shouldValidate: true,
+    });
+  }, [form, settings?.compareToOrigin]);
 
   useEffect(() => {
     if (llmConfigId && configs.some((config) => String(config.id) === llmConfigId)) {
@@ -138,18 +170,26 @@ export function RunBuilderForm({
     const defaultConfigId = settings?.defaultLlmConfigId;
 
     if (defaultConfigId && configs.some((config) => config.id === defaultConfigId)) {
-      setLlmConfigId(String(defaultConfigId));
+      form.setValue("llmConfigId", String(defaultConfigId), {
+        shouldDirty: false,
+        shouldValidate: true,
+      });
       return;
     }
 
-    setLlmConfigId(configs[0] ? String(configs[0].id) : "");
-  }, [configs, llmConfigId, settings?.defaultLlmConfigId]);
+    form.setValue("llmConfigId", configs[0] ? String(configs[0].id) : "", {
+      shouldDirty: false,
+      shouldValidate: true,
+    });
+  }, [configs, form, llmConfigId, settings?.defaultLlmConfigId]);
 
   useEffect(() => {
-    if (promptTemplateId && !templates.some((template) => String(template.id) === promptTemplateId)) {
-      setPromptTemplateId(null);
+    if (!promptTemplateId || templates.some((template) => String(template.id) === promptTemplateId)) {
+      return;
     }
-  }, [promptTemplateId, templates]);
+
+    form.setValue("promptTemplateId", "", { shouldDirty: true, shouldValidate: true });
+  }, [form, promptTemplateId, templates]);
 
   const previewRequest = useMemo<PromptPreviewRequest | undefined>(() => {
     const inlineInstructions = isSinglePrompt
@@ -163,6 +203,8 @@ export function RunBuilderForm({
 
     return {
       conversationId,
+      inputTemplate: promptTemplateId ? null : opt(inlineInput),
+      instructionsTemplate: promptTemplateId ? null : opt(inlineInstructions),
       llmConfigId: llmConfigId ? Number(llmConfigId) : undefined,
       portfolioId: Number(portfolioId),
       reviewTrigger: opt(reviewTrigger),
@@ -171,8 +213,6 @@ export function RunBuilderForm({
       symbol,
       templateId: promptTemplateId ? Number(promptTemplateId) : null,
       userNote: opt(userNote),
-      inputTemplate: promptTemplateId ? null : opt(inlineInput),
-      instructionsTemplate: promptTemplateId ? null : opt(inlineInstructions),
     };
   }, [
     conversationId,
@@ -192,58 +232,49 @@ export function RunBuilderForm({
 
   const missingPromptContent = isSinglePrompt
     ? !promptTemplateId && (!instructionsText.trim() || !inputText.trim())
-    : !promptTemplateId &&
-      (!freshInstructionsOverride.trim() ||
-        !freshInputOverride.trim() ||
-        !compareInstructionsOverride.trim() ||
-        !compareInputOverride.trim());
+    : !promptTemplateId
+      && (!freshInstructionsOverride.trim()
+        || !freshInputOverride.trim()
+        || !compareInstructionsOverride.trim()
+        || !compareInputOverride.trim());
 
-  async function submit() {
+  async function submit(values: RunBuilderFormValues) {
     if (!isAnalysisEnabled) {
       toast.error("Enable stock analysis for this portfolio before executing runs.");
       return;
     }
 
-    if (!llmConfigId) {
+    if (!values.llmConfigId) {
       toast.error("Select an enabled LLM configuration first.");
       return;
     }
 
-    if (missingPromptContent) {
-      toast.error(
-        isSinglePrompt
-          ? "Add instructions and input text, or select a saved single-prompt template."
-          : "Select a two-step template or fill in all four workflow override fields.",
-      );
-      return;
-    }
-
     const payload: StockAnalysisRunCreate = {
-      llmConfigId: Number(llmConfigId),
-      mode,
-      promptTemplateId: promptTemplateId ? Number(promptTemplateId) : null,
-      reviewTrigger: opt(reviewTrigger),
-      runType,
-      userNote: opt(userNote),
-      compareToOrigin: isSinglePrompt ? null : compareToOrigin,
       compareInputOverride: null,
       compareInstructionsOverride: null,
+      compareToOrigin: isSinglePrompt ? null : values.compareToOrigin,
       freshInputOverride: null,
       freshInstructionsOverride: null,
       inputText: null,
       instructionsText: null,
+      llmConfigId: Number(values.llmConfigId),
+      mode: values.mode,
+      promptTemplateId: values.promptTemplateId ? Number(values.promptTemplateId) : null,
+      reviewTrigger: opt(values.reviewTrigger),
+      runType: values.runType,
+      userNote: opt(values.userNote),
     };
 
-    if (!promptTemplateId && isSinglePrompt) {
-      payload.instructionsText = instructionsText.trim();
-      payload.inputText = inputText.trim();
+    if (!values.promptTemplateId && isSinglePrompt) {
+      payload.instructionsText = values.instructionsText.trim();
+      payload.inputText = values.inputText.trim();
     }
 
-    if (!promptTemplateId && !isSinglePrompt) {
-      payload.freshInstructionsOverride = freshInstructionsOverride.trim();
-      payload.freshInputOverride = freshInputOverride.trim();
-      payload.compareInstructionsOverride = compareInstructionsOverride.trim();
-      payload.compareInputOverride = compareInputOverride.trim();
+    if (!values.promptTemplateId && !isSinglePrompt) {
+      payload.freshInstructionsOverride = values.freshInstructionsOverride.trim();
+      payload.freshInputOverride = values.freshInputOverride.trim();
+      payload.compareInstructionsOverride = values.compareInstructionsOverride.trim();
+      payload.compareInputOverride = values.compareInputOverride.trim();
     }
 
     try {
@@ -297,177 +328,215 @@ export function RunBuilderForm({
             </Alert>
           ) : null}
 
-          <div className="space-y-3">
-            <Label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Mode
-            </Label>
-            <RadioGroup
-              value={mode}
-              onValueChange={(value) => setMode(value as StockAnalysisRunMode)}
-              className="grid gap-3 sm:grid-cols-2"
-            >
-              {RUN_MODE_OPTIONS.map((option) => (
-                <label
-                  key={option.value}
-                  className={cn(
-                    "flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors",
-                    mode === option.value
-                      ? "border-primary bg-primary/5"
-                      : "border-border/70 hover:border-primary/40",
+          <Form {...form}>
+            <form className="space-y-6" onSubmit={form.handleSubmit(submit)}>
+              <FormField
+                control={form.control}
+                name="mode"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                      Mode
+                    </FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        className="grid gap-3 sm:grid-cols-2"
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        {RUN_MODE_OPTIONS.map((option) => (
+                          <label
+                            key={option.value}
+                            className={cn(
+                              "flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors",
+                              field.value === option.value
+                                ? "border-primary bg-primary/5"
+                                : "border-border/70 hover:border-primary/40",
+                            )}
+                          >
+                            <RadioGroupItem value={option.value} className="mt-0.5" />
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium">{option.label}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {option.description}
+                              </p>
+                            </div>
+                          </label>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="runType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Run Type</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {RUN_TYPE_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                >
-                  <RadioGroupItem value={option.value} className="mt-0.5" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{option.label}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {option.description}
-                    </p>
-                  </div>
-                </label>
-              ))}
-            </RadioGroup>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Run Type</Label>
-              <Select
-                value={runType}
-                onValueChange={(value) => setRunType(value as StockAnalysisRunType)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {RUN_TYPE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>LLM Configuration</Label>
-              <Select
-                value={llmConfigId || undefined}
-                onValueChange={setLlmConfigId}
-                disabled={cfgQ.isPending || configs.length === 0}
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={cfgQ.isPending ? "Loading configs..." : "Select a config"}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {configs.map((config) => (
-                    <SelectItem key={config.id} value={String(config.id)}>
-                      {config.displayName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Prompt Template (Optional)</Label>
-            <Select
-              value={promptTemplateId ?? EMPTY_SELECT_VALUE}
-              onValueChange={(value) =>
-                setPromptTemplateId(value === EMPTY_SELECT_VALUE ? null : value)
-              }
-              disabled={tplQ.isPending}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={tplQ.isPending ? "Loading templates..." : "No saved template"}
                 />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={EMPTY_SELECT_VALUE}>No saved template</SelectItem>
-                {templates.map((template) => (
-                  <SelectItem key={template.id} value={String(template.id)}>
-                    {template.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              {promptTemplateId
-                ? "Saved template content will drive this run."
-                : "Leave this empty to use ad hoc fields below."}
-            </p>
-          </div>
+                <FormField
+                  control={form.control}
+                  name="llmConfigId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>LLM Configuration</FormLabel>
+                      <Select
+                        disabled={cfgQ.isPending || configs.length === 0}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={cfgQ.isPending ? "Loading configs..." : "Select a config"}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {configs.map((config) => (
+                            <SelectItem key={config.id} value={String(config.id)}>
+                              {config.displayName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Review Trigger</Label>
-              <Input
-                value={reviewTrigger}
-                onChange={(event) => setReviewTrigger(event.target.value)}
-                placeholder="Earnings release, thesis check-in, breaking news"
+              <FormField
+                control={form.control}
+                name="promptTemplateId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prompt Template (Optional)</FormLabel>
+                    <Select
+                      disabled={tplQ.isPending}
+                      value={field.value || EMPTY_SELECT_VALUE}
+                      onValueChange={(value) =>
+                        field.onChange(value === EMPTY_SELECT_VALUE ? "" : value)
+                      }
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={tplQ.isPending ? "Loading templates..." : "No saved template"}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={EMPTY_SELECT_VALUE}>No saved template</SelectItem>
+                        {templates.map((template) => (
+                          <SelectItem key={template.id} value={String(template.id)}>
+                            {template.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {field.value
+                        ? "Saved template content will drive this run."
+                        : "Leave this empty to use ad hoc fields below."}
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <Label>User Note</Label>
-              <Textarea
-                value={userNote}
-                onChange={(event) => setUserNote(event.target.value)}
-                rows={3}
-                placeholder="Optional operator note stored with the run"
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="reviewTrigger"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Review Trigger</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Earnings release, thesis check-in, breaking news"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="userNote"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>User Note</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="Optional operator note stored with the run"
+                          rows={3}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <RunBuilderModeFields
+                control={form.control}
+                disabled={Boolean(promptTemplateId)}
+                isSinglePrompt={isSinglePrompt}
               />
-            </div>
-          </div>
 
-          <RunBuilderModeFields
-            compareInputOverride={compareInputOverride}
-            compareInstructionsOverride={compareInstructionsOverride}
-            compareToOrigin={compareToOrigin}
-            disabled={Boolean(promptTemplateId)}
-            freshInputOverride={freshInputOverride}
-            freshInstructionsOverride={freshInstructionsOverride}
-            inputText={inputText}
-            instructionsText={instructionsText}
-            isSinglePrompt={isSinglePrompt}
-            onCompareInputOverrideChange={setCompareInputOverride}
-            onCompareInstructionsOverrideChange={setCompareInstructionsOverride}
-            onCompareToOriginChange={setCompareToOrigin}
-            onFreshInputOverrideChange={setFreshInputOverride}
-            onFreshInstructionsOverrideChange={setFreshInstructionsOverride}
-            onInputTextChange={setInputText}
-            onInstructionsTextChange={setInstructionsText}
-          />
+              {!isAnalysisEnabled ? (
+                <Alert>
+                  <AlertTitle>Analysis disabled</AlertTitle>
+                  <AlertDescription>
+                    Enable stock analysis in portfolio settings to execute runs.
+                  </AlertDescription>
+                </Alert>
+              ) : null}
 
-          {!isAnalysisEnabled ? (
-            <Alert>
-              <AlertTitle>Analysis disabled</AlertTitle>
-              <AlertDescription>
-                Enable stock analysis in portfolio settings to execute runs.
-              </AlertDescription>
-            </Alert>
-          ) : null}
-
-          <div className="flex flex-col gap-3 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-muted-foreground">
-              {missingPromptContent
-                ? "Add prompt content or select a saved template before executing this run."
-                : "The run will be created first, then immediately sent for execution."}
-            </p>
-            <Button
-              onClick={() => void submit()}
-              disabled={
-                busy || configs.length === 0 || missingPromptContent || !isAnalysisEnabled
-              }
-            >
-              {busy ? <Loader2 className="size-4 animate-spin" /> : null}
-              {createRun.isPending
-                ? "Creating run"
-                : execRun.isPending
-                  ? "Executing run"
-                  : "Create and execute run"}
-            </Button>
-          </div>
+              <div className="flex flex-col gap-3 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs text-muted-foreground">
+                  {missingPromptContent
+                    ? "Add prompt content or select a saved template before executing this run."
+                    : "The run will be created first, then immediately sent for execution."}
+                </p>
+                <Button
+                  disabled={busy || configs.length === 0 || missingPromptContent || !isAnalysisEnabled}
+                  type="submit"
+                >
+                  {busy ? <Loader2 className="size-4 animate-spin" /> : null}
+                  {createRun.isPending
+                    ? "Creating run"
+                    : execRun.isPending
+                      ? "Executing run"
+                      : "Create and execute run"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
