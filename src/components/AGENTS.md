@@ -9,19 +9,18 @@
 ```text
 src/components/
 ├── layout.tsx              # sidebar shell, route framing
-├── error-boundary.tsx      # top-level error boundary
 ├── shared/                 # reusable components across features
-│   ├── header.tsx
-│   ├── footer.tsx
-│   ├── loading-spinner.tsx
-│   ├── empty-state.tsx
 │   ├── data-table.tsx
-│   └── pagination.tsx
+│   ├── data-table-column-header.tsx
+│   ├── error-boundary.tsx
+│   ├── form-schemas.ts
+│   ├── metric-card.tsx
+│   └── searchable-select.tsx
 ├── forms/                  # form components and form-related utilities
-│   ├── portfolio-form.tsx
-│   ├── trade-form.tsx
 │   ├── llm-config-form.tsx
-│   └── prompt-template-form.tsx
+│   ├── portfolio-form-dialog.tsx
+│   ├── prompt-template-form.tsx
+│   └── snippet-form.tsx
 ├── portfolios/             # portfolio feature-specific components
 │   ├── AGENTS.md
 │   ├── portfolio-sections/

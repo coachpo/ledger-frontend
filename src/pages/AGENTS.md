@@ -13,11 +13,14 @@ src/pages/
 ├── prompt-templates.tsx       # global prompt template CRUD
 ├── snippets.tsx               # global snippet CRUD
 ├── responses.tsx              # portfolio/conversation response filtering
-├── portfolio-list.tsx         # portfolio workspace landing
-├── portfolio-detail.tsx       # portfolio detail with balances/positions/trades
-├── portfolio-create.tsx       # portfolio creation form
-├── stock-analysis-run.tsx     # stock-analysis run builder and executor
-└── stock-analysis-responses.tsx # stock-analysis response history
+├── create/
+│   ├── prompt-template.tsx   # prompt template creation form
+│   └── snippet.tsx           # snippet creation form
+├── portfolios/
+│   ├── list.tsx              # portfolio workspace landing
+│   └── detail.tsx            # portfolio detail with balances/positions/trades
+└── stock-analysis/
+    └── run-builder.tsx       # stock-analysis run builder and executor
 ```
 
 ## WHERE TO LOOK
@@ -26,8 +29,9 @@ src/pages/
 | Dashboard landing | `dashboard.tsx` | home route summary |
 | Global LLM resources | `llm-configs.tsx`, `prompt-templates.tsx`, `snippets.tsx` | top-level CRUD pages for global resources |
 | Response browser | `responses.tsx` | top-level portfolio/conversation response filtering |
-| Portfolio workspace | `portfolio-list.tsx`, `portfolio-detail.tsx`, `portfolio-create.tsx` | portfolio CRUD and detail workspace |
-| Stock-analysis workflows | `stock-analysis-run.tsx`, `stock-analysis-responses.tsx` | run builder, executor, and response history |
+| Portfolio workspace | `portfolios/list.tsx`, `portfolios/detail.tsx` | portfolio list and detail workspace |
+| Create forms | `create/prompt-template.tsx`, `create/snippet.tsx` | creation forms for global resources |
+| Stock-analysis workflows | `stock-analysis/run-builder.tsx` | run builder and executor |
 
 ## CONVENTIONS
 - Each page component maps to exactly one route in `src/routes.ts`.

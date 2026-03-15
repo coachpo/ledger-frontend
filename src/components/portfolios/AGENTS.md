@@ -8,8 +8,8 @@
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |---|---|---|
-| Portfolio list route | `portfolio-list-page.tsx` | portfolio creation, navigation, overview cards |
-| Portfolio workspace route | `portfolio-detail-page.tsx` | orchestrates hooks, quotes, analytics, tabs, dialogs |
+| Portfolio list route | `../pages/portfolios/list.tsx` | portfolio creation, navigation, overview cards |
+| Portfolio workspace route | `../pages/portfolios/detail.tsx` | orchestrates hooks, quotes, analytics, tabs, dialogs |
 | Balances section | `portfolio-balances-section.tsx`, `balance-form-dialog.tsx` | balance table + create/edit dialog |
 | Positions section | `portfolio-positions-section.tsx`, `position-form-dialog.tsx` | position table, quote warnings, create/edit dialog |
 | Trading operations | `portfolio-trades-section.tsx`, `trading-operation-form.tsx` | operation history + BUY/SELL/DIVIDEND/SPLIT form |
@@ -29,5 +29,5 @@
 - Do not change CSV import contract assumptions without coordinating with backend CSV tests, `src/lib/api.ts`, and `src/hooks/use-positions.ts`.
 
 ## NOTES
-- `portfolio-detail-page.tsx` is the main orchestration hub: it combines portfolio, balance, position, trade, and quote hooks in one workspace.
-- `portfolio-detail-page.tsx` still computes the cash aggregate locally from balance strings; keep any similar exceptions isolated rather than spreading parse logic through sections/dialogs.
+- `../pages/portfolios/detail.tsx` is the main orchestration hub: it combines portfolio, balance, position, trade, and quote hooks in one workspace.
+- `../pages/portfolios/detail.tsx` still computes the cash aggregate locally from balance strings; keep any similar exceptions isolated rather than spreading parse logic through sections/dialogs.

@@ -8,7 +8,7 @@
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |---|---|---|
-| Run-builder route | `run-builder-page.tsx` | portfolio selection, conversation selection, active run orchestration |
+| Run-builder route | `../pages/stock-analysis/run-builder.tsx` | portfolio selection, conversation selection, active run orchestration |
 | Main run form | `run-builder-form.tsx` | config selection, optional template selection, request composition, create/execute flow |
 | Mode-specific inputs | `run-builder-mode-fields.tsx` | `single_prompt` vs `two_step_workflow` field groups |
 | Conversation selection | `conversation-picker.tsx` | create/select conversation flows |
@@ -30,5 +30,5 @@
 - Do not ignore `partial_failure`, `failed`, or prompt-preview errors; surface them as degraded workflow states, not silent failures.
 
 ## NOTES
-- The responses browser lives in `../responses-page.tsx`, not this folder, because it is a top-level route rather than part of the run-builder stack.
-- `run-builder-page.tsx` surfaces whether portfolio defaults exist, but the form still expects an explicit config selection and only applies a template when the operator chooses one.
+- The responses browser lives in `../pages/responses.tsx`, not this folder, because it is a top-level route rather than part of the run-builder stack.
+- `../pages/stock-analysis/run-builder.tsx` surfaces whether portfolio defaults exist, but the form still expects an explicit config selection and only applies a template when the operator chooses one.
