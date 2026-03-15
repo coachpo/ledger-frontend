@@ -11,18 +11,18 @@ import {
 import type { UserSnippetRead, UserSnippetUpdate } from "@/lib/api-types";
 import { formatDateTime } from "@/lib/format";
 
-import { ConfirmDeleteDialog } from "./portfolios/confirm-delete-dialog";
+import { ConfirmDeleteDialog } from "@/components/portfolios/confirm-delete-dialog";
 import { SnippetForm } from "@/components/forms/snippet-form";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardTitle } from "./ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 
 export function Snippets() {
   const navigate = useNavigate();

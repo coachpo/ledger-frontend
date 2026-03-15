@@ -1,15 +1,15 @@
 import { createBrowserRouter } from "react-router";
 import { Layout } from "./components/layout";
-import { Dashboard } from "./components/dashboard";
-import { PortfolioDetailPage } from "./components/portfolios/portfolio-detail-page";
-import { PortfolioListPage } from "./components/portfolios/portfolio-list-page";
-import { RunBuilderPage } from "./components/stock-analysis/run-builder-page";
-import { LLMConfigs } from "./components/llm-configs";
-import { PromptTemplateCreatePage } from "./components/prompt-template-create-page";
-import { PromptTemplates } from "./components/prompt-templates";
-import { SnippetCreatePage } from "./components/snippet-create-page";
-import { Snippets } from "./components/snippets";
-import { ResponsesPage } from "./components/responses-page";
+import { Dashboard } from "./pages/dashboard";
+import { PortfolioDetailPage } from "./pages/portfolios/detail";
+import { PortfolioListPage } from "./pages/portfolios/list";
+import { RunBuilderPage } from "./pages/stock-analysis/run-builder";
+import { LLMConfigs } from "./pages/llm-configs";
+import { PromptTemplateCreatePage } from "./pages/create/prompt-template";
+import { PromptTemplates } from "./pages/prompt-templates";
+import { SnippetCreatePage } from "./pages/create/snippet";
+import { Snippets } from "./pages/snippets";
+import { ResponsesPage } from "./pages/responses";
 
 export const router = createBrowserRouter([
   {

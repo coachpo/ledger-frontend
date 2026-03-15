@@ -5,7 +5,7 @@ import { useCreatePromptTemplate } from "@/hooks/use-prompt-templates";
 import type { PromptTemplateWrite } from "@/lib/api-types";
 
 import { PromptTemplateForm, PromptTemplatePlaceholderReference } from "@/components/forms/prompt-template-form";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function PromptTemplateCreatePage() {
   const navigate = useNavigate();

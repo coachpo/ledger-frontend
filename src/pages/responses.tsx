@@ -9,10 +9,10 @@ import { usePortfolios } from "@/hooks/use-portfolios";
 import type { StockAnalysisPromptStep } from "@/lib/api-types";
 import { SearchableSelect } from "@/components/shared/searchable-select";
 
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Skeleton } from "./ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ALL_CONVERSATIONS = "__all_conversations__";
 

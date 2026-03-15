@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
+import { ConfirmDeleteDialog } from "@/components/portfolios/confirm-delete-dialog";
 import { PortfolioFormDialog } from "@/components/forms/portfolio-form-dialog";
 
 export function PortfolioListPage() {
