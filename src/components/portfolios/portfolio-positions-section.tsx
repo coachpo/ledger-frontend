@@ -192,6 +192,7 @@ export function PortfolioPositionsSection({
       </CardContent>
 
       <PositionFormDialog
+        portfolioId={portfolioId}
         open={showForm}
         initial={editing ?? undefined}
         isPending={createMutation.isPending || updateMutation.isPending}

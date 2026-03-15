@@ -53,6 +53,7 @@ function makeBalance(overrides: Partial<BalanceRead> = {}): BalanceRead {
     createdAt: FIXTURE_TIME,
     updatedAt: FIXTURE_TIME,
     ...overrides,
+    operationType: overrides.operationType ?? "DEPOSIT",
   };
 }
 

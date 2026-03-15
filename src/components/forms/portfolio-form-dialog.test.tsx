@@ -22,7 +22,7 @@ describe("PortfolioFormDialog", () => {
     fireEvent.change(screen.getByLabelText("Base Currency"), {
       target: { value: "aud" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.submit(screen.getByRole("button", { name: "Save" }).closest("form")!);
 
     await waitFor(() =>
       expect(onSave).toHaveBeenCalledWith({

@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type BalanceFormDialogProps = {
   open: boolean;
@@ -37,6 +38,7 @@ export function BalanceFormDialog({
     defaultValues: {
       amount: initial?.amount ?? "0",
       label: initial?.label ?? "",
+      operationType: initial?.operationType ?? "DEPOSIT",
     },
     resolver: zodResolver(balanceFormSchema),
   });
@@ -45,6 +47,7 @@ export function BalanceFormDialog({
     form.reset({
       amount: initial?.amount ?? "0",
       label: initial?.label ?? "",
+      operationType: initial?.operationType ?? "DEPOSIT",
     });
   }, [form, initial, open]);
 
@@ -58,9 +61,34 @@ export function BalanceFormDialog({
           <form
             className="space-y-4"
             onSubmit={form.handleSubmit((values) =>
-              onSave({ amount: values.amount.trim(), label: values.label.trim() }),
+              onSave({
+                amount: values.amount.trim(),
+                label: values.label.trim(),
+                operationType: values.operationType,
+              }),
             )}
           >
+            <FormField
+              control={form.control}
+              name="operationType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Operation Type</FormLabel>
+                  <Select disabled={isPending} value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select operation type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="DEPOSIT">DEPOSIT</SelectItem>
+                      <SelectItem value="WITHDRAWAL">WITHDRAWAL</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="label"

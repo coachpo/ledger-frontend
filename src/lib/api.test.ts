@@ -182,19 +182,18 @@ describe("api client", () => {
   });
 
   it("encodes path segments and query parameters against a configured base URL", async () => {
-    const { listStockAnalysisConversations } = await loadApiModule("https://ledger.example.com/api/v2/");
+    const { getMarketQuotes } = await loadApiModule("https://ledger.example.com/api/v2/");
     fetchMock.mockResolvedValueOnce(jsonResponse([], 200));
 
     await expect(
-      listStockAnalysisConversations("portfolio with/slash", {
-        includeArchived: true,
-        symbol: "BRK/B",
+      getMarketQuotes("portfolio with/slash", {
+        symbols: ["BRK/B", "AAPL"],
       }),
     ).resolves.toEqual([]);
 
     const { url } = getLastFetchCall(fetchMock);
     expect(url).toBe(
-      "https://ledger.example.com/api/v2/portfolios/portfolio%20with%2Fslash/stock-analysis/conversations?include_archived=true&symbol=BRK%2FB",
+      "https://ledger.example.com/api/v2/portfolios/portfolio%20with%2Fslash/market-data/quotes?symbols=BRK%2FB%2CAAPL",
     );
   });
 });

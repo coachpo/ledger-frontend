@@ -1,5 +1,4 @@
 import type { QueryClient } from "@tanstack/react-query";
-import type { ListStockAnalysisConversationsParams, ListStockAnalysisResponsesParams, ListStockAnalysisVersionsParams, PromptPreviewRequest } from "./types/stock-analysis";
 import type { GetMarketHistoryParams, GetMarketQuotesParams } from "./types/market-data";
 
 const apiRoot = ["api"] as const;
@@ -13,37 +12,8 @@ function portfolioRoot(portfolioId: IdParam) {
   return [...apiRoot, "portfolios", normalizeId(portfolioId)] as const;
 }
 
-function stockAnalysisRoot(portfolioId: IdParam) {
-  return [...portfolioRoot(portfolioId), "stockAnalysis"] as const;
-}
-
 function normalizeSymbols(symbols: readonly string[]) {
   return [...new Set(symbols.map((symbol) => symbol.trim()).filter(Boolean))].sort();
-}
-
-function normalizeConversationParams(
-  params: ListStockAnalysisConversationsParams = {},
-) {
-  return {
-    includeArchived: params.includeArchived ?? false,
-    symbol: params.symbol ?? null,
-  };
-}
-
-function normalizeResponseParams(params: ListStockAnalysisResponsesParams = {}) {
-  return {
-    conversationId:
-      params.conversationId === undefined || params.conversationId === null
-        ? null
-        : String(params.conversationId),
-    limit: params.limit ?? 20,
-  };
-}
-
-function normalizeVersionParams(params: ListStockAnalysisVersionsParams = {}) {
-  return {
-    symbol: params.symbol ?? null,
-  };
 }
 
 function normalizeHistoryParams(params: GetMarketHistoryParams) {
@@ -104,111 +74,23 @@ const llmConfigsQueryKeys = {
   lists: () => [...apiRoot, "llmConfigs", "list"] as const,
 } as const;
 
-const promptTemplatesQueryKeys = {
-  all: [...apiRoot, "promptTemplates"] as const,
-  detail: (templateId: IdParam) =>
-    [...apiRoot, "promptTemplates", "detail", normalizeId(templateId)] as const,
-  details: () => [...apiRoot, "promptTemplates", "detail"] as const,
-  list: () => [...apiRoot, "promptTemplates", "list"] as const,
-  lists: () => [...apiRoot, "promptTemplates", "list"] as const,
-  preview: (request: PromptPreviewRequest) =>
-    [...apiRoot, "promptTemplates", "preview", request] as const,
-} as const;
-
-const snippetsQueryKeys = {
-  all: [...apiRoot, "snippets"] as const,
-  detail: (snippetId: IdParam) =>
-    [...apiRoot, "snippets", "detail", normalizeId(snippetId)] as const,
-  details: () => [...apiRoot, "snippets", "detail"] as const,
-  list: () => [...apiRoot, "snippets", "list"] as const,
-  lists: () => [...apiRoot, "snippets", "list"] as const,
-} as const;
-
-const stockAnalysisQueryKeys = {
-  all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId)] as const,
-  promptPreview: (portfolioId: IdParam, request?: PromptPreviewRequest) =>
-    [...stockAnalysisRoot(portfolioId), "promptPreview", request ?? null] as const,
-  settings: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "settings"] as const,
-  conversations: {
-    all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "conversations"] as const,
-    detail: (portfolioId: IdParam, conversationId: IdParam) =>
-      [
-        ...stockAnalysisRoot(portfolioId),
-        "conversations",
-        "detail",
-        normalizeId(conversationId),
-      ] as const,
-    list: (
-      portfolioId: IdParam,
-      params: ListStockAnalysisConversationsParams = {},
-    ) =>
-      [
-        ...stockAnalysisRoot(portfolioId),
-        "conversations",
-        "list",
-        normalizeConversationParams(params),
-      ] as const,
-  },
-  responses: {
-    all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "responses"] as const,
-    list: (
-      portfolioId: IdParam,
-      params: ListStockAnalysisResponsesParams = {},
-    ) =>
-      [...stockAnalysisRoot(portfolioId), "responses", "list", normalizeResponseParams(params)] as const,
-  },
-  runs: {
-    all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "runs"] as const,
-    detail: (portfolioId: IdParam, runId: IdParam) =>
-      [...stockAnalysisRoot(portfolioId), "runs", "detail", normalizeId(runId)] as const,
-    list: (portfolioId: IdParam, conversationId: IdParam) =>
-      [...stockAnalysisRoot(portfolioId), "runs", "list", normalizeId(conversationId)] as const,
-  },
-  versions: {
-    all: (portfolioId: IdParam) => [...stockAnalysisRoot(portfolioId), "versions"] as const,
-    detail: (portfolioId: IdParam, versionId: IdParam) =>
-      [
-        ...stockAnalysisRoot(portfolioId),
-        "versions",
-        "detail",
-        normalizeId(versionId),
-      ] as const,
-    list: (
-      portfolioId: IdParam,
-      params: ListStockAnalysisVersionsParams = {},
-    ) =>
-      [...stockAnalysisRoot(portfolioId), "versions", "list", normalizeVersionParams(params)] as const,
-  },
-} as const;
-
 export const queryKeys = {
-  all: apiRoot,
-  balances: balancesQueryKeys,
   llmConfigs: llmConfigsQueryKeys,
-  marketData: marketDataQueryKeys,
-  marketHistory: marketHistoryQueryKeys,
   portfolios: portfoliosQueryKeys,
+  balances: balancesQueryKeys,
   positions: positionsQueryKeys,
-  promptTemplates: promptTemplatesQueryKeys,
-  snippets: snippetsQueryKeys,
-  stockAnalysis: stockAnalysisQueryKeys,
   trades: tradesQueryKeys,
   tradingOperations: tradesQueryKeys,
-  userSnippets: snippetsQueryKeys,
+  marketData: marketDataQueryKeys,
+  marketHistory: marketHistoryQueryKeys,
 } as const;
 
-export async function invalidatePortfolioScope(
+export function invalidatePortfolioScope(
   queryClient: QueryClient,
-  portfolioId: IdParam,
-): Promise<void> {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: queryKeys.portfolios.lists() }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.portfolios.detail(portfolioId) }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.balances.all(portfolioId) }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.positions.all(portfolioId) }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.trades.all(portfolioId) }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.marketData.all(portfolioId) }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.marketHistory.all(portfolioId) }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.stockAnalysis.all(portfolioId) }),
+  portfolioId: number | string,
+) {
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: portfolioRoot(portfolioId) }),
+    queryClient.invalidateQueries({ queryKey: portfoliosQueryKeys.all }),
   ]);
 }

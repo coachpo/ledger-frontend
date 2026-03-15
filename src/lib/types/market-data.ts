@@ -2,6 +2,7 @@ export type MarketHistoryRange = "1mo" | "3mo" | "ytd" | "1y" | "max";
 
 export interface MarketQuoteRead {
   symbol: string;
+  name?: string | null;
   price: string;
   currency: string;
   provider: string;

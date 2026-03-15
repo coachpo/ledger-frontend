@@ -9,21 +9,21 @@ describe("query keys", () => {
     expect(queryKeys.positions.detail("1", "7")).toEqual(
       queryKeys.positions.detail(1, 7),
     );
-    expect(queryKeys.stockAnalysis.runs.list("1", "9")).toEqual(
-      queryKeys.stockAnalysis.runs.list(1, 9),
+    expect(queryKeys.llmConfigs.detail("9")).toEqual(
+      queryKeys.llmConfigs.detail(9),
     );
   });
 
-  it("normalizes response filter ids inside query params", () => {
+  it("normalizes symbol filters inside history params", () => {
     expect(
-      queryKeys.stockAnalysis.responses.list("1", {
-        conversationId: 12,
-        limit: 100,
+      queryKeys.marketHistory.series("1", {
+        range: "3mo",
+        symbols: ["MSFT", "AAPL", "MSFT"],
       }),
     ).toEqual(
-      queryKeys.stockAnalysis.responses.list(1, {
-        conversationId: 12,
-        limit: 100,
+      queryKeys.marketHistory.series(1, {
+        range: "3mo",
+        symbols: ["AAPL", "MSFT"],
       }),
     );
   });

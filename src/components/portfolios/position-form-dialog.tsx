@@ -3,6 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import { useDebounce } from "@/hooks/use-debounce";
+import { useMarketQuotes } from "@/hooks/use-market-data";
 import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/types/position";
 import { positionCreateFormSchema, type PositionCreateFormValues } from "@/components/shared/form-schemas";
 
@@ -19,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 type PositionFormDialogProps = {
+  portfolioId: number | string;
   open: boolean;
   initial?: PositionRead;
   isPending: boolean;
@@ -27,6 +30,7 @@ type PositionFormDialogProps = {
 };
 
 export function PositionFormDialog({
+  portfolioId,
   open,
   initial,
   isPending,
@@ -42,6 +46,32 @@ export function PositionFormDialog({
     },
     resolver: zodResolver(positionCreateFormSchema),
   });
+
+  const symbol = form.watch("symbol");
+  const debouncedSymbol = useDebounce(symbol, 300);
+
+  const { data: quotesData, isPending: isQuotesPending, isError: isQuotesError } = useMarketQuotes(
+    portfolioId,
+    debouncedSymbol ? [debouncedSymbol] : [],
+  );
+
+  useEffect(() => {
+    if (initial) return;
+    if (symbol !== debouncedSymbol) {
+      form.setValue("name", "");
+    }
+  }, [symbol, debouncedSymbol, form, initial]);
+
+  useEffect(() => {
+    if (initial) return;
+
+    const quotes = quotesData?.quotes;
+    if (quotes && quotes.length > 0 && quotes[0].name) {
+      form.setValue("name", quotes[0].name);
+    } else if (!isQuotesPending && debouncedSymbol && symbol === debouncedSymbol) {
+      form.setValue("name", "");
+    }
+  }, [quotesData, isQuotesPending, debouncedSymbol, symbol, form, initial]);
 
   useEffect(() => {
     form.reset({
@@ -103,12 +133,29 @@ export function PositionFormDialog({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={isPending} />
+                    <div className="relative">
+                      <Input 
+                        {...field} 
+                        disabled={isPending} 
+                        readOnly={Boolean(form.watch("name"))}
+                        className={form.watch("name") ? "bg-muted" : ""}
+                      />
+                      {isQuotesPending && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <div className="sr-only" aria-live="polite">
+              {isQuotesPending ? "Searching for company..." : 
+               quotesData?.quotes?.[0]?.name ? `Auto-filled: ${quotesData.quotes[0].name}` :
+               isQuotesError ? "Symbol not found" : ""}
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}

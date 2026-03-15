@@ -4,6 +4,7 @@ export interface BalanceRead {
   label: string;
   amount: string;
   currency: string;
+  operationType: "DEPOSIT" | "WITHDRAWAL";
   createdAt: string;
   updatedAt: string;
 }
@@ -11,11 +12,13 @@ export interface BalanceRead {
 export interface BalanceWriteInput {
   label: string;
   amount: string;
+  operationType: "DEPOSIT" | "WITHDRAWAL";
 }
 
 export interface BalanceUpdateInput {
   label?: string;
   amount?: string;
+  operationType?: "DEPOSIT" | "WITHDRAWAL";
 }
 
 export interface BalanceCompactRead {

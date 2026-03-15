@@ -25,7 +25,6 @@ export interface PortfolioStockAnalysisSettingsRead {
   portfolioId: number;
   enabled: boolean;
   defaultPromptTemplateId: number | null;
-  defaultLlmConfigId: number | null;
   compareToOrigin: boolean;
   createdAt: string;
   updatedAt: string;
@@ -34,6 +33,5 @@ export interface PortfolioStockAnalysisSettingsRead {
 export interface PortfolioStockAnalysisSettingsUpdate {
   enabled?: boolean | null;
   defaultPromptTemplateId?: number | null;
-  defaultLlmConfigId?: number | null;
   compareToOrigin?: boolean | null;
 }

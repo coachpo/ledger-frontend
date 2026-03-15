@@ -34,38 +34,8 @@ test.describe("Portfolio CRUD", () => {
 });
 
 test.describe("LLM Config CRUD", () => {
-  test("LLM configs page renders", async ({ page }) => {
+  test("llm configs page renders", async ({ page }) => {
     await page.goto("/llm-configs");
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator("body")).toBeVisible();
-  });
-});
-
-test.describe("Prompt Template CRUD", () => {
-  test("templates page renders", async ({ page }) => {
-    await page.goto("/templates");
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator("body")).toBeVisible();
-  });
-});
-
-test.describe("Snippet CRUD", () => {
-  test("snippets page renders", async ({ page }) => {
-    await page.goto("/snippets");
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator("body")).toBeVisible();
-  });
-});
-
-test.describe("Stock Analysis", () => {
-  test("run builder page renders", async ({ page }) => {
-    await page.goto("/requests");
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator("body")).toBeVisible();
-  });
-
-  test("responses page renders", async ({ page }) => {
-    await page.goto("/responses");
     await page.waitForLoadState("networkidle");
     await expect(page.locator("body")).toBeVisible();
   });

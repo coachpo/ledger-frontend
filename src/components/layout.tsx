@@ -2,11 +2,7 @@ import { Link, NavLink, Outlet, useLocation } from "react-router";
 import {
   Briefcase,
   BrainCircuit,
-  Code2,
-  FileText,
   LayoutDashboard,
-  MessageSquare,
-  Send,
   Settings2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -47,10 +43,6 @@ const navItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/" },
   { icon: Briefcase, label: "Portfolios", to: "/portfolios" },
   { icon: Settings2, label: "LLM Configs", to: "/llm-configs" },
-  { icon: FileText, label: "Templates", to: "/templates" },
-  { icon: Code2, label: "Snippets", to: "/snippets" },
-  { icon: Send, label: "Run Builder", to: "/requests" },
-  { icon: MessageSquare, label: "Responses", to: "/responses" },
 ];
 
 function isNavItemActive(pathname: string, item: NavItem) {
@@ -74,30 +66,6 @@ function getPageMeta(pathname: string) {
 
   if (pathname === "/llm-configs") {
     return { section: "LLM Configs", title: "LLM Configs" };
-  }
-
-  if (pathname === "/templates") {
-    return { section: "Templates", title: "Templates" };
-  }
-
-  if (pathname === "/templates/new") {
-    return { section: "Templates", sectionHref: "/templates", title: "New Template" };
-  }
-
-  if (pathname === "/snippets") {
-    return { section: "Snippets", title: "Snippets" };
-  }
-
-  if (pathname === "/snippets/new") {
-    return { section: "Snippets", sectionHref: "/snippets", title: "New Snippet" };
-  }
-
-  if (pathname === "/requests") {
-    return { section: "Run Builder", title: "Run Builder" };
-  }
-
-  if (pathname === "/responses") {
-    return { section: "Responses", title: "Responses" };
   }
 
   return { section: "Workspace", title: "Workspace" };
