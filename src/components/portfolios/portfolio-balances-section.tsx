@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCreateBalance, useDeleteBalance, useUpdateBalance } from "@/hooks/use-balances";
@@ -7,11 +8,19 @@ import { formatCurrency, formatDateTime } from "@/lib/format";
 import { getSignedBalanceAmount } from "@/lib/portfolio-analytics";
 import type { BalanceRead, BalanceUpdateInput, BalanceWriteInput } from "@/lib/types/balance";
 
+import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { BalanceFormDialog } from "./balance-form-dialog";
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
+import { PortfolioTableSection } from "./portfolio-table-section";
 
 type PortfolioBalancesSectionProps = {
   portfolioId: number | string;
@@ -33,48 +42,84 @@ export function PortfolioBalancesSection({
     () => [...balances].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)),
     [balances],
   );
+  const columns = useMemo<ColumnDef<BalanceRead>[]>(
+    () => [
+      {
+        accessorKey: "label",
+        cell: ({ row }) => <span className="font-medium">{row.original.label}</span>,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Label" />,
+      },
+      {
+        accessorKey: "operationType",
+        cell: ({ row }) => <Badge variant="secondary">{row.original.operationType}</Badge>,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Type" />,
+      },
+      {
+        accessorFn: (row) => getSignedBalanceAmount(row) ?? Number.NEGATIVE_INFINITY,
+        cell: ({ row }) => {
+          const amount = getSignedBalanceAmount(row.original);
+
+          return <span>{amount === null ? "--" : formatCurrency(amount, row.original.currency)}</span>;
+        },
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Amount" />,
+        id: "amount",
+      },
+      {
+        accessorKey: "currency",
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Currency" />,
+      },
+      {
+        accessorKey: "updatedAt",
+        cell: ({ row }) => formatDateTime(row.original.updatedAt),
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Updated" />,
+      },
+      {
+        cell: ({ row }) => (
+          <div className="flex">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button aria-label={`Open actions for ${row.original.label}`} size="icon" variant="ghost">
+                  <MoreHorizontal className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setEditing(row.original);
+                    setShowForm(true);
+                  }}
+                >
+                  <Pencil className="size-4" />
+                  Edit balance
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setDeleting(row.original)} variant="destructive">
+                  <Trash2 className="size-4" />
+                  Delete balance
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ),
+        enableSorting: false,
+        id: "actions",
+      },
+    ],
+    [],
+  );
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-4">
-        <CardTitle>Balances</CardTitle>
+    <PortfolioTableSection
+      action={(
         <Button onClick={() => { setEditing(null); setShowForm(true); }}>
           <Plus className="mr-1 size-4" /> Add Balance
         </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {sortedBalances.map((balance) => (
-            <Card key={balance.id} className="border-dashed">
-              <CardContent className="space-y-3 pt-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-medium">{balance.label}</p>
-                    <p className="text-xs text-muted-foreground">Updated {formatDateTime(balance.updatedAt)}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => { setEditing(balance); setShowForm(true); }}>
-                      <Pencil className="size-3" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setDeleting(balance)}>
-                      <Trash2 className="size-3" />
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-2xl tracking-tight">
-                  {formatCurrency(getSignedBalanceAmount(balance) ?? 0, balance.currency)}
-                </p>
-                <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{balance.currency}</p>
-              </CardContent>
-            </Card>
-          ))}
-          {sortedBalances.length === 0 ? (
-            <div className="rounded-xl border border-dashed px-4 py-10 text-center text-muted-foreground md:col-span-2 xl:col-span-3">
-              No balances yet.
-            </div>
-          ) : null}
-        </div>
-      </CardContent>
+      )}
+      columns={columns}
+      data={sortedBalances}
+      emptyMessage="No balances yet."
+      initialSorting={[{ desc: true, id: "updatedAt" }]}
+      title="Balances"
+    >
 
       <BalanceFormDialog
         open={showForm}
@@ -136,6 +181,6 @@ export function PortfolioBalancesSection({
           });
         }}
       />
-    </Card>
+    </PortfolioTableSection>
   );
 }

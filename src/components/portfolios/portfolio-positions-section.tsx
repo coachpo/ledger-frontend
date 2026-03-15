@@ -10,13 +10,12 @@ import {
   computePositionPnl,
   type PositionWithMarketData,
 } from "@/lib/portfolio-analytics";
+import type { BalanceRead } from "@/lib/types/balance";
 import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/types/position";
 
-import { DataTable } from "@/components/shared/data-table";
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,15 +24,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
+import { PortfolioTableSection } from "./portfolio-table-section";
 import { PositionFormDialog } from "./position-form-dialog";
+import { RecordTradingOperationDialog } from "./record-trading-operation-dialog";
 
 type PortfolioPositionsSectionProps = {
+  balances: BalanceRead[];
   portfolioId: number | string;
   positions: PositionWithMarketData[];
   quoteWarnings: string[];
 };
 
 export function PortfolioPositionsSection({
+  balances,
   portfolioId,
   positions,
   quoteWarnings,
@@ -44,6 +47,7 @@ export function PortfolioPositionsSection({
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<PositionRead | null>(null);
   const [deleting, setDeleting] = useState<PositionRead | null>(null);
+  const [operationSymbol, setOperationSymbol] = useState<string | null>(null);
 
   const sortedPositions = useMemo(
     () => [...positions].sort((left, right) => left.symbol.localeCompare(right.symbol)),
@@ -63,34 +67,26 @@ export function PortfolioPositionsSection({
       },
       {
         accessorFn: (row) => Number(row.quantity),
-        cell: ({ row }) => <span className="text-right">{formatDecimal(row.original.quantity, 4)}</span>,
-        header: ({ column }) => (
-          <DataTableColumnHeader className="justify-end" column={column} title="Quantity" />
-        ),
+        cell: ({ row }) => <span>{formatDecimal(row.original.quantity, 4)}</span>,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Quantity" />,
         id: "quantity",
       },
       {
         accessorFn: (row) => Number(row.averageCost),
-        cell: ({ row }) => (
-          <span className="text-right">{formatCurrency(row.original.averageCost, row.original.currency)}</span>
-        ),
-        header: ({ column }) => (
-          <DataTableColumnHeader className="justify-end" column={column} title="Average Cost" />
-        ),
+        cell: ({ row }) => <span>{formatCurrency(row.original.averageCost, row.original.currency)}</span>,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Average Cost" />,
         id: "averageCost",
       },
       {
         accessorFn: (row) => (row.currentPrice ? Number(row.currentPrice) : Number.NEGATIVE_INFINITY),
         cell: ({ row }) => (
-          <span className="text-right">
+          <span>
             {row.original.currentPrice
               ? formatCurrency(row.original.currentPrice, row.original.currency)
               : "--"}
           </span>
         ),
-        header: ({ column }) => (
-          <DataTableColumnHeader className="justify-end" column={column} title="Current Price" />
-        ),
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Current Price" />,
         id: "currentPrice",
       },
       {
@@ -99,14 +95,12 @@ export function PortfolioPositionsSection({
           const marketValue = computePositionMarketValue(row.original);
 
           return (
-            <span className="text-right">
+            <span>
               {marketValue === null ? "--" : formatCurrency(marketValue, row.original.currency)}
             </span>
           );
         },
-        header: ({ column }) => (
-          <DataTableColumnHeader className="justify-end" column={column} title="Market Value" />
-        ),
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Market Value" />,
         id: "marketValue",
       },
       {
@@ -115,31 +109,39 @@ export function PortfolioPositionsSection({
           const pnl = computePositionPnl(row.original);
 
           if (pnl.unrealized === null) {
-            return <span className="text-right">--</span>;
+            return <span>--</span>;
           }
 
           return (
-            <div className={pnl.unrealized >= 0 ? "text-right text-emerald-600" : "text-right text-red-600"}>
+            <div
+              className={
+                pnl.unrealized >= 0
+                  ? "text-emerald-600"
+                  : "text-red-600"
+              }
+            >
               <div>{formatCurrency(pnl.unrealized, row.original.currency)}</div>
               <div className="text-xs">{formatPercent(pnl.unrealizedPercent ?? 0)}</div>
             </div>
           );
         },
-        header: ({ column }) => (
-          <DataTableColumnHeader className="justify-end" column={column} title="Unrealized" />
-        ),
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Unrealized" />,
         id: "unrealized",
       },
       {
         cell: ({ row }) => (
-          <div className="flex justify-end">
+          <div className="flex">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button aria-label={`Open actions for ${row.original.symbol}`} size="icon" variant="ghost">
                   <MoreHorizontal className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onSelect={() => setOperationSymbol(row.original.symbol)}>
+                  <Plus className="size-4" />
+                  Record trading operation
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() => {
                     setEditing(row.original);
@@ -165,31 +167,25 @@ export function PortfolioPositionsSection({
   );
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
-        <div className="space-y-2">
-          <CardTitle>Positions</CardTitle>
-          {quoteWarnings.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {quoteWarnings.map((warning) => (
-                <Badge key={warning} variant="outline">{warning}</Badge>
-              ))}
-            </div>
-          ) : null}
-        </div>
+    <PortfolioTableSection
+      action={(
         <Button onClick={() => { setEditing(null); setShowForm(true); }}>
           <Plus className="mr-1 size-4" /> Add Position
         </Button>
-      </CardHeader>
-      <CardContent>
-        <DataTable
-          columns={columns}
-          data={sortedPositions}
-          emptyMessage="No positions yet."
-          initialPageSize={10}
-          initialSorting={[{ desc: false, id: "symbol" }]}
-        />
-      </CardContent>
+      )}
+      columns={columns}
+      data={sortedPositions}
+      emptyMessage="No positions yet."
+      headerContent={quoteWarnings.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {quoteWarnings.map((warning) => (
+            <Badge key={warning} variant="outline">{warning}</Badge>
+          ))}
+        </div>
+      ) : null}
+      initialSorting={[{ desc: false, id: "symbol" }]}
+      title="Positions"
+    >
 
       <PositionFormDialog
         portfolioId={portfolioId}
@@ -252,6 +248,18 @@ export function PortfolioPositionsSection({
           });
         }}
       />
-    </Card>
+
+      <RecordTradingOperationDialog
+        balances={balances}
+        initialSymbol={operationSymbol ?? undefined}
+        open={Boolean(operationSymbol)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setOperationSymbol(null);
+          }
+        }}
+        portfolioId={portfolioId}
+      />
+    </PortfolioTableSection>
   );
 }

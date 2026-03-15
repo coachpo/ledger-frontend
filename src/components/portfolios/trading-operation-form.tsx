@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 type TradingOperationFormProps = {
   balances: BalanceRead[];
+  initialSymbol?: string;
   isPending: boolean;
   onCancel: () => void;
   onSave: (data: TradingOperationInput) => void;
@@ -30,6 +31,7 @@ type TradingOperationFormProps = {
 
 export function TradingOperationForm({
   balances,
+  initialSymbol,
   isPending,
   onCancel,
   onSave,
@@ -44,7 +46,7 @@ export function TradingOperationForm({
       quantity: "",
       side: balances.length > 0 ? "BUY" : "SPLIT",
       splitRatio: "",
-      symbol: "",
+      symbol: initialSymbol?.toUpperCase() ?? "",
     },
     mode: "onChange",
     resolver: zodResolver(tradingOperationFormSchema),
@@ -297,13 +299,13 @@ export function TradingOperationForm({
             control={form.control}
             name="splitRatio"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Split Ratio</FormLabel>
-                <FormControl>
-                  <Input {...field} disabled={isPending} placeholder="2:1 or 1.5" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+                <FormItem>
+                  <FormLabel>Split Ratio</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isPending} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
             )}
           />
         ) : null}

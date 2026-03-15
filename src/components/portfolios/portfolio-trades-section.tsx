@@ -1,21 +1,17 @@
 import { useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
-import { toast } from "sonner";
 
-import { useCreateTradingOperation } from "@/hooks/use-trading-operations";
 import { formatCurrency, formatDateTime, formatDecimal } from "@/lib/format";
 import type { BalanceRead } from "@/lib/types/balance";
-import type { TradingOperationInput, TradingOperationRead } from "@/lib/types/trading";
+import type { TradingOperationRead } from "@/lib/types/trading";
 
-import { DataTable } from "@/components/shared/data-table";
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-import { TradingOperationForm } from "./trading-operation-form";
+import { PortfolioTableSection } from "./portfolio-table-section";
+import { RecordTradingOperationDialog } from "./record-trading-operation-dialog";
 
 type PortfolioTradesSectionProps = {
   portfolioId: number | string;
@@ -42,7 +38,6 @@ export function PortfolioTradesSection({
   operations,
   hasPositions,
 }: PortfolioTradesSectionProps) {
-  const createMutation = useCreateTradingOperation(portfolioId);
   const [showForm, setShowForm] = useState(false);
   const depositBalances = useMemo(
     () => balances.filter((balance) => balance.operationType === "DEPOSIT"),
@@ -81,12 +76,8 @@ export function PortfolioTradesSection({
       },
       {
         accessorFn: (row) => Number(row.commission),
-        cell: ({ row }) => (
-          <span className="text-right">{formatCurrency(row.original.commission, row.original.currency)}</span>
-        ),
-        header: ({ column }) => (
-          <DataTableColumnHeader className="justify-end" column={column} title="Commission" />
-        ),
+        cell: ({ row }) => <span>{formatCurrency(row.original.commission, row.original.currency)}</span>,
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Commission" />,
         id: "commission",
       },
     ],
@@ -94,51 +85,31 @@ export function PortfolioTradesSection({
   );
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-4">
-        <CardTitle>Trading Operations</CardTitle>
+    <PortfolioTableSection
+      action={(
         <Button onClick={() => setShowForm(true)} disabled={depositBalances.length === 0 && !hasPositions}>
           <Plus className="mr-1 size-4" /> Add Operation
         </Button>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {depositBalances.length === 0 ? (
-          <div className="rounded-xl border border-dashed px-4 py-6 text-sm text-muted-foreground">
-            {hasPositions
-              ? "Add a deposit balance for BUY, SELL, or DIVIDEND operations. SPLIT remains available for existing positions."
-              : "Add a deposit balance before recording BUY, SELL, or DIVIDEND operations. SPLIT requires an existing position."}
-          </div>
-        ) : null}
-        <DataTable
-          columns={columns}
-          data={sortedOperations}
-          emptyMessage="No operations recorded yet."
-          initialPageSize={10}
-          initialSorting={[{ desc: true, id: "executedAt" }]}
-        />
-      </CardContent>
-
-      <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Record Trading Operation</DialogTitle>
-          </DialogHeader>
-          <TradingOperationForm
-            balances={depositBalances}
-            isPending={createMutation.isPending}
-            onCancel={() => setShowForm(false)}
-            onSave={(data: TradingOperationInput) => {
-              createMutation.mutate(data, {
-                onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to create operation"),
-                onSuccess: () => {
-                  toast.success("Operation recorded");
-                  setShowForm(false);
-                },
-              });
-            }}
-          />
-        </DialogContent>
-      </Dialog>
-    </Card>
+      )}
+      columns={columns}
+      contentTop={depositBalances.length === 0 ? (
+        <div className="rounded-xl border border-dashed px-4 py-6 text-sm text-muted-foreground">
+          {hasPositions
+            ? "Add a deposit balance for BUY, SELL, or DIVIDEND operations. SPLIT remains available for existing positions."
+            : "Add a deposit balance before recording BUY, SELL, or DIVIDEND operations. SPLIT requires an existing position."}
+        </div>
+      ) : null}
+      data={sortedOperations}
+      emptyMessage="No operations recorded yet."
+      initialSorting={[{ desc: true, id: "executedAt" }]}
+      title="Trading Operations"
+    >
+      <RecordTradingOperationDialog
+        balances={balances}
+        open={showForm}
+        onOpenChange={setShowForm}
+        portfolioId={portfolioId}
+      />
+    </PortfolioTableSection>
   );
 }

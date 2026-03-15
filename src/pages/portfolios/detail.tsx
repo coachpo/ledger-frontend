@@ -127,6 +127,7 @@ export function PortfolioDetailPage() {
         </TabsList>
         <TabsContent value="positions">
           <PortfolioPositionsSection
+            balances={balances}
             portfolioId={portfolio.id}
             positions={enrichedPositions}
             quoteWarnings={quotesQuery.data?.warnings ?? []}

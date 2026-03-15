@@ -139,11 +139,15 @@ function Sidebar({
         className={cn(
           "transition-[width] duration-200 ease-out",
           open
-            ? variant === "floating" || variant === "inset"
+            ? variant === "floating"
               ? "w-[calc(var(--sidebar-width)+1rem)]"
+              : variant === "inset"
+                ? "w-(--sidebar-width)"
               : "w-(--sidebar-width)"
-            : variant === "floating" || variant === "inset"
+            : variant === "floating"
               ? "w-[calc(var(--sidebar-width-collapsed)+1rem)]"
+              : variant === "inset"
+                ? "w-(--sidebar-width-collapsed)"
               : "w-(--sidebar-width-collapsed)",
         )}
       />
@@ -153,8 +157,12 @@ function Sidebar({
           "fixed inset-y-0 z-10 hidden h-svh transition-[width] duration-200 ease-out md:flex",
           open ? "w-(--sidebar-width)" : "w-(--sidebar-width-collapsed)",
           side === "left" ? "left-0" : "right-0",
-          variant === "floating" || variant === "inset"
+          variant === "floating"
             ? "p-2"
+            : variant === "inset"
+              ? side === "left"
+                ? "py-2 pl-2 pr-0"
+                : "py-2 pl-0 pr-2"
             : side === "left"
               ? "border-r"
               : "border-l",
@@ -180,7 +188,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
       data-slot="sidebar-inset"
       className={cn(
         "bg-background relative flex min-h-0 w-full flex-1 flex-col overflow-hidden",
-        "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm",
+        "md:peer-data-[variant=inset]:my-2 md:peer-data-[variant=inset]:mr-2 md:peer-data-[variant=inset]:rounded-r-xl md:peer-data-[variant=inset]:rounded-l-none md:peer-data-[variant=inset]:shadow-sm",
         className,
       )}
       {...props}
