@@ -1,10 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { useDebounce } from "@/hooks/use-debounce";
-import { useMarketQuotes } from "@/hooks/use-market-data";
+import { usePositionSymbolLookup } from "@/hooks/use-positions";
 import type { PositionRead, PositionUpdateInput, PositionWriteInput } from "@/lib/types/position";
 import { positionCreateFormSchema, type PositionCreateFormValues } from "@/components/shared/form-schemas";
 
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -48,30 +49,39 @@ export function PositionFormDialog({
   });
 
   const symbol = form.watch("symbol");
-  const debouncedSymbol = useDebounce(symbol, 300);
+  const normalizedSymbol = symbol.trim().toUpperCase();
+  const debouncedSymbol = useDebounce(normalizedSymbol, 300);
+  const lastSymbolRef = useRef(initial?.symbol ?? "");
+  const [nameManuallyEdited, setNameManuallyEdited] = useState(false);
 
-  const { data: quotesData, isPending: isQuotesPending, isError: isQuotesError } = useMarketQuotes(
+  const {
+    data: symbolLookup,
+    isError: isSymbolLookupError,
+    isFetching: isSymbolLookupFetching,
+  } = usePositionSymbolLookup(
     portfolioId,
-    debouncedSymbol ? [debouncedSymbol] : [],
+    initial ? undefined : debouncedSymbol,
   );
 
   useEffect(() => {
     if (initial) return;
-    if (symbol !== debouncedSymbol) {
-      form.setValue("name", "");
+    if (normalizedSymbol === lastSymbolRef.current) {
+      return;
     }
-  }, [symbol, debouncedSymbol, form, initial]);
+
+    lastSymbolRef.current = normalizedSymbol;
+    setNameManuallyEdited(false);
+    form.setValue("name", "", { shouldDirty: false });
+  }, [form, initial, normalizedSymbol]);
 
   useEffect(() => {
     if (initial) return;
-
-    const quotes = quotesData?.quotes;
-    if (quotes && quotes.length > 0 && quotes[0].name) {
-      form.setValue("name", quotes[0].name);
-    } else if (!isQuotesPending && debouncedSymbol && symbol === debouncedSymbol) {
-      form.setValue("name", "");
+    if (!debouncedSymbol || normalizedSymbol !== debouncedSymbol || nameManuallyEdited) {
+      return;
     }
-  }, [quotesData, isQuotesPending, debouncedSymbol, symbol, form, initial]);
+
+    form.setValue("name", symbolLookup?.name ?? "", { shouldDirty: false });
+  }, [debouncedSymbol, form, initial, nameManuallyEdited, normalizedSymbol, symbolLookup?.name]);
 
   useEffect(() => {
     form.reset({
@@ -80,7 +90,17 @@ export function PositionFormDialog({
       quantity: initial?.quantity ?? "",
       symbol: initial?.symbol ?? "",
     });
+    lastSymbolRef.current = initial?.symbol ?? "";
+    setNameManuallyEdited(false);
   }, [form, initial, open]);
+
+  const lookupStatusMessage = !initial && debouncedSymbol && normalizedSymbol === debouncedSymbol
+    ? isSymbolLookupFetching
+      ? "Looking up company name..."
+      : symbolLookup?.name
+        ? "Suggested name loaded. You can edit it before saving."
+        : "No company name found. You can enter one manually."
+    : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -132,29 +152,38 @@ export function PositionFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input 
-                        {...field} 
-                        disabled={isPending} 
-                        readOnly={Boolean(form.watch("name"))}
-                        className={form.watch("name") ? "bg-muted" : ""}
+                  <div className="relative">
+                    <FormControl>
+                      <Input
+                        {...field}
+                        disabled={isPending}
+                        onChange={(event) => {
+                          if (!initial) {
+                            setNameManuallyEdited(true);
+                          }
+                          field.onChange(event.target.value);
+                        }}
                       />
-                      {isQuotesPending && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          <Loader2 className="size-4 animate-spin text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
-                  </FormControl>
+                    </FormControl>
+                    {isSymbolLookupFetching && !initial && debouncedSymbol && normalizedSymbol === debouncedSymbol && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  {lookupStatusMessage ? <FormDescription>{lookupStatusMessage}</FormDescription> : null}
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="sr-only" aria-live="polite">
-              {isQuotesPending ? "Searching for company..." : 
-               quotesData?.quotes?.[0]?.name ? `Auto-filled: ${quotesData.quotes[0].name}` :
-               isQuotesError ? "Symbol not found" : ""}
+              {isSymbolLookupFetching
+                ? "Searching for company..."
+                : symbolLookup?.name
+                  ? `Auto-filled: ${symbolLookup.name}`
+                  : isSymbolLookupError || lookupStatusMessage
+                    ? "No company name found"
+                    : ""}
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField

@@ -24,4 +24,10 @@ describe("query keys", () => {
       }),
     );
   });
+
+  it("normalizes position lookup symbols inside query keys", () => {
+    expect(queryKeys.positions.lookup("1", " aapl ")).toEqual(
+      queryKeys.positions.lookup(1, "AAPL"),
+    );
+  });
 });

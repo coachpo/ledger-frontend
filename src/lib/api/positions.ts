@@ -1,4 +1,9 @@
-import type { PositionRead, PositionWriteInput, PositionUpdateInput } from "../types/position";
+import type {
+  PositionRead,
+  PositionSymbolLookupRead,
+  PositionWriteInput,
+  PositionUpdateInput,
+} from "../types/position";
 import type { CsvPreviewRead, CsvCommitRead } from "../types/csv";
 import { type IdParam, createCsvFormData, portfolioPath, request, toPathSegment } from "../api-client";
 
@@ -19,6 +24,17 @@ export function createPosition(
   return request<PositionRead>(`${portfolioPath(portfolioId)}/positions`, {
     body: input,
     method: "POST",
+    signal,
+  });
+}
+
+export function getPositionSymbolLookup(
+  portfolioId: IdParam,
+  symbol: string,
+  signal?: AbortSignal,
+): Promise<PositionSymbolLookupRead> {
+  return request<PositionSymbolLookupRead>(`${portfolioPath(portfolioId)}/positions/lookup`, {
+    query: { symbol },
     signal,
   });
 }
@@ -79,6 +95,7 @@ export const positionsApi = {
   create: createPosition,
   delete: deletePosition,
   list: listPositions,
+  lookup: getPositionSymbolLookup,
   previewImport: previewPositionImport,
   update: updatePosition,
 } as const;

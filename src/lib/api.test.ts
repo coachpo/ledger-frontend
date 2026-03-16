@@ -196,4 +196,18 @@ describe("api client", () => {
       "https://ledger.example.com/api/v2/portfolios/portfolio%20with%2Fslash/market-data/quotes?symbols=BRK%2FB%2CAAPL",
     );
   });
+
+  it("encodes symbol lookup requests against the configured base URL", async () => {
+    const { getPositionSymbolLookup } = await loadApiModule("https://ledger.example.com/api/v2/");
+    fetchMock.mockResolvedValueOnce(jsonResponse({ symbol: "BRK/B", name: "Berkshire Hathaway Inc." }, 200));
+
+    await expect(
+      getPositionSymbolLookup("portfolio with/slash", "BRK/B"),
+    ).resolves.toEqual({ symbol: "BRK/B", name: "Berkshire Hathaway Inc." });
+
+    const { url } = getLastFetchCall(fetchMock);
+    expect(url).toBe(
+      "https://ledger.example.com/api/v2/portfolios/portfolio%20with%2Fslash/positions/lookup?symbol=BRK%2FB",
+    );
+  });
 });

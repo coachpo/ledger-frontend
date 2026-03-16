@@ -3,6 +3,7 @@ import {
   commitPositionImport,
   createPosition,
   deletePosition,
+  getPositionSymbolLookup,
   listPositions,
   previewPositionImport,
   updatePosition,
@@ -33,6 +34,21 @@ export function useCreatePosition(portfolioId: IdParam) {
   return useMutation({
     mutationFn: (data: PositionWriteInput) => createPosition(portfolioId, data),
     onSuccess: () => invalidatePortfolioScope(queryClient, portfolioId),
+  });
+}
+
+export function usePositionSymbolLookup(
+  portfolioId: IdParam | undefined,
+  symbol: string | undefined,
+) {
+  const resolvedPortfolioId = portfolioId ?? "";
+  const normalizedSymbol = symbol?.trim().toUpperCase() ?? "";
+
+  return useQuery({
+    queryKey: queryKeys.positions.lookup(resolvedPortfolioId, normalizedSymbol),
+    queryFn: ({ signal }) =>
+      getPositionSymbolLookup(resolvedPortfolioId, normalizedSymbol, signal),
+    enabled: Boolean(portfolioId) && normalizedSymbol.length > 0,
   });
 }
 

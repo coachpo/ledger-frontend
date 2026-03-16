@@ -16,6 +16,10 @@ function normalizeSymbols(symbols: readonly string[]) {
   return [...new Set(symbols.map((symbol) => symbol.trim()).filter(Boolean))].sort();
 }
 
+function normalizePositionSymbol(symbol: string) {
+  return symbol.trim().toUpperCase();
+}
+
 function normalizeHistoryParams(params: GetMarketHistoryParams) {
   return {
     range: params.range ?? "3mo",
@@ -44,6 +48,8 @@ const positionsQueryKeys = {
   detail: (portfolioId: IdParam, positionId: IdParam) =>
     [...portfolioRoot(portfolioId), "positions", "detail", normalizeId(positionId)] as const,
   list: (portfolioId: IdParam) => [...portfolioRoot(portfolioId), "positions", "list"] as const,
+  lookup: (portfolioId: IdParam, symbol: string) =>
+    [...portfolioRoot(portfolioId), "positions", "lookup", normalizePositionSymbol(symbol)] as const,
 } as const;
 
 const tradesQueryKeys = {

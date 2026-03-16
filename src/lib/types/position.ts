@@ -17,6 +17,11 @@ export interface PositionWriteInput {
   averageCost: string;
 }
 
+export interface PositionSymbolLookupRead {
+  symbol: string;
+  name: string | null;
+}
+
 export interface PositionUpdateInput {
   name?: string | null;
   quantity?: string;
