@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -50,6 +50,11 @@ export function TradingOperationForm({
   symbolOptions,
 }: TradingOperationFormProps) {
   const symbolSuggestionsId = useId();
+  const [isSymbolMenuOpen, setIsSymbolMenuOpen] = useState(false);
+  const [symbolFilter, setSymbolFilter] = useState("");
+  const symbolInputRef = useRef<HTMLInputElement>(null);
+  const symbolOptionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const skipOpenOnSymbolFocusRef = useRef(false);
   const form = useForm<TradingOperationFormValues>({
     defaultValues: {
       balanceId: balances[0]?.id ? String(balances[0].id) : "",
@@ -72,6 +77,27 @@ export function TradingOperationForm({
     () => balances.find((balance) => String(balance.id) === selectedBalanceId),
     [balances, selectedBalanceId],
   );
+  const filteredSymbolOptions = useMemo(() => {
+    const normalizedSymbol = symbolFilter.trim().toUpperCase();
+
+    if (!normalizedSymbol) {
+      return symbolOptions;
+    }
+
+    return symbolOptions.filter((option) => (
+      option.symbol.toUpperCase().includes(normalizedSymbol)
+      || option.label.toUpperCase().includes(normalizedSymbol)
+    ));
+  }, [symbolFilter, symbolOptions]);
+
+  const closeSymbolMenu = () => {
+    setSymbolFilter("");
+    setIsSymbolMenuOpen(false);
+  };
+
+  const focusSymbolOption = (index: number) => {
+    symbolOptionRefs.current[index]?.focus();
+  };
 
   useEffect(() => {
     if (!requiresBalance) {
@@ -231,25 +257,145 @@ export function TradingOperationForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Symbol</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    autoComplete="off"
-                    disabled={isPending}
-                    list={symbolOptions.length > 0 ? symbolSuggestionsId : undefined}
-                    onChange={(event) => field.onChange(event.target.value.toUpperCase())}
-                    placeholder={symbolOptions.length > 0 ? "Type or choose a symbol" : undefined}
-                  />
-                </FormControl>
+                <div className="relative">
+                  <FormControl>
+                    <Input
+                      {...field}
+                      autoComplete="off"
+                      data-symbol-input="true"
+                      disabled={isPending}
+                      ref={(node) => {
+                        field.ref(node);
+                        symbolInputRef.current = node;
+                      }}
+                      onBlur={(event) => {
+                        const nextFocusedElement = event.relatedTarget;
+
+                        if (
+                          nextFocusedElement instanceof HTMLElement
+                          && nextFocusedElement.dataset.symbolOption === "true"
+                        ) {
+                          return;
+                        }
+
+                        closeSymbolMenu();
+                      }}
+                      onChange={(event) => {
+                        const nextValue = event.target.value.toUpperCase();
+
+                        field.onChange(nextValue);
+                        setSymbolFilter(nextValue);
+                        if (symbolOptions.length > 0) {
+                          setIsSymbolMenuOpen(true);
+                        }
+                      }}
+                      onFocus={() => {
+                        if (skipOpenOnSymbolFocusRef.current) {
+                          skipOpenOnSymbolFocusRef.current = false;
+                          return;
+                        }
+
+                        if (symbolOptions.length > 0) {
+                          setSymbolFilter("");
+                          setIsSymbolMenuOpen(true);
+                        }
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Escape") {
+                          closeSymbolMenu();
+                          return;
+                        }
+
+                        if (event.key === "ArrowDown" && filteredSymbolOptions.length > 0) {
+                          event.preventDefault();
+                          setIsSymbolMenuOpen(true);
+                          focusSymbolOption(0);
+                        }
+                      }}
+                      placeholder={symbolOptions.length > 0 ? "Type or choose a symbol" : undefined}
+                    />
+                  </FormControl>
+                  {symbolOptions.length > 0 && isSymbolMenuOpen ? (
+                    <div
+                      className="bg-popover text-popover-foreground absolute top-full z-50 mt-1 w-full overflow-hidden rounded-md border shadow-md"
+                      id={symbolSuggestionsId}
+                    >
+                      {filteredSymbolOptions.length > 0 ? (
+                        <ul className="max-h-60 overflow-y-auto py-1">
+                          {filteredSymbolOptions.map((option, index) => (
+                            <li key={option.symbol}>
+                              <button
+                                aria-label={option.label}
+                                className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left outline-none"
+                                data-symbol-option="true"
+                                ref={(node) => {
+                                  symbolOptionRefs.current[index] = node;
+                                }}
+                                type="button"
+                                onBlur={(event) => {
+                                  const nextFocusedElement = event.relatedTarget;
+
+                                  if (
+                                    nextFocusedElement instanceof HTMLElement
+                                    && (
+                                      nextFocusedElement.dataset.symbolInput === "true"
+                                      || nextFocusedElement.dataset.symbolOption === "true"
+                                    )
+                                  ) {
+                                    return;
+                                  }
+
+                                  closeSymbolMenu();
+                                }}
+                                onClick={() => {
+                                  field.onChange(option.symbol);
+                                  closeSymbolMenu();
+                                }}
+                                onKeyDown={(event) => {
+                                  if (event.key === "ArrowDown") {
+                                    event.preventDefault();
+                                    focusSymbolOption((index + 1) % filteredSymbolOptions.length);
+                                    return;
+                                  }
+
+                                  if (event.key === "ArrowUp") {
+                                    event.preventDefault();
+                                    if (index === 0) {
+                                      symbolInputRef.current?.focus();
+                                      return;
+                                    }
+
+                                    focusSymbolOption(index - 1);
+                                    return;
+                                  }
+
+                                  if (event.key === "Escape") {
+                                    event.preventDefault();
+                                    skipOpenOnSymbolFocusRef.current = true;
+                                    closeSymbolMenu();
+                                    symbolInputRef.current?.focus();
+                                  }
+                                }}
+                                onMouseDown={(event) => {
+                                  event.preventDefault();
+                                }}
+                              >
+                                <span className="font-medium">{option.symbol}</span>
+                                <span className="text-muted-foreground text-xs">{option.label}</span>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="px-3 py-2 text-sm text-muted-foreground">
+                          No matching symbols found. You can still save a new symbol.
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
                 {symbolOptions.length > 0 ? (
                   <>
-                    <datalist id={symbolSuggestionsId}>
-                      {symbolOptions.map((option) => (
-                        <option key={option.symbol} value={option.symbol} label={option.label}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </datalist>
                     <FormDescription>
                       Portfolio symbols are suggested here. BUY can still use a new symbol.
                     </FormDescription>

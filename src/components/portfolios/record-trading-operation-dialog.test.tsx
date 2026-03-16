@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mutateMock = vi.fn();
@@ -82,18 +82,10 @@ describe("RecordTradingOperationDialog", () => {
     const symbolInput = screen.getByLabelText("Symbol");
     expect(symbolInput).toHaveValue("NVDA");
 
-    const symbolSuggestions = document.getElementById(
-      symbolInput.getAttribute("list") ?? "",
-    );
+    fireEvent.focus(symbolInput);
 
-    expect(symbolSuggestions).toBeTruthy();
-
-    const optionLabels = Array.from(
-      symbolSuggestions?.querySelectorAll("option") ?? [],
-      (option) => option.getAttribute("label") ?? option.value,
-    );
-    expect(optionLabels).toContain("AAPL (Apple Inc.)");
-    expect(optionLabels).toContain("NVDA (NVIDIA Corporation)");
+    expect(screen.getByText("AAPL (Apple Inc.)")).toBeInTheDocument();
+    expect(screen.getByText("NVDA (NVIDIA Corporation)")).toBeInTheDocument();
   });
 
   it("defaults to the largest deposit balance in the dialog", () => {

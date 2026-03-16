@@ -5,6 +5,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
 
+import { SidebarContext, type SidebarContextProps, useSidebar } from "./sidebar-context";
 import { useIsMobile } from "./use-mobile";
 import { cn } from "./utils";
 import { Button } from "./button";
@@ -28,25 +29,6 @@ import {
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_COLLAPSED = "4rem";
-
-type SidebarContextProps = {
-  open: boolean;
-  openMobile: boolean;
-  isMobile: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setOpenMobile: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-const SidebarContext = React.createContext<SidebarContextProps | null>(null);
-
-function useSidebar() {
-  const context = React.useContext(SidebarContext);
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider.");
-  }
-
-  return context;
-}
 
 function SidebarProvider({ className, style, children, ...props }: React.ComponentProps<"div">) {
   const isMobile = useIsMobile();
@@ -624,5 +606,4 @@ export {
   SidebarMenuSubItem,
   SidebarProvider,
   SidebarSeparator,
-  useSidebar,
 };

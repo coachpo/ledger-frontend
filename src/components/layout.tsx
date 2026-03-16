@@ -27,8 +27,8 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-  useSidebar,
 } from "./ui/sidebar";
+import { useSidebar } from "./ui/sidebar-context";
 
 type NavItem = {
   icon: LucideIcon;

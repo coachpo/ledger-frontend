@@ -141,18 +141,10 @@ describe("PortfolioPositionsSection", () => {
     const symbolInput = await screen.findByLabelText("Symbol");
     expect(symbolInput).toHaveValue("NVDA");
 
-    const symbolSuggestions = document.getElementById(
-      symbolInput.getAttribute("list") ?? "",
-    );
+    fireEvent.focus(symbolInput);
 
-    expect(symbolSuggestions).toBeTruthy();
-
-    const optionLabels = Array.from(
-      symbolSuggestions?.querySelectorAll("option") ?? [],
-      (option) => option.getAttribute("label") ?? option.value,
-    );
-    expect(optionLabels).toContain("AAPL (Apple Inc.)");
-    expect(optionLabels).toContain("NVDA (NVIDIA Corporation)");
+    expect(screen.getByText("AAPL (Apple Inc.)")).toBeInTheDocument();
+    expect(screen.getByText("NVDA (NVIDIA Corporation)")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Quantity"), { target: { value: "5" } });
     fireEvent.change(screen.getByLabelText("Price"), { target: { value: "120" } });
