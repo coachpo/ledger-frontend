@@ -10,7 +10,6 @@ import {
 import { formatDateTime } from "@/lib/format";
 import type { TextTemplateRead } from "@/lib/api-types";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
@@ -66,14 +65,7 @@ export function TemplateListPage() {
           <Card key={template.id}>
             <CardContent className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <CardTitle className="text-base">{template.name}</CardTitle>
-                  <Badge variant="outline">
-                    {template.content.length > 80
-                      ? `${template.content.slice(0, 80)}...`
-                      : template.content}
-                  </Badge>
-                </div>
+                <CardTitle className="text-base">{template.name}</CardTitle>
                 <p className="text-xs text-muted-foreground">Updated {formatDateTime(template.updatedAt)}</p>
               </div>
               <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
