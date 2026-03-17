@@ -47,7 +47,7 @@ export function TemplateEditorPage() {
   const { data: placeholderTree, isLoading: isLoadingPlaceholders } = usePlaceholders();
   const createMutation = useCreateTemplate();
   const updateMutation = useUpdateTemplate();
-  const compileMutation = useCompileInline();
+  const { mutate: compileInline, ...compileMutation } = useCompileInline();
 
   const debouncedContent = useDebounce(content, 500);
 
@@ -60,9 +60,9 @@ export function TemplateEditorPage() {
 
   useEffect(() => {
     if (debouncedContent) {
-      compileMutation.mutate(debouncedContent);
+      compileInline(debouncedContent);
     }
-  }, [debouncedContent]);
+  }, [compileInline, debouncedContent]);
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -82,7 +82,7 @@ export function TemplateEditorPage() {
         toast.success("Template created successfully");
         navigate(`/templates/${newTemplate.id}/edit`);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to save template");
     }
   };
