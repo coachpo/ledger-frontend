@@ -3,12 +3,14 @@ export * from "./api/balances";
 export * from "./api/market-data";
 export * from "./api/portfolios";
 export * from "./api/positions";
+export * from "./api/templates";
 export * from "./api/trading-operations";
 
 import { balancesApi } from "./api/balances";
 import { marketDataApi } from "./api/market-data";
 import { portfoliosApi } from "./api/portfolios";
 import { positionsApi } from "./api/positions";
+import { templatesApi } from "./api/templates";
 import { tradingOperationsApi } from "./api/trading-operations";
 
 export const api = {
@@ -16,5 +18,6 @@ export const api = {
   marketData: marketDataApi,
   portfolios: portfoliosApi,
   positions: positionsApi,
+  templates: templatesApi,
   tradingOperations: tradingOperationsApi,
 } as const;

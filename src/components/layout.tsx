@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 import {
   Briefcase,
+  FileText,
   LayoutDashboard,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -39,6 +40,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/" },
   { icon: Briefcase, label: "Portfolios", to: "/portfolios" },
+  { icon: FileText, label: "Templates", to: "/templates" },
 ];
 
 function isNavItemActive(pathname: string, item: NavItem) {
@@ -58,6 +60,18 @@ function getPageMeta(pathname: string) {
 
   if (pathname.startsWith("/portfolios/")) {
     return { section: "Portfolios", sectionHref: "/portfolios", title: "Portfolio Detail" };
+  }
+
+  if (pathname === "/templates") {
+    return { section: "Templates", title: "Templates" };
+  }
+
+  if (pathname === "/templates/new") {
+    return { section: "Templates", sectionHref: "/templates", title: "New Template" };
+  }
+
+  if (pathname.startsWith("/templates/") && pathname.endsWith("/edit")) {
+    return { section: "Templates", sectionHref: "/templates", title: "Edit Template" };
   }
 
   return { section: "Workspace", title: "Workspace" };
