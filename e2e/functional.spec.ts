@@ -2,28 +2,22 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Portfolio CRUD", () => {
   test("create a portfolio", async ({ page }) => {
+    const timestamp = Date.now();
+    const portfolioName = `Test Portfolio ${timestamp}`;
+    const portfolioSlug = `test_portfolio_${timestamp}`;
+
     await page.goto("/portfolios");
 
-    const createButton = page.getByRole("button", { name: /create|new|add/i });
-    if (await createButton.isVisible()) {
-      await createButton.click();
+    await page.getByRole("button", { name: /create|new|add/i }).click();
+    await expect(page.getByRole("heading", { name: "Create Portfolio" })).toBeVisible();
 
-      const nameInput = page.getByLabel(/name/i);
-      if (await nameInput.isVisible()) {
-        await nameInput.fill("Test Portfolio");
+    await page.getByLabel("Name").fill(portfolioName);
+    await page.getByLabel("Slug").fill(portfolioSlug);
+    await page.getByLabel("Base Currency").fill("USD");
+    await page.getByRole("button", { name: /create|save|submit/i }).click();
 
-        const currencyInput = page.getByLabel(/currency/i);
-        if (await currencyInput.isVisible()) {
-          await currencyInput.fill("USD");
-        }
-
-        const submitButton = page.getByRole("button", { name: /create|save|submit/i });
-        if (await submitButton.isVisible()) {
-          await submitButton.click();
-          await expect(page.getByText("Test Portfolio")).toBeVisible({ timeout: 5000 });
-        }
-      }
-    }
+    await expect(page).toHaveURL(/\/portfolios\/[^/]+$/);
+    await expect(page.getByRole("heading", { name: portfolioName })).toBeVisible({ timeout: 5000 });
   });
 
   test("portfolio list renders", async ({ page }) => {
@@ -34,9 +28,11 @@ test.describe("Portfolio CRUD", () => {
 
   test("add position loads a suggested name and still allows manual fallback", async ({ page, request }) => {
     const portfolioName = `E2E Position Lookup ${Date.now()}`;
+    const portfolioSlug = `e2e_position_lookup_${Date.now()}`;
     const createResponse = await request.post("http://127.0.0.1:8001/api/v1/portfolios", {
       data: {
         name: portfolioName,
+        slug: portfolioSlug,
         description: "Playwright Add Position lookup coverage",
         baseCurrency: "USD",
       },

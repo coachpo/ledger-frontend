@@ -10,7 +10,7 @@ test.describe("Smoke tests", () => {
   test("sidebar navigation shows the primary routes", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Portfolios" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Portfolios", exact: true })).toBeVisible();
   });
 
   test("navigate to portfolios page", async ({ page }) => {
