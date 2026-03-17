@@ -33,32 +33,30 @@ function formatDateLabel(value: string | null) {
 function DashboardSkeleton() {
   return (
     <div className="p-6 space-y-6 max-w-7xl">
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-4 w-72" />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <Card key={index}>
-            <CardHeader className="space-y-3 pb-2">
+            <CardContent className="p-5 space-y-3">
               <Skeleton className="h-4 w-28" />
               <Skeleton className="h-8 w-24" />
-            </CardHeader>
-            <CardContent>
               <Skeleton className="h-3 w-32" />
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
           <Card key={index}>
-            <CardContent className="pt-6">
+            <CardContent className="p-5">
               <div className="flex items-center gap-3">
-                <Skeleton className="size-10 rounded-lg" />
-                <div className="space-y-2">
+                <Skeleton className="size-8 rounded-md" />
+                <div className="space-y-1.5">
                   <Skeleton className="h-3 w-24" />
                   <Skeleton className="h-6 w-16" />
                 </div>
@@ -106,26 +104,26 @@ export function Dashboard() {
 
   if (isError) {
     return (
-      <div className="p-6 space-y-6 max-w-7xl">
-        <div>
-          <h1 className="text-2xl tracking-tight">Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+      <div className="p-4 space-y-4 max-w-7xl">
+        <div className="space-y-0.5">
+          <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-xs text-muted-foreground">
             Portfolio activity and workspace overview
           </p>
         </div>
 
         <Card>
-          <CardContent className="flex flex-col gap-4 py-10 sm:flex-row sm:items-center sm:justify-between">
+          <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
-              <p className="text-lg">Unable to reach the portfolio API.</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm font-medium text-foreground">Unable to reach the portfolio API.</p>
+              <p className="text-xs text-muted-foreground">
                 {error instanceof Error
                   ? error.message
                   : "Check the backend connection and try again."}
               </p>
             </div>
-            <Button onClick={() => void refetch()}>
-              <RefreshCw className="size-4" />
+            <Button variant="outline" size="sm" onClick={() => void refetch()}>
+              <RefreshCw className="mr-1.5 size-3.5" />
               Retry
             </Button>
           </CardContent>
@@ -135,18 +133,18 @@ export function Dashboard() {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl">
-      <div>
-        <h1 className="text-2xl tracking-tight">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+    <div className="p-4 space-y-4 max-w-7xl">
+      <div className="space-y-0.5">
+        <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
+        <p className="text-xs text-muted-foreground">
           Live portfolio inventory and workspace health.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           icon={Briefcase}
-          iconClassName="bg-blue-100 text-blue-700"
+          iconClassName="bg-primary/10 text-primary"
           note="Portfolio records syncing from the API"
           title="Active Portfolios"
           to="/portfolios"
@@ -154,21 +152,21 @@ export function Dashboard() {
         />
         <MetricCard
           icon={BarChart3}
-          iconClassName="bg-emerald-100 text-emerald-700"
+          iconClassName="bg-primary/10 text-primary"
           note={`${averagePositions} positions per portfolio on average`}
           title="Total Positions"
           value={String(totalPositions)}
         />
         <MetricCard
           icon={DollarSign}
-          iconClassName="bg-amber-100 text-amber-700"
+          iconClassName="bg-primary/10 text-primary"
           note="Cash and settlement balances tracked across portfolios"
           title="Balance Accounts"
           value={String(totalBalances)}
         />
         <MetricCard
           icon={ArrowUpRight}
-          iconClassName="bg-sky-100 text-sky-700"
+          iconClassName="bg-primary/10 text-primary"
           note={formatDateLabel(mostRecentlyUpdatedPortfolio?.updatedAt ?? null)}
           title="Latest Update"
           to={mostRecentlyUpdatedPortfolio ? `/portfolios/${mostRecentlyUpdatedPortfolio.id}` : undefined}
@@ -177,52 +175,26 @@ export function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-blue-100 p-2 text-blue-700">
-                <Briefcase className="size-5" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Tracked Currencies</p>
-                <p className="text-lg">{currencies.size}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700">
-                <BarChart3 className="size-5" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Average Position Load</p>
-                <p className="text-lg">{averagePositions}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-amber-100 p-2 text-amber-700">
-                <ArrowUpRight className="size-5" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Largest Portfolio Footprint</p>
-                <p className="text-lg">
-                  {mostPositionedPortfolio?.positionCount ?? 0} positions
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <MetricCard
+          icon={Briefcase}
+          iconClassName="bg-muted text-muted-foreground"
+          title="Tracked Currencies"
+          value={String(currencies.size)}
+        />
+        <MetricCard
+          icon={BarChart3}
+          iconClassName="bg-muted text-muted-foreground"
+          title="Average Position Load"
+          value={String(averagePositions)}
+        />
+        <MetricCard
+          icon={ArrowUpRight}
+          iconClassName="bg-muted text-muted-foreground"
+          title="Largest Portfolio Footprint"
+          value={`${mostPositionedPortfolio?.positionCount ?? 0} positions`}
+        />
       </div>
-
     </div>
   );
 }

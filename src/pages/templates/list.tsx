@@ -30,63 +30,63 @@ export function TemplateListPage() {
   const templates = templatesQuery.data ?? [];
 
   return (
-    <div className="max-w-6xl space-y-6 p-6">
+    <div className="max-w-6xl space-y-3 p-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl tracking-tight">Templates</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+        <div className="space-y-0.5">
+          <h1 className="text-xl font-semibold tracking-tight">Templates</h1>
+          <p className="text-xs text-muted-foreground">
             Manage text templates with portfolio data placeholders.
           </p>
         </div>
-        <Button onClick={() => navigate("/templates/new")}>
-          <Plus className="mr-1 size-4" /> New Template
+        <Button size="sm" onClick={() => navigate("/templates/new")}>
+          <Plus className="mr-1 size-3.5" /> New Template
         </Button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {templatesQuery.isPending ? (
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">Loading templates...</CardContent>
+            <CardContent className="py-8 text-center text-xs text-muted-foreground">Loading templates...</CardContent>
           </Card>
         ) : null}
         {templatesQuery.isError ? (
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
+            <CardContent className="py-8 text-center text-xs text-muted-foreground">
               {templatesQuery.error instanceof Error ? templatesQuery.error.message : "Failed to load templates."}
             </CardContent>
           </Card>
         ) : null}
         {!templatesQuery.isPending && !templatesQuery.isError && templates.length === 0 ? (
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">No templates yet.</CardContent>
+            <CardContent className="py-8 text-center text-xs text-muted-foreground">No templates yet.</CardContent>
           </Card>
         ) : null}
         {templates.map((template) => (
-          <Card key={template.id}>
-            <CardContent className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0 space-y-2">
-                <CardTitle className="text-base">{template.name}</CardTitle>
-                <p className="text-xs text-muted-foreground">Updated {formatDateTime(template.updatedAt)}</p>
+          <Card key={template.id} className="transition-colors hover:bg-accent/50">
+            <CardContent className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0 space-y-0.5">
+                <CardTitle className="text-sm font-medium tracking-tight">{template.name}</CardTitle>
+                <p className="text-[11px] text-muted-foreground">Updated {formatDateTime(template.updatedAt)}</p>
               </div>
-              <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button aria-label={`Open actions for ${template.name}`} size="icon" variant="ghost">
-                      <MoreHorizontal className="size-4" />
+                    <Button aria-label={`Open actions for ${template.name}`} size="icon" variant="ghost" className="size-7">
+                      <MoreHorizontal className="size-3.5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onSelect={() => navigate(`/templates/${template.id}/edit`)}>
-                      <Pencil className="size-4" />
-                      Edit template
+                      <Pencil className="size-3.5" />
+                      Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => setDeleting(template)} variant="destructive">
-                      <Trash2 className="size-4" />
-                      Delete template
+                      <Trash2 className="size-3.5" />
+                      Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button variant="outline" onClick={() => navigate(`/templates/${template.id}/edit`)}>
+                <Button size="sm" variant="secondary" className="h-7 text-xs" onClick={() => navigate(`/templates/${template.id}/edit`)}>
                   Open Editor
                 </Button>
               </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import {
   ArrowLeft,
@@ -7,6 +7,9 @@ import {
   ChevronRight,
   Copy,
   Loader2,
+  Eye,
+  Code2,
+  Braces,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -44,6 +47,7 @@ export function TemplateEditorPage() {
 
   const [name, setName] = useState("");
   const [content, setContent] = useState("");
+  const [placeholdersOpen, setPlaceholdersOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: template, isLoading: isLoadingTemplate } = useTemplate(templateId);
@@ -119,157 +123,199 @@ export function TemplateEditorPage() {
     );
   }
 
+  const isSaving = createMutation.isPending || updateMutation.isPending;
+
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-2xl font-bold">
-            {isEditing ? "Edit Template" : "New Template"}
-          </h1>
+    <div className="flex h-full flex-col">
+      <div className="flex items-center gap-2 border-b border-border bg-card px-3 py-1.5">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 shrink-0"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+        </Button>
+        <Separator orientation="vertical" className="h-4" />
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Code2 className="h-3 w-3" />
+          <span>{isEditing ? "Edit" : "New"}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate(-1)}>
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Template name…"
+          className="h-7 max-w-[240px] border-none bg-transparent px-1.5 text-sm font-medium shadow-none focus-visible:ring-1"
+        />
+        <div className="ml-auto flex items-center gap-1.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 gap-1.5 px-2.5 text-xs"
+            onClick={() => setPlaceholdersOpen((o) => !o)}
+          >
+            <Braces className="h-3 w-3" />
+            Vars
+          </Button>
+          <Separator orientation="vertical" className="h-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2.5 text-xs"
+            onClick={() => navigate(-1)}
+          >
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>
-            {(createMutation.isPending || updateMutation.isPending) && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Button
+            size="sm"
+            className="h-7 gap-1.5 px-3 text-xs"
+            onClick={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Save className="h-3 w-3" />
             )}
-            <Save className="mr-2 h-4 w-4" />
             Save
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="flex flex-col gap-6 lg:col-span-7">
-          <Card>
-            <CardHeader>
-              <CardTitle>Template Details</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  placeholder="Template name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="content">Content</Label>
-                <textarea
-                  id="content"
-                  ref={textareaRef}
-                  className="min-h-[400px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="Enter template content (Markdown supported)..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Placeholder Reference</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <ScrollArea className="h-[300px]">
-                <div className="flex flex-col p-4 gap-4">
-                  <PlaceholderGroup
-                    title="Portfolio Fields"
-                    items={[
-                      { path: "portfolios", type: "list" },
-                      { path: "portfolios.<slug>", type: "object" },
-                      { path: "portfolios.<slug>.name", type: "string" },
-                      { path: "portfolios.<slug>.description", type: "string" },
-                      { path: "portfolios.<slug>.base_currency", type: "string" },
-                      { path: "portfolios.<slug>.position_count", type: "number" },
-                      { path: "portfolios.<slug>.balance_count", type: "number" },
-                      { path: "portfolios.<slug>.created_at", type: "datetime" },
-                      { path: "portfolios.<slug>.updated_at", type: "datetime" },
-                    ]}
-                    onInsert={insertPlaceholder}
-                  />
-                  <PlaceholderGroup
-                    title="Balance Fields"
-                    items={[
-                      { path: "portfolios.<slug>.balance", type: "object" },
-                      { path: "portfolios.<slug>.balance.label", type: "string" },
-                      { path: "portfolios.<slug>.balance.amount", type: "string" },
-                      { path: "portfolios.<slug>.balance.operation_type", type: "string" },
-                      { path: "portfolios.<slug>.balance.currency", type: "string" },
-                    ]}
-                    onInsert={insertPlaceholder}
-                  />
-                  <PlaceholderGroup
-                    title="Position Fields"
-                    items={[
-                      { path: "portfolios.<slug>.positions", type: "list" },
-                      { path: "portfolios.<slug>.positions.<SYMBOL>", type: "object" },
-                      { path: "portfolios.<slug>.positions.<SYMBOL>.quantity", type: "string" },
-                      { path: "portfolios.<slug>.positions.<SYMBOL>.average_cost", type: "string" },
-                      { path: "portfolios.<slug>.positions.<SYMBOL>.currency", type: "string" },
-                      { path: "portfolios.<slug>.positions.<SYMBOL>.name", type: "string" },
-                    ]}
-                    onInsert={insertPlaceholder}
-                  />
-
-                  {placeholderTree?.portfolios.map((p) => (
-                    <PlaceholderGroup
-                      key={p.slug}
-                      title={p.name}
-                      items={[
-                        { path: `portfolios.${p.slug}`, type: "object" },
-                        ...p.positions.map((pos) => ({
-                          path: `portfolios.${p.slug}.positions.${pos.symbol}`,
-                          type: "object",
-                        })),
-                      ]}
-                      onInsert={insertPlaceholder}
-                    />
-                  ))}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
+        <div className="flex min-h-0 flex-col border-r border-border">
+          <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-3 py-1">
+            <Code2 className="h-3 w-3 text-muted-foreground" />
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Editor
+            </span>
+            <span className="ml-auto text-[10px] text-muted-foreground">
+              Markdown + {"{{placeholders}}"}
+            </span>
+          </div>
+          <div className="relative min-h-0 flex-1">
+            <textarea
+              id="content"
+              ref={textareaRef}
+              className="h-full w-full resize-none border-none bg-background p-3 font-mono text-sm leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
+              placeholder="Enter template content…"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              spellCheck={false}
+            />
+          </div>
         </div>
 
-        <div className="lg:col-span-5">
-          <Card className="h-full flex flex-col">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Live Preview
-                {compileMutation.isPending && (
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full">
-                {compileMutation.error ? (
-                  <div className="rounded-md bg-destructive/10 p-4 text-sm text-destructive">
-                    Failed to compile template: {compileMutation.error instanceof Error ? compileMutation.error.message : "Unknown error"}
-                  </div>
-                ) : compileMutation.data ? (
-                  <pre className="whitespace-pre-wrap font-mono text-sm">
-                    {compileMutation.data.compiled}
-                  </pre>
-                ) : (
-                  <div className="flex h-full items-center justify-center text-muted-foreground italic">
-                    {content ? "Compiling..." : "Enter content to see preview"}
-                  </div>
-                )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
+        <div className="flex min-h-0 flex-col">
+          <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-3 py-1">
+            <Eye className="h-3 w-3 text-muted-foreground" />
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Preview
+            </span>
+            {compileMutation.isPending && (
+              <Loader2 className="ml-auto h-3 w-3 animate-spin text-muted-foreground" />
+            )}
+          </div>
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="bg-muted/30 p-3">
+              {compileMutation.error ? (
+                <div className="rounded border border-destructive/30 bg-destructive/10 px-3 py-2 font-mono text-xs text-destructive">
+                  {compileMutation.error instanceof Error
+                    ? compileMutation.error.message
+                    : "Compile error"}
+                </div>
+              ) : compileMutation.data ? (
+                <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-foreground">
+                  {compileMutation.data.compiled}
+                </pre>
+              ) : (
+                <div className="flex items-center justify-center py-12 text-xs italic text-muted-foreground">
+                  {content ? "Compiling…" : "Enter content to see preview"}
+                </div>
+              )}
+            </div>
+          </ScrollArea>
         </div>
       </div>
+
+      {placeholdersOpen && (
+        <div className="border-t border-border">
+          <div className="flex items-center gap-2 bg-muted/50 px-3 py-1">
+            <Braces className="h-3 w-3 text-muted-foreground" />
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Placeholder Reference
+            </span>
+            {isLoadingPlaceholders && (
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-auto h-5 w-5"
+              onClick={() => setPlaceholdersOpen(false)}
+            >
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </div>
+          <ScrollArea className="h-[180px]">
+            <div className="flex flex-wrap gap-x-6 gap-y-0 px-3 py-1.5">
+              <PlaceholderGroup
+                title="Portfolio"
+                items={[
+                  { path: "portfolios", type: "list" },
+                  { path: "portfolios.<slug>", type: "object" },
+                  { path: "portfolios.<slug>.name", type: "string" },
+                  { path: "portfolios.<slug>.description", type: "string" },
+                  { path: "portfolios.<slug>.base_currency", type: "string" },
+                  { path: "portfolios.<slug>.position_count", type: "number" },
+                  { path: "portfolios.<slug>.balance_count", type: "number" },
+                  { path: "portfolios.<slug>.created_at", type: "datetime" },
+                  { path: "portfolios.<slug>.updated_at", type: "datetime" },
+                ]}
+                onInsert={insertPlaceholder}
+              />
+              <PlaceholderGroup
+                title="Balance"
+                items={[
+                  { path: "portfolios.<slug>.balance", type: "object" },
+                  { path: "portfolios.<slug>.balance.label", type: "string" },
+                  { path: "portfolios.<slug>.balance.amount", type: "string" },
+                  { path: "portfolios.<slug>.balance.operation_type", type: "string" },
+                  { path: "portfolios.<slug>.balance.currency", type: "string" },
+                ]}
+                onInsert={insertPlaceholder}
+              />
+              <PlaceholderGroup
+                title="Position"
+                items={[
+                  { path: "portfolios.<slug>.positions", type: "list" },
+                  { path: "portfolios.<slug>.positions.<SYMBOL>", type: "object" },
+                  { path: "portfolios.<slug>.positions.<SYMBOL>.quantity", type: "string" },
+                  { path: "portfolios.<slug>.positions.<SYMBOL>.average_cost", type: "string" },
+                  { path: "portfolios.<slug>.positions.<SYMBOL>.currency", type: "string" },
+                  { path: "portfolios.<slug>.positions.<SYMBOL>.name", type: "string" },
+                ]}
+                onInsert={insertPlaceholder}
+              />
+
+              {placeholderTree?.portfolios.map((p) => (
+                <PlaceholderGroup
+                  key={p.slug}
+                  title={p.name}
+                  items={[
+                    { path: `portfolios.${p.slug}`, type: "object" },
+                    ...p.positions.map((pos) => ({
+                      path: `portfolios.${p.slug}.positions.${pos.symbol}`,
+                      type: "object",
+                    })),
+                  ]}
+                  onInsert={insertPlaceholder}
+                />
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+      )}
     </div>
   );
 }
@@ -289,34 +335,32 @@ function PlaceholderGroup({ title, items, onInsert }: PlaceholderGroupProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="min-w-[260px]">
       <CollapsibleTrigger asChild>
-        <Button
-          variant="ghost"
-          className="flex w-full items-center justify-between p-2 hover:bg-accent"
-        >
-          <span className="font-semibold">{title}</span>
+        <button className="flex w-full items-center gap-1 py-1 text-left text-xs font-medium text-foreground hover:text-primary">
           {isOpen ? (
-            <ChevronDown className="h-4 w-4" />
+            <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
           ) : (
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
           )}
-        </Button>
+          {title}
+          <Badge variant="outline" className="ml-1 h-4 px-1 text-[9px]">
+            {items.length}
+          </Badge>
+        </button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="flex flex-col gap-1 pl-4 pt-1">
+      <CollapsibleContent className="flex flex-col pb-1 pl-4">
         {items.map((item) => (
           <div
             key={item.path}
-            className="flex items-center justify-between rounded-md p-2 hover:bg-accent cursor-pointer group"
+            className="group flex cursor-pointer items-center gap-1.5 rounded px-1 py-0.5 hover:bg-accent"
             onClick={() => onInsert(item.path)}
           >
-            <code className="text-xs text-primary">{item.path}</code>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-[10px] uppercase">
-                {item.type}
-              </Badge>
-              <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
+            <code className="flex-1 truncate text-[11px] text-primary">{item.path}</code>
+            <Badge variant="outline" className="h-3.5 shrink-0 px-1 text-[8px] uppercase leading-none">
+              {item.type}
+            </Badge>
+            <Copy className="h-2.5 w-2.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-60" />
           </div>
         ))}
       </CollapsibleContent>

@@ -68,12 +68,12 @@ export function PortfolioDetailPage() {
 
   if (portfolioQuery.isError || !portfolio) {
     return (
-      <div className="max-w-4xl space-y-4 p-6">
-        <Button variant="outline" onClick={() => navigate("/portfolios")}>
+      <div className="max-w-4xl space-y-4 p-4">
+        <Button size="sm" variant="outline" onClick={() => navigate("/portfolios")}>
           <ArrowLeft className="mr-1 size-4" /> Back
         </Button>
         <Card>
-          <CardContent className="py-12 text-center text-muted-foreground">
+          <CardContent className="py-8 text-center text-sm text-muted-foreground">
             {portfolioQuery.error instanceof Error ? portfolioQuery.error.message : "Portfolio not found."}
           </CardContent>
         </Card>
@@ -82,29 +82,29 @@ export function PortfolioDetailPage() {
   }
 
   return (
-    <div className="max-w-7xl space-y-6 p-6">
+    <div className="max-w-7xl space-y-4 p-4">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-2">
-          <Button variant="ghost" className="-ml-3" onClick={() => navigate("/portfolios")}>
+        <div className="space-y-1">
+          <Button size="sm" variant="ghost" className="-ml-3 h-8 text-muted-foreground hover:text-foreground" onClick={() => navigate("/portfolios")}>
             <ArrowLeft className="mr-1 size-4" /> Back to Portfolios
           </Button>
           <div>
-            <h1 className="text-2xl tracking-tight">{portfolio.name}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">{portfolio.name}</h1>
             <p className="mt-1 text-sm text-muted-foreground">{portfolio.description || "No description"}</p>
             <p className="mt-1 text-xs text-muted-foreground">Updated {formatDateTime(portfolio.updatedAt)}</p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowEditForm(true)}>
+          <Button size="sm" variant="outline" onClick={() => setShowEditForm(true)}>
             <Pencil className="mr-1 size-4" /> Edit
           </Button>
-          <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+          <Button size="sm" variant="destructive" onClick={() => setShowDeleteDialog(true)}>
             <Trash2 className="mr-1 size-4" /> Delete
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard title="Total Value" value={formatCurrency(totalValue, portfolio.baseCurrency)} note="Balances plus marked positions" />
         <MetricCard title="Cash Balances" value={formatCurrency(cashValue, portfolio.baseCurrency)} note={`${balances.length} balance accounts`} />
         <MetricCard title="Unrealized P&L" value={formatCurrency(unrealizedPnl, portfolio.baseCurrency)} note={`${positions.length} tracked positions`} />
@@ -113,17 +113,17 @@ export function PortfolioDetailPage() {
 
       {positionsQuery.isError || balancesQuery.isError || tradingQuery.isError ? (
         <Card>
-          <CardContent className="py-4 text-sm text-muted-foreground">
+          <CardContent className="py-3 text-sm text-muted-foreground">
             Some portfolio sections could not be refreshed. Cached data may still be visible.
           </CardContent>
         </Card>
       ) : null}
 
       <Tabs defaultValue="positions" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="positions">Positions</TabsTrigger>
-          <TabsTrigger value="balances">Balances</TabsTrigger>
-          <TabsTrigger value="trades">Trades</TabsTrigger>
+        <TabsList className="h-9">
+          <TabsTrigger value="positions" className="text-xs">Positions</TabsTrigger>
+          <TabsTrigger value="balances" className="text-xs">Balances</TabsTrigger>
+          <TabsTrigger value="trades" className="text-xs">Trades</TabsTrigger>
         </TabsList>
         <TabsContent value="positions">
           <PortfolioPositionsSection

@@ -41,55 +41,55 @@ export function PortfolioListPage() {
   );
 
   return (
-    <div className="max-w-6xl space-y-6 p-6">
+    <div className="max-w-6xl space-y-3 p-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl tracking-tight">Portfolios</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+        <div className="space-y-0.5">
+          <h1 className="text-xl font-semibold tracking-tight">Portfolios</h1>
+          <p className="text-xs text-muted-foreground">
             Manage live portfolio records and jump into detailed position, balance, and trade views.
           </p>
         </div>
-        <Button onClick={() => { setEditing(null); setShowForm(true); }}>
-          <Plus className="mr-1 size-4" /> New Portfolio
+        <Button size="sm" onClick={() => { setEditing(null); setShowForm(true); }}>
+          <Plus className="mr-1 size-3.5" /> New Portfolio
         </Button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {portfoliosQuery.isPending ? (
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">Loading portfolios...</CardContent>
+            <CardContent className="py-8 text-center text-xs text-muted-foreground">Loading portfolios...</CardContent>
           </Card>
         ) : null}
         {portfoliosQuery.isError ? (
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
+            <CardContent className="py-8 text-center text-sm text-muted-foreground">
               {portfoliosQuery.error instanceof Error ? portfoliosQuery.error.message : "Failed to load portfolios."}
             </CardContent>
           </Card>
         ) : null}
         {!portfoliosQuery.isPending && !portfoliosQuery.isError && portfolios.length === 0 ? (
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">No portfolios yet.</CardContent>
+            <CardContent className="py-8 text-center text-sm text-muted-foreground">No portfolios yet.</CardContent>
           </Card>
         ) : null}
         {portfolios.map((portfolio) => (
-          <Card key={portfolio.id}>
-            <CardContent className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0 space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <CardTitle className="text-base">{portfolio.name}</CardTitle>
+          <Card key={portfolio.id} className="transition-colors hover:bg-accent/50">
+            <CardContent className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0 space-y-1">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <CardTitle className="text-sm font-medium tracking-tight">{portfolio.name}</CardTitle>
                   <Badge variant="secondary">{portfolio.baseCurrency}</Badge>
-                  <Badge variant="outline">{portfolio.positionCount} positions</Badge>
-                  <Badge variant="outline">{portfolio.balanceCount} balances</Badge>
+                  <Badge variant="outline">{portfolio.positionCount} pos</Badge>
+                  <Badge variant="outline">{portfolio.balanceCount} bal</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">{portfolio.description || "No description"}</p>
-                <p className="text-xs text-muted-foreground">Updated {formatDateTime(portfolio.updatedAt)}</p>
+                <p className="text-xs text-muted-foreground truncate">{portfolio.description || "No description"}</p>
+                <p className="text-[11px] text-muted-foreground">Updated {formatDateTime(portfolio.updatedAt)}</p>
               </div>
-              <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button aria-label={`Open actions for ${portfolio.name}`} size="icon" variant="ghost">
-                      <MoreHorizontal className="size-4" />
+                    <Button aria-label={`Open actions for ${portfolio.name}`} size="icon" variant="ghost" className="size-7">
+                      <MoreHorizontal className="size-3.5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -99,17 +99,17 @@ export function PortfolioListPage() {
                         setShowForm(true);
                       }}
                     >
-                      <Pencil className="size-4" />
-                      Edit portfolio
+                      <Pencil className="size-3.5" />
+                      Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => setDeleting(portfolio)} variant="destructive">
-                      <Trash2 className="size-4" />
-                      Delete portfolio
+                      <Trash2 className="size-3.5" />
+                      Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button variant="outline" onClick={() => navigate(`/portfolios/${portfolio.id}`)}>
-                  Open Portfolio
+                <Button size="sm" variant="secondary" className="h-7 text-xs" onClick={() => navigate(`/portfolios/${portfolio.id}`)}>
+                  Open
                 </Button>
               </div>
             </CardContent>
