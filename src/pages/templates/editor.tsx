@@ -40,7 +40,7 @@ export function TemplateEditorPage() {
 
   const [name, setName] = useState("");
   const [content, setContent] = useState("");
-  const [placeholdersOpen, setPlaceholdersOpen] = useState(false);
+  const [placeholdersOpen, setPlaceholdersOpen] = useState(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: template, isLoading: isLoadingTemplate } = useTemplate(templateId);
@@ -119,18 +119,18 @@ export function TemplateEditorPage() {
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 border-b border-border bg-card px-3 py-1.5">
+    <div className="flex h-full min-h-0 flex-col bg-background">
+      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card px-4 py-2">
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 shrink-0"
+          className="h-8 w-8 shrink-0"
           onClick={() => navigate(-1)}
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft className="h-4 w-4" />
         </Button>
-        <Separator orientation="vertical" className="h-4" />
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Separator orientation="vertical" className="h-5" />
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Code2 className="h-3 w-3" />
           <span>{isEditing ? "Edit" : "New"}</span>
         </div>
@@ -138,30 +138,30 @@ export function TemplateEditorPage() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Template name…"
-          className="h-7 max-w-[240px] border-none bg-transparent px-1.5 text-sm font-medium shadow-none focus-visible:ring-1"
+          className="h-9 min-w-[16rem] max-w-lg border-border/70 bg-background px-3 text-sm font-medium shadow-none focus-visible:ring-1"
         />
-        <div className="ml-auto flex items-center gap-1.5">
+        <div className="ml-auto flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 gap-1.5 px-2.5 text-xs"
+            className="h-8 gap-1.5 px-3 text-sm"
             onClick={() => setPlaceholdersOpen((o) => !o)}
           >
             <Braces className="h-3 w-3" />
             Vars
           </Button>
-          <Separator orientation="vertical" className="h-4" />
+          <Separator orientation="vertical" className="h-5" />
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2.5 text-xs"
+            className="h-8 px-3 text-sm"
             onClick={() => navigate(-1)}
           >
             Cancel
           </Button>
           <Button
             size="sm"
-            className="h-7 gap-1.5 px-3 text-xs"
+            className="h-8 gap-1.5 px-3.5 text-sm"
             onClick={handleSave}
             disabled={isSaving}
           >
@@ -175,9 +175,9 @@ export function TemplateEditorPage() {
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
-        <div className="flex min-h-0 flex-col border-r border-border">
-          <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-3 py-1">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
+        <div className="flex min-h-0 flex-col lg:border-r lg:border-border">
+          <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2">
             <Code2 className="h-3 w-3 text-muted-foreground" />
             <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Editor
@@ -190,7 +190,7 @@ export function TemplateEditorPage() {
             <textarea
               id="content"
               ref={textareaRef}
-              className="h-full w-full resize-none border-none bg-background p-3 font-mono text-sm leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
+              className="h-full w-full resize-none border-none bg-background px-4 py-3 font-mono text-sm leading-7 text-foreground placeholder:text-muted-foreground focus:outline-none"
               placeholder="Enter template content…"
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -200,7 +200,7 @@ export function TemplateEditorPage() {
         </div>
 
         <div className="flex min-h-0 flex-col">
-          <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-3 py-1">
+          <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2">
             <Eye className="h-3 w-3 text-muted-foreground" />
             <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Preview
@@ -210,7 +210,7 @@ export function TemplateEditorPage() {
             )}
           </div>
           <ScrollArea className="min-h-0 flex-1">
-            <div className="bg-muted/30 p-3">
+            <div className="min-h-full bg-muted/30 px-4 py-3">
               {compileMutation.error ? (
                 <div className="rounded border border-destructive/30 bg-destructive/10 px-3 py-2 font-mono text-xs text-destructive">
                   {compileMutation.error instanceof Error
@@ -233,7 +233,7 @@ export function TemplateEditorPage() {
 
       {placeholdersOpen && (
         <div className="border-t border-border">
-          <div className="flex items-center gap-2 bg-muted/50 px-3 py-1">
+          <div className="flex items-center gap-2 bg-muted/50 px-4 py-2">
             <Braces className="h-3 w-3 text-muted-foreground" />
             <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Placeholder Reference
@@ -250,8 +250,8 @@ export function TemplateEditorPage() {
               <ChevronDown className="h-3 w-3" />
             </Button>
           </div>
-          <ScrollArea className="h-[180px]">
-            <div className="flex flex-wrap gap-x-6 gap-y-0 px-3 py-1.5">
+            <ScrollArea className="h-[220px] lg:h-[240px]">
+              <div className="flex flex-wrap gap-x-8 gap-y-1 px-4 py-2">
               <PlaceholderGroup
                 title="Portfolio"
                 items={[

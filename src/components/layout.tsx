@@ -135,6 +135,9 @@ function AppSidebar() {
 export function Layout() {
   const location = useLocation();
   const pageMeta = getPageMeta(location.pathname);
+  const isTemplateEditorRoute =
+    location.pathname === "/templates/new" ||
+    (location.pathname.startsWith("/templates/") && location.pathname.endsWith("/edit"));
 
   return (
     <SidebarProvider>
@@ -169,11 +172,17 @@ export function Layout() {
         </header>
 
         <main className="min-h-0 min-w-0 flex-1 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="min-h-full [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-7xl">
+          {isTemplateEditorRoute ? (
+            <div className="h-full [&>*]:h-full [&>*]:w-full">
               <Outlet />
             </div>
-          </ScrollArea>
+          ) : (
+            <ScrollArea className="h-full">
+              <div className="min-h-full [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-7xl">
+                <Outlet />
+              </div>
+            </ScrollArea>
+          )}
         </main>
       </SidebarInset>
     </SidebarProvider>
