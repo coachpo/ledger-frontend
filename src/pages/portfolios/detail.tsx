@@ -59,11 +59,11 @@ export function PortfolioDetailPage() {
   const latestOperation = [...operations].sort((left, right) => right.executedAt.localeCompare(left.executedAt))[0];
 
   if (!portfolioId) {
-    return <div className="p-6 text-muted-foreground">Portfolio route is missing an id.</div>;
+    return <div className="p-4 text-xs text-muted-foreground">Portfolio route is missing an id.</div>;
   }
 
   if (portfolioQuery.isPending) {
-    return <div className="p-6 text-muted-foreground">Loading portfolio...</div>;
+    return <div className="p-4 text-xs text-muted-foreground">Loading portfolio...</div>;
   }
 
   if (portfolioQuery.isError || !portfolio) {
@@ -82,24 +82,23 @@ export function PortfolioDetailPage() {
   }
 
   return (
-    <div className="max-w-7xl space-y-4 p-4">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-1">
-          <Button size="sm" variant="ghost" className="-ml-3 h-8 text-muted-foreground hover:text-foreground" onClick={() => navigate("/portfolios")}>
-            <ArrowLeft className="mr-1 size-4" /> Back to Portfolios
+    <div className="max-w-7xl space-y-3 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-0.5">
+          <Button size="sm" variant="ghost" className="-ml-2 h-7 text-xs text-muted-foreground hover:text-foreground" onClick={() => navigate("/portfolios")}>
+            <ArrowLeft className="mr-1 size-3.5" /> Portfolios
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{portfolio.name}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{portfolio.description || "No description"}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Updated {formatDateTime(portfolio.updatedAt)}</p>
+            <h1 className="text-xl font-semibold tracking-tight">{portfolio.name}</h1>
+            <p className="text-xs text-muted-foreground">{portfolio.description || "No description"} · Updated {formatDateTime(portfolio.updatedAt)}</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => setShowEditForm(true)}>
-            <Pencil className="mr-1 size-4" /> Edit
+        <div className="flex gap-1.5">
+          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowEditForm(true)}>
+            <Pencil className="mr-1 size-3" /> Edit
           </Button>
-          <Button size="sm" variant="destructive" onClick={() => setShowDeleteDialog(true)}>
-            <Trash2 className="mr-1 size-4" /> Delete
+          <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => setShowDeleteDialog(true)}>
+            <Trash2 className="mr-1 size-3" /> Delete
           </Button>
         </div>
       </div>
@@ -119,8 +118,8 @@ export function PortfolioDetailPage() {
         </Card>
       ) : null}
 
-      <Tabs defaultValue="positions" className="space-y-4">
-        <TabsList className="h-9">
+      <Tabs defaultValue="positions" className="space-y-3">
+        <TabsList className="h-8">
           <TabsTrigger value="positions" className="text-xs">Positions</TabsTrigger>
           <TabsTrigger value="balances" className="text-xs">Balances</TabsTrigger>
           <TabsTrigger value="trades" className="text-xs">Trades</TabsTrigger>

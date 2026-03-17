@@ -23,17 +23,17 @@ function MetricCardBody({
   valueClassName,
 }: Omit<MetricCardProps, "to">) {
   return (
-    <CardContent className="p-5">
+    <CardContent className="p-4">
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1.5">
-          <p className="text-sm font-medium tracking-tight text-muted-foreground">
+        <div className="min-w-0 space-y-1">
+          <p className="text-xs font-medium tracking-tight text-muted-foreground">
             {title}
           </p>
-          <p className={cn("text-2xl font-semibold tracking-tight text-foreground", valueClassName)}>{value}</p>
-          {note ? <p className="text-xs text-muted-foreground line-clamp-1">{note}</p> : null}
+          <p className={cn("text-xl font-semibold tracking-tight text-foreground", valueClassName)}>{value}</p>
+          {note ? <p className="text-[11px] text-muted-foreground line-clamp-1">{note}</p> : null}
         </div>
         {Icon ? (
-          <div className={cn("rounded-md p-2 text-muted-foreground", iconClassName)}>
+          <div className={cn("rounded-md p-1.5 text-muted-foreground", iconClassName)}>
             <Icon className="size-4" />
           </div>
         ) : null}
