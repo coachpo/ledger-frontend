@@ -19,6 +19,9 @@ describe("PortfolioFormDialog", () => {
     fireEvent.change(screen.getByLabelText("Name"), {
       target: { value: "Global Growth" },
     });
+    fireEvent.change(screen.getByLabelText("Slug"), {
+      target: { value: "global_growth" },
+    });
     fireEvent.change(screen.getByLabelText("Base Currency"), {
       target: { value: "aud" },
     });
@@ -29,6 +32,7 @@ describe("PortfolioFormDialog", () => {
         baseCurrency: "AUD",
         description: null,
         name: "Global Growth",
+        slug: "global_growth",
       }),
     );
   });

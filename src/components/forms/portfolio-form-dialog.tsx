@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -40,6 +41,7 @@ export function PortfolioFormDialog({
       baseCurrency: initialBaseCurrency,
       description: initial?.description ?? "",
       name: initial?.name ?? "",
+      slug: initial?.slug ?? "",
     },
     resolver: zodResolver(portfolioCreateFormSchema),
   });
@@ -49,6 +51,7 @@ export function PortfolioFormDialog({
       baseCurrency: initialBaseCurrency,
       description: initial?.description ?? "",
       name: initial?.name ?? "",
+      slug: initial?.slug ?? "",
     });
   }, [form, initial, initialBaseCurrency, open]);
 
@@ -75,6 +78,7 @@ export function PortfolioFormDialog({
               onSave({
                 ...payload,
                 baseCurrency: values.baseCurrency.trim().toUpperCase(),
+                slug: values.slug.trim().toLowerCase(),
               } satisfies PortfolioWriteInput);
             })}
           >
@@ -87,6 +91,31 @@ export function PortfolioFormDialog({
                   <FormControl>
                     <Input {...field} disabled={isPending} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="slug"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Slug</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      autoCapitalize="off"
+                      autoCorrect="off"
+                      disabled={isPending || Boolean(initial)}
+                      onChange={(event) => field.onChange(event.target.value.toLowerCase())}
+                      placeholder="retirement"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {initial
+                      ? "Slug is immutable after creation."
+                      : "Use lowercase letters, numbers, and underscores."}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

@@ -1,6 +1,7 @@
 export interface PortfolioRead {
   id: number;
   name: string;
+  slug: string;
   description: string | null;
   baseCurrency: string;
   positionCount: number;
@@ -11,6 +12,7 @@ export interface PortfolioRead {
 
 export interface PortfolioWriteInput {
   name: string;
+  slug: string;
   description?: string | null;
   baseCurrency: string;
 }

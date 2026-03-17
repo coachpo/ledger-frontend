@@ -48,6 +48,7 @@ function getLastFetchCall(fetchMock: ReturnType<typeof createFetchMock>): {
 const portfolioFixture: PortfolioRead = {
   id: 1,
   name: "Retirement",
+  slug: "retirement",
   description: "Long-term holdings",
   baseCurrency: "USD",
   positionCount: 3,
@@ -58,6 +59,7 @@ const portfolioFixture: PortfolioRead = {
 
 const portfolioInput: PortfolioWriteInput = {
   name: "Retirement",
+  slug: "retirement",
   description: "Long-term holdings",
   baseCurrency: "USD",
 };

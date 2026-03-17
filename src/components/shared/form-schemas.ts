@@ -14,6 +14,10 @@ const numericText = (label: string) =>
   });
 
 const optionalText = z.string();
+const portfolioSlugText = requiredText("Slug").regex(
+  /^[a-z][a-z0-9_]*$/,
+  "Slug must start with a letter and use only lowercase letters, numbers, and underscores",
+);
 const symbolText = requiredText("Symbol").transform((value) => value.toUpperCase());
 const validDateTimeText = requiredText("Executed at").refine(
   (value) => !Number.isNaN(new Date(value).getTime()),
@@ -30,6 +34,7 @@ export const portfolioCreateFormSchema = z.object({
   baseCurrency: z.string().trim().length(3, "Base currency must be a 3-letter code"),
   description: optionalText,
   name: requiredText("Name"),
+  slug: portfolioSlugText,
 });
 
 export const portfolioUpdateFormSchema = z.object({
