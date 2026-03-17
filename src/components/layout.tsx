@@ -15,6 +15,7 @@ import {
   BreadcrumbSeparator,
 } from "./ui/breadcrumb";
 import { ScrollArea } from "./ui/scroll-area";
+import { ThemeToggle } from "./theme-toggle";
 import {
   Sidebar,
   SidebarContent,
@@ -164,6 +165,7 @@ export function Layout() {
               </BreadcrumbList>
             </Breadcrumb>
           </div>
+          <ThemeToggle />
         </header>
 
         <main className="min-h-0 min-w-0 flex-1 overflow-hidden">

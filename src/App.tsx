@@ -2,6 +2,7 @@ import { RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { ErrorBoundary } from "./components/shared/error-boundary";
+import { ThemeProvider } from "./components/theme-provider";
 import { router } from "./routes";
 
 const queryClient = new QueryClient({
@@ -16,11 +17,13 @@ const queryClient = new QueryClient({
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <RouterProvider router={router} />
-      </ErrorBoundary>
-      <Toaster position="bottom-right" richColors />
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <RouterProvider router={router} />
+        </ErrorBoundary>
+        <Toaster position="bottom-right" richColors />
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
