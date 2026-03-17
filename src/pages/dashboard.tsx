@@ -10,7 +10,7 @@ import { usePortfolios } from "@/hooks/use-portfolios";
 
 import { MetricCard } from "@/components/shared/metric-card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function formatDateLabel(value: string | null) {
