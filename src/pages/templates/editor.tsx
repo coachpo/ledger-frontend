@@ -262,6 +262,8 @@ export function TemplateEditorPage() {
                   { path: "portfolios.<slug>.base_currency", type: "string" },
                   { path: "portfolios.<slug>.position_count", type: "number" },
                   { path: "portfolios.<slug>.balance_count", type: "number" },
+                  { path: "portfolios.<slug>.total_value", type: "number" },
+                  { path: "portfolios.<slug>.unrealized_pnl", type: "number" },
                   { path: "portfolios.<slug>.created_at", type: "datetime" },
                   { path: "portfolios.<slug>.updated_at", type: "datetime" },
                 ]}
@@ -287,6 +289,9 @@ export function TemplateEditorPage() {
                   { path: "portfolios.<slug>.positions.<SYMBOL>.average_cost", type: "string" },
                   { path: "portfolios.<slug>.positions.<SYMBOL>.currency", type: "string" },
                   { path: "portfolios.<slug>.positions.<SYMBOL>.name", type: "string" },
+                  { path: "portfolios.<slug>.positions.<SYMBOL>.market_value", type: "number" },
+                  { path: "portfolios.<slug>.positions.<SYMBOL>.unrealized_pnl", type: "number" },
+                  { path: "portfolios.<slug>.positions.<SYMBOL>.unrealized_pnl_percent", type: "number" },
                 ]}
                 onInsert={insertPlaceholder}
               />
