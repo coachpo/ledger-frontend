@@ -24,14 +24,19 @@ src/components/
 |---|---|---|
 | App shell / navigation | `layout.tsx`, `shared/error-boundary.tsx` | sidebar shell, portfolio/template/report nav, top-level error boundary |
 | Theme behavior | `theme-provider.tsx`, `theme-toggle.tsx`, `theme.ts` | persisted theme state and system-sync logic |
-| Shared components | `shared/` | reusable UI components across features |
+| Shared components | `shared/AGENTS.md` | reusable data tables, metrics, field schemas, and error boundaries |
 | Form components | `forms/` | shared dialog forms that do not belong in a feature folder |
 | Portfolio feature UI | `portfolios/AGENTS.md` | sections, dialogs, trading form, feature-specific logic |
 | Pure UI primitives | `ui/` | shadcn/ui-style presentational components only |
 
+## CHILD DOCS
+- `shared/AGENTS.md` — reusable cross-feature components and schema helpers
+- `portfolios/AGENTS.md` — portfolio feature sections, dialogs, and trades UI
+
 ## CONVENTIONS
 - Routed page components live in `src/pages/` and are thin orchestration layers.
 - Shared components in `shared/` are reusable across multiple features and should not contain portfolio-specific request logic.
+- `shared/` is where the app keeps reusable data tables, metric cards, field schemas, and error boundaries; if a component only makes sense inside one feature route, keep it out of this folder.
 - `forms/` is reserved for small cross-feature form surfaces such as portfolio creation and editing dialogs.
 - Feature-specific components in `portfolios/` own their domain logic and should not be reused outside that feature without a clear abstraction.
 - Report routes currently stay page-centric and reuse shared components such as `ConfirmDeleteDialog` instead of maintaining a dedicated `components/reports/` feature folder.

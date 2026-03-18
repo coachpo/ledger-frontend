@@ -5,6 +5,10 @@
 ## OVERVIEW
 `src/lib/` owns the frontend API contract, query-key naming, derived portfolio analytics, formatting helpers, markdown formatting, and shared type definitions for portfolio, market-data, CSV, template, and report flows.
 
+## CHILD DOCS
+- `api/AGENTS.md` — resource request helpers and upload/download boundaries
+- `types/AGENTS.md` — shared TypeScript wire contracts and enum-like unions
+
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |---|---|---|
@@ -24,9 +28,10 @@
 - Domain-specific API functions live in `api/*.ts` modules, organized by resource type.
 - `api.ts` and `api-types.ts` are barrel files that re-export the live modules for backward compatibility.
 - Wire decimals remain strings until shared format/analytics helpers convert them for display math.
-- `query-keys.ts` normalizes symbols and filter params so cache keys stay stable across callers.
+- `query-keys.ts` normalizes ids as strings, symbol lists as trimmed uppercase sets, and history params so cache keys stay stable across callers.
 - `invalidatePortfolioScope()` is the default invalidation path for portfolio-scoped mutations; templates use their own `queryKeys.templates.*` namespace.
 - Report flows use `queryKeys.reports.*`; `downloadReportUrl()` stays in the API layer because it builds the absolute file URL from the configured API base.
+- Report detail queries are slug-scoped, not numeric-id scoped, even though some shared helper signatures still use generic `IdParam` naming.
 
 ## ANTI-PATTERNS
 - Do not hard-code endpoint paths or duplicate `request()` behavior in hooks/components.
@@ -36,6 +41,7 @@
 - Do not duplicate backend contract types when `types/*.ts` already exposes them.
 - Do not change template, CSV, or error-envelope shapes here without updating the backend contract and the calling hooks/pages.
 - Do not change report, upload-metadata, or placeholder-tree shapes here without updating the backend contract and the calling hooks/pages.
+- Do not change `api/` helpers or `types/` contracts in isolation; keep request helpers and wire shapes in sync.
 - Do not mix presentation-only formatting into API wrapper code.
 
 ## VALIDATION

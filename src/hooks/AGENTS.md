@@ -21,9 +21,10 @@
 - Portfolio-scoped query hooks accept `portfolioId | undefined`, derive a resolved id, and gate execution with `enabled`.
 - Mutations invalidate either list/detail keys or `invalidatePortfolioScope()`; do not hand-roll cache clearing in components.
 - Template hooks invalidate `queryKeys.templates.list()` and keep placeholder/detail query composition inside the hooks layer.
-- Report hooks invalidate `queryKeys.reports.list()` and only invalidate detail keys on update flows that need fresh content.
+- Report hooks invalidate `queryKeys.reports.list()` for writes and additionally invalidate slug-scoped detail keys after content edits so the detail route refreshes without a redirect.
 - `useCompileInline()` is modeled as a mutation because it represents explicit compile work rather than cached resource fetching.
 - `useCompileReport()` is a mutation because report generation is a write that creates a persisted snapshot from a template.
+- The template editor owns the 500 ms debounce for inline compile; hooks expose compile/query primitives but do not debounce internally.
 - Hooks wrap `src/lib/api*.ts` only and keep server-state orchestration out of routed screens.
 - Generic utility hooks such as `use-debounce.ts` should stay UI-focused and framework-agnostic.
 

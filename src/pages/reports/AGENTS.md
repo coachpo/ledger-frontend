@@ -8,8 +8,8 @@
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |---|---|---|
-| Report inventory | `list.tsx` | list query, generate/upload dialogs, delete flow, dropdown actions |
-| Report detail | `detail.tsx` | markdown read mode, textarea edit mode, download button |
+| Report inventory | `list.tsx` | list query, generate/upload dialogs, source badges, delete flow, dropdown actions |
+| Report detail | `detail.tsx` | markdown read mode, local textarea edit mode, download button |
 | Report hooks | `../../hooks/use-reports.ts` | list/detail queries plus compile/upload/update/delete mutations |
 | Template-driven generation | `../templates/editor.tsx` | saved templates can generate reports directly from the editor |
 | Report API contract | `../../lib/api/reports.ts`, `../../lib/types/report.ts` | slug-based endpoints, metadata, download URL helper |
@@ -22,6 +22,7 @@
 - `detail.tsx` renders markdown with `react-markdown` + `remark-gfm` in read mode and switches to a plain textarea for direct content edits.
 - Native markdown downloads always use `downloadReportUrl()` from the API layer instead of hand-built links.
 - Report pages own toasts and route navigation; hooks only manage server-state mutation/query behavior.
+- `list.tsx` surfaces three live report sources (`compiled`, `uploaded`, `external`) with source badges; upload slug autofill is only a suggestion and the backend remains authoritative on normalization and uniqueness.
 
 ## ANTI-PATTERNS
 - Do not navigate or fetch reports by numeric id; the routed surface is slug-based.

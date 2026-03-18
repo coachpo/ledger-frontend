@@ -3,6 +3,8 @@
 > Inherits `/AGENTS.md` and `/frontend/AGENTS.md`. This file covers routed page components in `src/pages/`.
 
 ## CHILD DOCS
+- `portfolios/AGENTS.md` — portfolio list/detail route orchestration and quote-enriched workspace rules
+- `templates/AGENTS.md` — template list/editor orchestration, debounce preview, and placeholder rules
 - `reports/AGENTS.md` — report list/detail routes, markdown rendering, upload/generate/download behavior
 
 ## OVERVIEW
@@ -27,10 +29,9 @@ src/pages/
 | Task | Location | Notes |
 |---|---|---|
 | Dashboard landing | `dashboard.tsx` | home route summary and retry state |
-| Portfolio workspace | `portfolios/list.tsx`, `portfolios/detail.tsx` | portfolio list and detail workspace |
+| Portfolio workspace | `portfolios/AGENTS.md` | portfolio list and detail workspace |
 | Report routes | `reports/AGENTS.md` | list/detail, upload/generate, markdown view/edit/download |
-| Template list | `templates/list.tsx` | stored-template CRUD entrypoint |
-| Template editor | `templates/editor.tsx` | inline compile preview, placeholder insertion, full-height route |
+| Template list/editor | `templates/AGENTS.md` | stored-template CRUD, inline compile preview, placeholder insertion |
 
 ## CONVENTIONS
 - Each page component maps to exactly one route in `src/routes.ts`.
@@ -39,6 +40,7 @@ src/pages/
 - Pages should not contain business logic; delegate to hooks or feature-specific components.
 - The template editor page uses `useDebounce()`, `useCompileInline()`, and `usePlaceholders()` to keep preview and placeholder browsing responsive without moving that orchestration into the component library.
 - Report pages use `use-reports.ts` for server state, render markdown in read mode, and keep edit-mode textareas local to the route component.
+- Portfolio detail pages compose portfolio, balance, position, trade, and market-data hooks together; quote enrichment and allocation math stay in shared analytics helpers instead of the page body.
 
 ## ANTI-PATTERNS
 - Do not put business rules or complex state management directly in page components.
