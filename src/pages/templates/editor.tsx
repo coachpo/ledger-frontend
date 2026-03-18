@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import {
-  ArrowLeft,
+  X,
   Save,
   ChevronDown,
   ChevronRight,
@@ -34,6 +34,7 @@ import {
 } from "@/hooks/use-templates";
 import { useCompileReport } from "@/hooks/use-reports";
 import { useDebounce } from "@/hooks/use-debounce";
+import { formatMarkdown } from "@/lib/markdown-format";
 
 export function TemplateEditorPage() {
   const { templateId } = useParams<{ templateId: string }>();
@@ -42,6 +43,7 @@ export function TemplateEditorPage() {
 
   const [name, setName] = useState("");
   const [content, setContent] = useState("");
+  const [isFormatting, setIsFormatting] = useState(false);
   const [placeholdersOpen, setPlaceholdersOpen] = useState(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -53,6 +55,7 @@ export function TemplateEditorPage() {
   const compileReportMutation = useCompileReport();
 
   const debouncedContent = useDebounce(content, 500);
+  const handleClose = () => navigate(-1);
 
   useEffect(() => {
     if (template) {
@@ -127,6 +130,41 @@ export function TemplateEditorPage() {
     });
   };
 
+  const handleFormat = async () => {
+    const selectionStart = textareaRef.current?.selectionStart ?? 0;
+    const selectionEnd = textareaRef.current?.selectionEnd ?? 0;
+    const currentContent = content;
+
+    setIsFormatting(true);
+
+    try {
+      const formattedContent = await formatMarkdown(currentContent);
+
+      setContent(formattedContent);
+
+      requestAnimationFrame(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(
+            Math.min(selectionStart, formattedContent.length),
+            Math.min(selectionEnd, formattedContent.length),
+          );
+        }
+      });
+
+      if (formattedContent === currentContent) {
+        toast.success("Markdown already formatted");
+        return;
+      }
+
+      toast.success("Markdown formatted");
+    } catch {
+      toast.error("Failed to format markdown");
+    } finally {
+      setIsFormatting(false);
+    }
+  };
+
   if (isEditing && isLoadingTemplate) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -140,89 +178,104 @@ export function TemplateEditorPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
-      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card px-4 py-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 shrink-0"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <Separator orientation="vertical" className="h-5" />
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Code2 className="h-3 w-3" />
-          <span>{isEditing ? "Edit" : "New"}</span>
-        </div>
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Template name…"
-          className="h-9 min-w-[16rem] max-w-lg border-border/70 bg-background px-3 text-sm font-medium shadow-none focus-visible:ring-1"
-        />
-        <div className="ml-auto flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 gap-1.5 px-3 text-sm"
-            onClick={() => setPlaceholdersOpen((o) => !o)}
-          >
-            <Braces className="h-3 w-3" />
-            Vars
-          </Button>
-          <Separator orientation="vertical" className="h-5" />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-3 text-sm"
-            onClick={() => navigate(-1)}
-          >
-            Cancel
-          </Button>
-          <Button
-            size="sm"
-            className="h-8 gap-1.5 px-3.5 text-sm"
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            {isSaving ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
-            ) : (
-              <Save className="h-3 w-3" />
-            )}
-            Save
-          </Button>
-          {isEditing && templateId ? (
+      <div className="border-b border-border bg-card px-4 py-3">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 xl:flex-1">
             <Button
-              variant="secondary"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 shrink-0"
+              onClick={handleClose}
+              aria-label="Close editor"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            <Separator orientation="vertical" className="hidden h-5 sm:block" />
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Code2 className="h-3 w-3" />
+              <span>{isEditing ? "Edit" : "New"}</span>
+            </div>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Template name…"
+              className="h-9 min-w-[14rem] flex-1 basis-full border-border/70 bg-background px-3 text-sm font-medium shadow-none focus-visible:ring-1 sm:basis-auto xl:max-w-lg"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2 border-t border-border/60 pt-3 sm:justify-end xl:ml-auto xl:border-t-0 xl:pt-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 text-sm"
+              onClick={handleFormat}
+              disabled={isFormatting}
+            >
+              {isFormatting ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+              {isFormatting ? "Formatting" : "Format"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-1.5 px-3 text-sm"
+              onClick={() => setPlaceholdersOpen((o) => !o)}
+            >
+              <Braces className="h-3 w-3" />
+              Vars
+            </Button>
+            <Separator orientation="vertical" className="hidden h-5 xl:block" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 text-sm"
+              onClick={handleClose}
+            >
+              Cancel
+            </Button>
+            <Button
               size="sm"
               className="h-8 gap-1.5 px-3.5 text-sm"
-              onClick={handleGenerateReport}
-              disabled={isGenerating}
+              onClick={handleSave}
+              disabled={isSaving}
             >
-              {isGenerating ? (
+              {isSaving ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
               ) : (
-                <FileOutput className="h-3 w-3" />
+                <Save className="h-3 w-3" />
               )}
-              Generate Report
+              Save
             </Button>
-          ) : (
-            <Button
-              variant="secondary"
-              size="sm"
-              className="h-8 gap-1.5 px-3.5 text-sm"
-              disabled
-            >
-              <FileOutput className="h-3 w-3" />
-              Generate Report
-            </Button>
-          )}
+            {isEditing && templateId ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-8 gap-1.5 px-3.5 text-sm"
+                onClick={handleGenerateReport}
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <FileOutput className="h-3 w-3" />
+                )}
+                Generate Report
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-8 gap-1.5 px-3.5 text-sm"
+                disabled
+              >
+                <FileOutput className="h-3 w-3" />
+                Generate Report
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
-        <div className="flex min-h-0 flex-col lg:border-r lg:border-border">
+      <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] 2xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
+        <div className="flex min-h-0 min-w-0 flex-col xl:border-r xl:border-border">
           <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2">
             <Code2 className="h-3 w-3 text-muted-foreground" />
             <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -245,7 +298,7 @@ export function TemplateEditorPage() {
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-col">
+        <div className="flex min-h-0 min-w-0 flex-col">
           <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2">
             <Eye className="h-3 w-3 text-muted-foreground" />
             <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
