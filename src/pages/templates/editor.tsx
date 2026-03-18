@@ -55,7 +55,7 @@ export function TemplateEditorPage() {
   const compileReportMutation = useCompileReport();
 
   const debouncedContent = useDebounce(content, 500);
-  const handleClose = () => navigate(-1);
+  const handleClose = () => navigate("/templates");
 
   useEffect(() => {
     if (template) {
@@ -206,7 +206,7 @@ export function TemplateEditorPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-3 text-sm"
+              className="h-8 gap-1.5 px-3 text-sm"
               onClick={handleFormat}
               disabled={isFormatting}
             >
