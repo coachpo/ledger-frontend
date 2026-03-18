@@ -6,8 +6,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const backendDir = resolve(__dirname, "..", "..", "backend");
 
 const child = spawn(
-  "python",
-  ["-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8001"],
+  "uv",
+  ["run", "--frozen", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8001"],
   { cwd: backendDir, stdio: "inherit" }
 );
 
