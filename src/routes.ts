@@ -20,7 +20,7 @@ export const router = createBrowserRouter([
       { path: "templates/new", Component: TemplateEditorPage },
       { path: "templates/:templateId/edit", Component: TemplateEditorPage },
       { path: "reports", Component: ReportListPage },
-      { path: "reports/:reportId", Component: ReportDetailPage },
+      { path: "reports/:slug", Component: ReportDetailPage },
     ],
   },
 ]);

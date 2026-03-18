@@ -11,12 +11,13 @@ import { downloadReportUrl } from "@/lib/api/reports";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 export function ReportDetailPage() {
-  const { reportId } = useParams<{ reportId: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
-  const { data: report, isLoading } = useReport(reportId);
+  const { data: report, isLoading } = useReport(slug);
   const updateMutation = useUpdateReport();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -29,11 +30,11 @@ export function ReportDetailPage() {
   }, [report]);
 
   const handleSave = async () => {
-    if (!reportId || !report) return;
+    if (!slug || !report) return;
 
     try {
       await updateMutation.mutateAsync({
-        reportId,
+        slug,
         data: { content: editContent },
       });
       toast.success("Report updated");
@@ -75,14 +76,19 @@ export function ReportDetailPage() {
         </Button>
         <Separator orientation="vertical" className="h-5" />
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-semibold tracking-tight">{report.name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="truncate text-lg font-semibold tracking-tight">{report.name}</h1>
+            <Badge variant={report.source === "uploaded" ? "secondary" : "outline"} className="text-[10px]">
+              {report.source === "uploaded" ? "Uploaded" : "Compiled"}
+            </Badge>
+          </div>
           <p className="text-[11px] text-muted-foreground">
             Created {formatDateTime(report.createdAt)}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" className="h-8 text-sm" asChild>
-            <a href={downloadReportUrl(report.id)} download>
+            <a href={downloadReportUrl(report.slug)} download>
               <Download className="mr-1 h-3 w-3" />
               Download
             </a>

@@ -5,14 +5,15 @@ import {
   getReport,
   listReports,
   updateReport,
+  uploadReport,
 } from "@/lib/api/reports";
 import { queryKeys } from "@/lib/query-keys";
 import type { ReportUpdateInput } from "@/lib/types/report";
 
-type IdParam = number | string;
+type SlugParam = string;
 
 type UpdateReportVariables = {
-  reportId: IdParam;
+  slug: SlugParam;
   data: ReportUpdateInput;
 };
 
@@ -23,13 +24,13 @@ export function useReports() {
   });
 }
 
-export function useReport(reportId: IdParam | undefined) {
-  const resolvedId = reportId ?? "";
+export function useReport(slug: SlugParam | undefined) {
+  const resolvedSlug = slug ?? "";
 
   return useQuery({
-    queryKey: queryKeys.reports.detail(resolvedId),
-    queryFn: ({ signal }) => getReport(resolvedId, signal),
-    enabled: Boolean(reportId),
+    queryKey: queryKeys.reports.detail(resolvedSlug),
+    queryFn: ({ signal }) => getReport(resolvedSlug, signal),
+    enabled: Boolean(slug),
   });
 }
 
@@ -37,7 +38,17 @@ export function useCompileReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (templateId: IdParam) => compileReport(templateId),
+    mutationFn: (templateId: number | string) => compileReport(templateId),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.reports.list() }),
+  });
+}
+
+export function useUploadReport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (formData: FormData) => uploadReport(formData),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.reports.list() }),
   });
@@ -47,12 +58,12 @@ export function useUpdateReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ reportId, data }: UpdateReportVariables) =>
-      updateReport(reportId, data),
+    mutationFn: ({ slug, data }: UpdateReportVariables) =>
+      updateReport(slug, data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.reports.list() });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.reports.detail(variables.reportId),
+        queryKey: queryKeys.reports.detail(variables.slug),
       });
     },
   });
@@ -62,7 +73,7 @@ export function useDeleteReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (reportId: IdParam) => deleteReport(reportId),
+    mutationFn: (slug: SlugParam) => deleteReport(slug),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.reports.list() }),
   });

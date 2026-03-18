@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { Download, Eye, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { Download, Eye, MoreHorizontal, Plus, Trash2, Upload } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
-import { useCompileReport, useDeleteReport, useReports } from "@/hooks/use-reports";
+import { useCompileReport, useDeleteReport, useReports, useUploadReport } from "@/hooks/use-reports";
 import { useTemplates } from "@/hooks/use-templates";
 import { formatDateTime } from "@/lib/format";
 import { downloadReportUrl } from "@/lib/api/reports";
 import type { ReportRead } from "@/lib/api-types";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
@@ -25,6 +26,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -32,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 import { ConfirmDeleteDialog } from "@/components/portfolios/confirm-delete-dialog";
 
@@ -41,9 +45,18 @@ export function ReportListPage() {
   const templatesQuery = useTemplates();
   const compileMutation = useCompileReport();
   const deleteMutation = useDeleteReport();
+  const uploadMutation = useUploadReport();
+  
   const [deleting, setDeleting] = useState<ReportRead | null>(null);
   const [generateOpen, setGenerateOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadSlug, setUploadSlug] = useState("");
+  const [uploadAuthor, setUploadAuthor] = useState("");
+  const [uploadDescription, setUploadDescription] = useState("");
+  const [uploadTags, setUploadTags] = useState("");
 
   const reports = reportsQuery.data ?? [];
   const templates = templatesQuery.data ?? [];
@@ -58,7 +71,53 @@ export function ReportListPage() {
         toast.success(`Report "${report.name}" generated`);
         setGenerateOpen(false);
         setSelectedTemplateId("");
-        navigate(`/reports/${report.id}`);
+        navigate(`/reports/${report.slug}`);
+      },
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadFile(file);
+      const nameWithoutExt = file.name.replace(/\.md$/i, "");
+      const generatedSlug = nameWithoutExt
+        .replace(/[^a-zA-Z0-9]/g, "_")
+        .toLowerCase();
+      setUploadSlug(generatedSlug);
+    } else {
+      setUploadFile(null);
+    }
+  };
+
+  const handleUpload = () => {
+    if (!uploadFile || !uploadSlug) return;
+
+    const formData = new FormData();
+    formData.append("file", uploadFile);
+    formData.append("slug", uploadSlug);
+    if (uploadAuthor) formData.append("author", uploadAuthor);
+    if (uploadDescription) formData.append("description", uploadDescription);
+    if (uploadTags) formData.append("tags", uploadTags);
+
+    uploadMutation.mutate(formData, {
+      onError: (error) => {
+        const status = (error as { status?: number }).status;
+        if (status === 409) {
+          toast.error("A report with this slug already exists");
+        } else {
+          toast.error(error instanceof Error ? error.message : "Failed to upload report");
+        }
+      },
+      onSuccess: (report) => {
+        toast.success(`Report "${report.name}" uploaded`);
+        setUploadOpen(false);
+        setUploadFile(null);
+        setUploadSlug("");
+        setUploadAuthor("");
+        setUploadDescription("");
+        setUploadTags("");
+        navigate(`/reports/${report.slug}`);
       },
     });
   };
@@ -72,9 +131,14 @@ export function ReportListPage() {
             Compiled template snapshots — point-in-time deliverables.
           </p>
         </div>
-        <Button size="sm" onClick={() => setGenerateOpen(true)}>
-          <Plus className="mr-1 size-3.5" /> Generate Report
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => setUploadOpen(true)}>
+            <Upload className="mr-1 size-3.5" /> Upload Report
+          </Button>
+          <Button size="sm" onClick={() => setGenerateOpen(true)}>
+            <Plus className="mr-1 size-3.5" /> Generate Report
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -97,7 +161,7 @@ export function ReportListPage() {
         {!reportsQuery.isPending && !reportsQuery.isError && reports.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-xs text-muted-foreground">
-              No reports yet. Generate one from a template.
+              No reports yet. Generate one from a template or upload a markdown file.
             </CardContent>
           </Card>
         ) : null}
@@ -106,11 +170,19 @@ export function ReportListPage() {
             <CardContent className="flex items-center justify-between gap-3 px-4 py-3">
               <div
                 className="min-w-0 flex-1 cursor-pointer space-y-0.5"
-                onClick={() => navigate(`/reports/${report.id}`)}
+                onClick={() => navigate(`/reports/${report.slug}`)}
               >
-                <CardTitle className="text-sm font-medium tracking-tight">
-                  {report.name}
-                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium tracking-tight">
+                    {report.name}
+                  </CardTitle>
+                  {report.source === "compiled" && (
+                    <Badge variant="outline" className="text-[10px] h-4 px-1.5">Compiled</Badge>
+                  )}
+                  {report.source === "uploaded" && (
+                    <Badge variant="secondary" className="text-[10px] h-4 px-1.5">Uploaded</Badge>
+                  )}
+                </div>
                 <p className="text-[11px] text-muted-foreground">
                   Created {formatDateTime(report.createdAt)}
                 </p>
@@ -128,12 +200,12 @@ export function ReportListPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => navigate(`/reports/${report.id}`)}>
+                    <DropdownMenuItem onSelect={() => navigate(`/reports/${report.slug}`)}>
                       <Eye className="size-3.5" />
                       View
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <a href={downloadReportUrl(report.id)} download>
+                      <a href={downloadReportUrl(report.slug)} download>
                         <Download className="size-3.5" />
                         Download
                       </a>
@@ -163,7 +235,7 @@ export function ReportListPage() {
         }}
         onConfirm={() => {
           if (!deleting) return;
-          deleteMutation.mutate(deleting.id, {
+          deleteMutation.mutate(deleting.slug, {
             onError: (error) =>
               toast.error(error instanceof Error ? error.message : "Failed to delete report"),
             onSuccess: () => {
@@ -203,6 +275,76 @@ export function ReportListPage() {
               disabled={!selectedTemplateId || compileMutation.isPending}
             >
               {compileMutation.isPending ? "Generating…" : "Generate"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload Report</DialogTitle>
+            <DialogDescription>
+              Upload a markdown file to create a new report.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="file">Markdown File</Label>
+              <Input
+                id="file"
+                type="file"
+                accept=".md"
+                onChange={handleFileChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="slug">Slug</Label>
+              <Input
+                id="slug"
+                value={uploadSlug}
+                onChange={(e) => setUploadSlug(e.target.value)}
+                placeholder="my_report_slug"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="author">Author (optional)</Label>
+              <Input
+                id="author"
+                value={uploadAuthor}
+                onChange={(e) => setUploadAuthor(e.target.value)}
+                placeholder="John Doe"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description (optional)</Label>
+              <Textarea
+                id="description"
+                value={uploadDescription}
+                onChange={(e) => setUploadDescription(e.target.value)}
+                placeholder="Brief description of the report..."
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tags">Tags (optional)</Label>
+              <Input
+                id="tags"
+                value={uploadTags}
+                onChange={(e) => setUploadTags(e.target.value)}
+                placeholder="q1, finance, summary (comma-separated)"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setUploadOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpload}
+              disabled={!uploadFile || !uploadSlug || uploadMutation.isPending}
+            >
+              {uploadMutation.isPending ? "Uploading…" : "Upload"}
             </Button>
           </DialogFooter>
         </DialogContent>

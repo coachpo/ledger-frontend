@@ -35,7 +35,7 @@ test.describe("Reports", () => {
       .click();
     await page.getByRole("button", { name: /^generate$/i }).click();
 
-    await page.waitForURL(/\/reports\/\d+/);
+    await page.waitForURL(/\/reports\/[a-z0-9_]+/);
 
     await expect(
       page.getByRole("heading", { name: "E2E Report" }),
@@ -107,5 +107,8 @@ test.describe("Reports", () => {
     ).toBeVisible({
       timeout: 15000,
     });
+
+    await page.getByRole("button", { name: "View" }).click();
+    await expect(page).toHaveURL(/\/reports\/[a-z0-9_]+/);
   });
 });

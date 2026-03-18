@@ -1,8 +1,8 @@
 import type { ReportRead, ReportUpdateInput } from "../types/report";
 import { type IdParam, buildApiUrl, request, toPathSegment } from "../api-client";
 
-function reportPath(reportId: IdParam): string {
-  return `/reports/${toPathSegment(reportId)}`;
+function reportPath(slug: IdParam): string {
+  return `/reports/${toPathSegment(slug)}`;
 }
 
 export function listReports(signal?: AbortSignal): Promise<ReportRead[]> {
@@ -10,10 +10,10 @@ export function listReports(signal?: AbortSignal): Promise<ReportRead[]> {
 }
 
 export function getReport(
-  reportId: IdParam,
+  slug: IdParam,
   signal?: AbortSignal,
 ): Promise<ReportRead> {
-  return request<ReportRead>(reportPath(reportId), { signal });
+  return request<ReportRead>(reportPath(slug), { signal });
 }
 
 export function compileReport(
@@ -26,12 +26,23 @@ export function compileReport(
   });
 }
 
+export function uploadReport(
+  formData: FormData,
+  signal?: AbortSignal,
+): Promise<ReportRead> {
+  return request<ReportRead>("/reports/upload", {
+    method: "POST",
+    body: formData,
+    signal,
+  });
+}
+
 export function updateReport(
-  reportId: IdParam,
+  slug: IdParam,
   input: ReportUpdateInput,
   signal?: AbortSignal,
 ): Promise<ReportRead> {
-  return request<ReportRead>(reportPath(reportId), {
+  return request<ReportRead>(reportPath(slug), {
     body: input,
     method: "PATCH",
     signal,
@@ -39,17 +50,17 @@ export function updateReport(
 }
 
 export function deleteReport(
-  reportId: IdParam,
+  slug: IdParam,
   signal?: AbortSignal,
 ): Promise<void> {
-  return request<void>(reportPath(reportId), {
+  return request<void>(reportPath(slug), {
     method: "DELETE",
     signal,
   });
 }
 
-export function downloadReportUrl(reportId: IdParam): string {
-  return buildApiUrl(`${reportPath(reportId)}/download`);
+export function downloadReportUrl(slug: IdParam): string {
+  return buildApiUrl(`${reportPath(slug)}/download`);
 }
 
 export const reportsApi = {
@@ -59,4 +70,5 @@ export const reportsApi = {
   get: getReport,
   list: listReports,
   update: updateReport,
+  upload: uploadReport,
 } as const;

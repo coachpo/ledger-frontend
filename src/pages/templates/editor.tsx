@@ -123,7 +123,7 @@ export function TemplateEditorPage() {
         toast.success(`Report "${report.name}" generated`, {
           action: {
             label: "View",
-            onClick: () => navigate(`/reports/${report.id}`),
+            onClick: () => navigate(`/reports/${report.slug}`),
           },
         });
       },
