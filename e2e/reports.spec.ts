@@ -1,6 +1,27 @@
-import { test, expect } from "@playwright/test";
+import {
+  test,
+  expect,
+  type APIRequestContext,
+  type Page,
+} from "@playwright/test";
 
 const API_BASE = "http://127.0.0.1:8001/api/v1";
+
+function reportCardByText(page: Page, text: string) {
+  return page.locator("[data-slot='card']").filter({ hasText: text });
+}
+
+async function expectReportDeleted(
+  page: Page,
+  request: APIRequestContext,
+  slug: string,
+  cardText: string,
+) {
+  await expect
+    .poll(async () => (await request.get(`${API_BASE}/reports/${slug}`)).status())
+    .toBe(404);
+  await expect(reportCardByText(page, cardText)).toHaveCount(0);
+}
 
 test.describe("Reports", () => {
   test("navigate to reports page from sidebar", async ({ page }) => {
@@ -36,6 +57,13 @@ test.describe("Reports", () => {
     await page.getByRole("button", { name: /^generate$/i }).click();
 
     await page.waitForURL(/\/reports\/[a-z0-9_]+/);
+
+    const generatedSlug = page.url().split("/reports/")[1];
+    expect(generatedSlug).toMatch(/^[a-z0-9_]+$/);
+
+    const reportResponse = await request.get(`${API_BASE}/reports/${generatedSlug}`);
+    expect(reportResponse.ok()).toBeTruthy();
+    const report = await reportResponse.json();
 
     await expect(
       page.getByRole("heading", { name: "E2E Report" }),
@@ -75,16 +103,16 @@ test.describe("Reports", () => {
     await page.goto("/reports");
     await page.waitForLoadState("networkidle");
 
-    const reportCard = page.locator("[data-slot='card']").first();
+    const reportCard = reportCardByText(page, report.name).first();
     await expect(reportCard).toBeVisible();
 
     await reportCard.getByRole("button", { name: /open actions/i }).click();
     await page.getByRole("menuitem", { name: /delete/i }).click();
     await page.getByRole("button", { name: /^delete$/i }).click();
-    await expect(page.getByText("Report deleted")).toBeVisible();
+    await expectReportDeleted(page, request, generatedSlug, report.name);
   });
 
-  test("upload markdown report with metadata", async ({ page }) => {
+  test("upload markdown report with metadata", async ({ page, request }) => {
     const uploadSlug = `e2e_upload_test_${Date.now()}`;
 
     await page.goto("/reports");
@@ -122,15 +150,12 @@ test.describe("Reports", () => {
     await page.goto("/reports");
     await page.waitForLoadState("networkidle");
 
-    const reportCard = page
-      .locator("[data-slot='card']")
-      .filter({ hasText: uploadSlug })
-      .first();
+    const reportCard = reportCardByText(page, uploadSlug).first();
     await expect(reportCard).toBeVisible();
     await reportCard.getByRole("button", { name: /open actions/i }).click();
     await page.getByRole("menuitem", { name: /delete/i }).click();
     await page.getByRole("button", { name: /^delete$/i }).click();
-    await expect(page.getByText("Report deleted")).toBeVisible();
+    await expectReportDeleted(page, request, uploadSlug, uploadSlug);
   });
 
   test("generate report from template editor", async ({ page, request }) => {
