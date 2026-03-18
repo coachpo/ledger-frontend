@@ -341,6 +341,17 @@ export function TemplateEditorPage() {
                 ]}
                 onInsert={insertPlaceholder}
               />
+              <PlaceholderGroup
+                title="Report"
+                items={[
+                  { path: "reports", type: "list" },
+                  { path: "reports.<name>", type: "object" },
+                  { path: "reports.<name>.content", type: "string" },
+                  { path: "reports.<name>.name", type: "string" },
+                  { path: "reports.<name>.created_at", type: "datetime" },
+                ]}
+                onInsert={insertPlaceholder}
+              />
 
               {placeholderTree?.portfolios.map((p) => (
                 <PlaceholderGroup
@@ -352,6 +363,17 @@ export function TemplateEditorPage() {
                       path: `portfolios.${p.slug}.positions.${pos.symbol}`,
                       type: "object",
                     })),
+                  ]}
+                  onInsert={insertPlaceholder}
+                />
+              ))}
+              {placeholderTree?.reports.map((r) => (
+                <PlaceholderGroup
+                  key={r.name}
+                  title={r.name}
+                  items={[
+                    { path: `reports.${r.name}`, type: "object" },
+                    { path: `reports.${r.name}.content`, type: "string" },
                   ]}
                   onInsert={insertPlaceholder}
                 />

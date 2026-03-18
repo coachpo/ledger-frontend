@@ -38,6 +38,12 @@ export interface PlaceholderPortfolio {
   positions: PlaceholderPosition[];
 }
 
+export interface PlaceholderReport {
+  name: string;
+  createdAt: string;
+}
+
 export interface PlaceholderTree {
   portfolios: PlaceholderPortfolio[];
+  reports: PlaceholderReport[];
 }
