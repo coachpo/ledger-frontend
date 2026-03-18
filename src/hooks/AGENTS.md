@@ -3,7 +3,7 @@
 > Inherits `/AGENTS.md` and `/frontend/AGENTS.md`. This file only covers `src/hooks/`.
 
 ## OVERVIEW
-`src/hooks/` wraps the `src/lib/api/*.ts` modules with TanStack Query hooks for portfolios, balances, positions, trading operations, market data, templates, and one small UI debounce helper.
+`src/hooks/` wraps the `src/lib/api/*.ts` modules with TanStack Query hooks for portfolios, balances, positions, trading operations, market data, templates, reports, and one small UI debounce helper.
 
 ## WHERE TO LOOK
 | Task | Location | Notes |
@@ -14,13 +14,16 @@
 | Trading operations | `use-trading-operations.ts` | list + create trading operations |
 | Market data | `use-market-data.ts` | quotes/history with symbol guards |
 | Template flows | `use-templates.ts` | list/detail CRUD, inline compile, placeholder tree |
+| Report flows | `use-reports.ts` | list/detail, compile, upload, update, delete |
 | Generic timing helper | `use-debounce.ts` | small debounce helper used by the template editor |
 
 ## CONVENTIONS
 - Portfolio-scoped query hooks accept `portfolioId | undefined`, derive a resolved id, and gate execution with `enabled`.
 - Mutations invalidate either list/detail keys or `invalidatePortfolioScope()`; do not hand-roll cache clearing in components.
 - Template hooks invalidate `queryKeys.templates.list()` and keep placeholder/detail query composition inside the hooks layer.
+- Report hooks invalidate `queryKeys.reports.list()` and only invalidate detail keys on update flows that need fresh content.
 - `useCompileInline()` is modeled as a mutation because it represents explicit compile work rather than cached resource fetching.
+- `useCompileReport()` is a mutation because report generation is a write that creates a persisted snapshot from a template.
 - Hooks wrap `src/lib/api*.ts` only and keep server-state orchestration out of routed screens.
 - Generic utility hooks such as `use-debounce.ts` should stay UI-focused and framework-agnostic.
 
@@ -29,6 +32,7 @@
 - Do not invent inline query keys in components.
 - Do not mutate cache state ad hoc when invalidation helpers already model the scope.
 - Do not hide API errors in hooks; let the caller decide how to surface them.
+- Do not special-case report uploads or downloads in pages when the hooks/API modules already own the request behavior.
 - Do not move route-local UI state into this layer just because a page is busy.
 
 ## VALIDATION
@@ -42,3 +46,4 @@ pnpm test:run
 ## NOTES
 - `invalidatePortfolioScope()` is the shared invalidation path for portfolio-scoped mutations.
 - Template hooks keep cache policy intentionally simple: list invalidation on writes, page-level navigation/toasts in the callers.
+- Report hooks keep the same pattern: list invalidation on writes, report-page navigation and toast actions in callers such as the reports list and template editor.

@@ -84,6 +84,55 @@ test.describe("Reports", () => {
     await expect(page.getByText("Report deleted")).toBeVisible();
   });
 
+  test("upload markdown report with metadata", async ({ page }) => {
+    const uploadSlug = `e2e_upload_test_${Date.now()}`;
+
+    await page.goto("/reports");
+    await page.getByRole("button", { name: /upload report/i }).click();
+    await expect(
+      page.getByRole("heading", { name: "Upload Report" }),
+    ).toBeVisible();
+
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles({
+      name: `${uploadSlug}.md`,
+      mimeType: "text/markdown",
+      buffer: Buffer.from("# Uploaded E2E\n\nUpload body."),
+    });
+
+    await expect(page.locator("#slug")).toHaveValue(uploadSlug);
+
+    await page.locator("#author").fill("E2E Author");
+    await page.locator("#description").fill("Automated upload test");
+    await page.locator("#tags").fill("e2e, upload");
+
+    await page.getByRole("button", { name: /^upload$/i }).click();
+    await page.waitForURL(new RegExp(`/reports/${uploadSlug}$`));
+
+    await expect(page.getByRole("heading", { name: uploadSlug })).toBeVisible();
+
+    await expect(
+      page.getByRole("heading", { name: "Uploaded E2E" }),
+    ).toBeVisible();
+    await expect(page.getByText("Upload body.")).toBeVisible();
+    await expect(
+      page.locator('[data-slot="badge"]').filter({ hasText: /^Uploaded$/ }),
+    ).toBeVisible();
+
+    await page.goto("/reports");
+    await page.waitForLoadState("networkidle");
+
+    const reportCard = page
+      .locator("[data-slot='card']")
+      .filter({ hasText: uploadSlug })
+      .first();
+    await expect(reportCard).toBeVisible();
+    await reportCard.getByRole("button", { name: /open actions/i }).click();
+    await page.getByRole("menuitem", { name: /delete/i }).click();
+    await page.getByRole("button", { name: /^delete$/i }).click();
+    await expect(page.getByText("Report deleted")).toBeVisible();
+  });
+
   test("generate report from template editor", async ({ page, request }) => {
     const templateResponse = await request.post(`${API_BASE}/templates`, {
       data: {

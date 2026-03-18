@@ -2,6 +2,9 @@
 
 > Inherits `/AGENTS.md` and `/frontend/AGENTS.md`. This file covers routed page components in `src/pages/`.
 
+## CHILD DOCS
+- `reports/AGENTS.md` — report list/detail routes, markdown rendering, upload/generate/download behavior
+
 ## OVERVIEW
 `src/pages/` contains the top-level routed screen components that map directly to routes defined in `src/routes.ts`. Each page composes hooks, shared components, portfolio UI, or template UI to deliver a complete user-facing workflow.
 
@@ -12,6 +15,9 @@ src/pages/
 ├── portfolios/
 │   ├── list.tsx            # portfolio workspace landing
 │   └── detail.tsx          # portfolio detail with balances/positions/trades
+├── reports/
+│   ├── list.tsx            # report inventory with generate/upload/delete flows
+│   └── detail.tsx          # markdown report read/edit/download route
 └── templates/
     ├── list.tsx            # stored-template list and delete flow
     └── editor.tsx          # full-height editor, inline compile preview, placeholder browser
@@ -22,6 +28,7 @@ src/pages/
 |---|---|---|
 | Dashboard landing | `dashboard.tsx` | home route summary and retry state |
 | Portfolio workspace | `portfolios/list.tsx`, `portfolios/detail.tsx` | portfolio list and detail workspace |
+| Report routes | `reports/AGENTS.md` | list/detail, upload/generate, markdown view/edit/download |
 | Template list | `templates/list.tsx` | stored-template CRUD entrypoint |
 | Template editor | `templates/editor.tsx` | inline compile preview, placeholder insertion, full-height route |
 
@@ -31,6 +38,7 @@ src/pages/
 - Pages handle top-level data fetching, mutation feedback (toasts), and route-level error states.
 - Pages should not contain business logic; delegate to hooks or feature-specific components.
 - The template editor page uses `useDebounce()`, `useCompileInline()`, and `usePlaceholders()` to keep preview and placeholder browsing responsive without moving that orchestration into the component library.
+- Report pages use `use-reports.ts` for server state, render markdown in read mode, and keep edit-mode textareas local to the route component.
 
 ## ANTI-PATTERNS
 - Do not put business rules or complex state management directly in page components.
@@ -38,6 +46,7 @@ src/pages/
 - Do not call `fetch` directly; use hooks from `src/hooks/` instead.
 - Do not create ad-hoc query keys in pages; use canonical keys from `src/lib/query-keys.ts`.
 - Do not bypass the layout shell, error boundary, or template-editor full-height layout rules when adding a new page.
+- Do not duplicate report request logic in page components when `use-reports.ts` and the template editor already own the server-side workflow.
 
 ## VALIDATION
 ```bash
@@ -51,4 +60,4 @@ pnpm test:e2e
 
 ## NOTES
 - Pages are thin orchestration layers; the real complexity lives in hooks, shared components, and feature folders.
-- Portfolio detail pages are routable but not exposed separately in the sidebar; template list/editor routes are first-class entries in the main navigation.
+- Portfolio detail pages are routable but not exposed separately in the sidebar; template list/editor and report list/detail routes are first-class entries in the main navigation.
