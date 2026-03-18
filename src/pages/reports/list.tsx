@@ -165,64 +165,71 @@ export function ReportListPage() {
             </CardContent>
           </Card>
         ) : null}
-        {reports.map((report) => (
-          <Card key={report.id} className="transition-colors hover:bg-accent/50">
-            <CardContent className="flex items-center justify-between gap-3 px-4 py-3">
-              <div
-                className="min-w-0 flex-1 cursor-pointer space-y-0.5"
-                onClick={() => navigate(`/reports/${report.slug}`)}
-              >
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-sm font-medium tracking-tight">
-                    {report.name}
-                  </CardTitle>
-                  {report.source === "compiled" && (
-                    <Badge variant="outline" className="text-[10px] h-4 px-1.5">Compiled</Badge>
-                  )}
-                  {report.source === "uploaded" && (
-                    <Badge variant="secondary" className="text-[10px] h-4 px-1.5">Uploaded</Badge>
-                  )}
+        {reports.map((report) => {
+          const sourceLabel =
+            report.source === "uploaded"
+              ? "Uploaded"
+              : report.source === "external"
+                ? "External"
+                : "Compiled";
+          const sourceBadgeVariant = report.source === "uploaded" ? "secondary" : "outline";
+
+          return (
+            <Card key={report.id} className="transition-colors hover:bg-accent/50">
+              <CardContent className="flex items-center justify-between gap-3 px-4 py-3">
+                <div
+                  className="min-w-0 flex-1 cursor-pointer space-y-0.5"
+                  onClick={() => navigate(`/reports/${report.slug}`)}
+                >
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-sm font-medium tracking-tight">
+                      {report.name}
+                    </CardTitle>
+                    <Badge variant={sourceBadgeVariant} className="h-4 px-1.5 text-[10px]">
+                      {sourceLabel}
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Created {formatDateTime(report.createdAt)}
+                  </p>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Created {formatDateTime(report.createdAt)}
-                </p>
-              </div>
-              <div className="flex shrink-0 items-center gap-1.5">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      aria-label={`Open actions for ${report.name}`}
-                      size="icon"
-                      variant="ghost"
-                      className="size-7"
-                    >
-                      <MoreHorizontal className="size-3.5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => navigate(`/reports/${report.slug}`)}>
-                      <Eye className="size-3.5" />
-                      View
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <a href={downloadReportUrl(report.slug)} download>
-                        <Download className="size-3.5" />
-                        Download
-                      </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => setDeleting(report)}
-                      variant="destructive"
-                    >
-                      <Trash2 className="size-3.5" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        aria-label={`Open actions for ${report.name}`}
+                        size="icon"
+                        variant="ghost"
+                        className="size-7"
+                      >
+                        <MoreHorizontal className="size-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => navigate(`/reports/${report.slug}`)}>
+                        <Eye className="size-3.5" />
+                        View
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <a href={downloadReportUrl(report.slug)} download>
+                          <Download className="size-3.5" />
+                          Download
+                        </a>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => setDeleting(report)}
+                        variant="destructive"
+                      >
+                        <Trash2 className="size-3.5" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <ConfirmDeleteDialog

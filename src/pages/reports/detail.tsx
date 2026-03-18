@@ -63,6 +63,14 @@ export function ReportDetailPage() {
     );
   }
 
+  const sourceLabel =
+    report.source === "uploaded"
+      ? "Uploaded"
+      : report.source === "external"
+        ? "External"
+        : "Compiled";
+  const sourceBadgeVariant = report.source === "uploaded" ? "secondary" : "outline";
+
   return (
     <div className="max-w-5xl space-y-4 p-4">
       <div className="flex flex-wrap items-center gap-2">
@@ -78,8 +86,8 @@ export function ReportDetailPage() {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h1 className="truncate text-lg font-semibold tracking-tight">{report.name}</h1>
-            <Badge variant={report.source === "uploaded" ? "secondary" : "outline"} className="text-[10px]">
-              {report.source === "uploaded" ? "Uploaded" : "Compiled"}
+            <Badge variant={sourceBadgeVariant} className="text-[10px]">
+              {sourceLabel}
             </Badge>
           </div>
           <p className="text-[11px] text-muted-foreground">
