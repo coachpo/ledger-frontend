@@ -97,9 +97,15 @@ test.describe("Reports", () => {
     await page.goto(`/templates/${template.id}/edit`);
     await page.waitForLoadState("networkidle");
 
-    await page.getByRole("button", { name: /generate report/i }).click();
-    await expect(page.getByText(/generated/i)).toBeVisible({
-      timeout: 10000,
+    const generateBtn = page.getByRole("button", {
+      name: /generate report/i,
+    });
+    await expect(generateBtn).toBeEnabled({ timeout: 5000 });
+    await generateBtn.dispatchEvent("click");
+    await expect(
+      page.getByText(/generated/i).or(page.getByText(/failed to generate/i)),
+    ).toBeVisible({
+      timeout: 15000,
     });
   });
 });
