@@ -396,12 +396,25 @@ export function TemplateEditorPage() {
               />
               <PlaceholderGroup
                 title="Report"
+                description="Exact report references stay available when you already know a saved report name."
                 items={[
                   { path: "reports", type: "list" },
                   { path: "reports.<name>", type: "object" },
                   { path: "reports.<name>.content", type: "string" },
                   { path: "reports.<name>.name", type: "string" },
                   { path: "reports.<name>.created_at", type: "datetime" },
+                ]}
+                onInsert={insertPlaceholder}
+              />
+              <PlaceholderGroup
+                title="Dynamic Report Selectors"
+                description="Use these when the latest matching report matters more than a fixed saved name. `reports[0]` is the newest report. Valid selectors that match nothing compile to an empty string."
+                items={[
+                  { path: "reports.latest", type: "object" },
+                  { path: 'reports.latest("AAPL").content', type: "string" },
+                  { path: "reports[0].name", type: "string" },
+                  { path: 'reports.by_tag("weekly_review").latest', type: "object" },
+                  { path: 'reports.by_tag("weekly_review").latest.content', type: "string" },
                 ]}
                 onInsert={insertPlaceholder}
               />
@@ -445,12 +458,13 @@ interface PlaceholderItem {
 }
 
 interface PlaceholderGroupProps {
+  description?: string;
   title: string;
   items: PlaceholderItem[];
   onInsert: (path: string) => void;
 }
 
-function PlaceholderGroup({ title, items, onInsert }: PlaceholderGroupProps) {
+function PlaceholderGroup({ description, title, items, onInsert }: PlaceholderGroupProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -469,6 +483,9 @@ function PlaceholderGroup({ title, items, onInsert }: PlaceholderGroupProps) {
         </button>
       </CollapsibleTrigger>
       <CollapsibleContent className="flex flex-col pb-1 pl-4">
+        {description ? (
+          <p className="px-1 pb-1 text-[10px] leading-4 text-muted-foreground">{description}</p>
+        ) : null}
         {items.map((item) => (
           <div
             key={item.path}
