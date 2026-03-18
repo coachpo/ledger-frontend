@@ -157,4 +157,33 @@ describe("PortfolioPositionsSection", () => {
       ),
     );
   });
+
+  it("shows a placeholder percent when unrealized percent cannot be computed", () => {
+    render(
+      <PortfolioPositionsSection
+        balances={[]}
+        portfolioId={1}
+        positions={[
+          {
+            averageCost: "0",
+            createdAt: "2026-03-15T10:00:00Z",
+            currency: "USD",
+            currentPrice: "175",
+            id: 1,
+            name: "Apple Inc.",
+            portfolioId: 1,
+            quantity: "10",
+            symbol: "AAPL",
+            updatedAt: "2026-03-15T10:00:00Z",
+          },
+        ]}
+        quoteWarnings={[]}
+      />,
+    );
+
+    const positionRow = screen.getByText("AAPL").closest("tr");
+    expect(positionRow).not.toBeNull();
+    expect(positionRow).toHaveTextContent("--");
+    expect(positionRow).not.toHaveTextContent("0.00%");
+  });
 });

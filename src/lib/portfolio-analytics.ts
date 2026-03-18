@@ -53,7 +53,7 @@ export function computePositionPnl(
 
   const unrealized = (currentPrice - averageCost) * quantity;
   const totalCost = averageCost * quantity;
-  const unrealizedPercent = totalCost !== 0 ? unrealized / totalCost : 0;
+  const unrealizedPercent = totalCost !== 0 ? unrealized / totalCost : null;
 
   return { unrealized, unrealizedPercent };
 }

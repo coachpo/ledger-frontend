@@ -121,7 +121,9 @@ export function PortfolioPositionsSection({
               }
             >
               <div>{formatCurrency(pnl.unrealized, row.original.currency)}</div>
-              <div className="text-xs">{formatPercent(pnl.unrealizedPercent ?? 0)}</div>
+              <div className="text-xs">
+                {pnl.unrealizedPercent === null ? "--" : formatPercent(pnl.unrealizedPercent)}
+              </div>
             </div>
           );
         },

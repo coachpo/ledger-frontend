@@ -101,6 +101,10 @@ describe("portfolio analytics", () => {
       unrealized: null,
       unrealizedPercent: null,
     });
+    expect(computePositionPnl(withMarketData({ quantity: "10", averageCost: "0", currentPrice: "175" }))).toEqual({
+      unrealized: 1750,
+      unrealizedPercent: null,
+    });
   });
 
   it("totals marked positions with balances and ignores invalid numeric inputs", () => {
