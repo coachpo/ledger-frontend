@@ -10,6 +10,7 @@ import {
   Eye,
   Code2,
   Braces,
+  FileOutput,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,6 +32,7 @@ import {
   useCompileInline,
   usePlaceholders,
 } from "@/hooks/use-templates";
+import { useCompileReport } from "@/hooks/use-reports";
 import { useDebounce } from "@/hooks/use-debounce";
 
 export function TemplateEditorPage() {
@@ -48,6 +50,7 @@ export function TemplateEditorPage() {
   const createMutation = useCreateTemplate();
   const updateMutation = useUpdateTemplate();
   const { mutate: compileInline, ...compileMutation } = useCompileInline();
+  const compileReportMutation = useCompileReport();
 
   const debouncedContent = useDebounce(content, 500);
 
@@ -108,6 +111,22 @@ export function TemplateEditorPage() {
     }, 0);
   };
 
+  const handleGenerateReport = () => {
+    if (!templateId) return;
+
+    compileReportMutation.mutate(templateId, {
+      onError: () => toast.error("Failed to generate report"),
+      onSuccess: (report) => {
+        toast.success(`Report "${report.name}" generated`, {
+          action: {
+            label: "View",
+            onClick: () => navigate(`/reports/${report.id}`),
+          },
+        });
+      },
+    });
+  };
+
   if (isEditing && isLoadingTemplate) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -117,6 +136,7 @@ export function TemplateEditorPage() {
   }
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
+  const isGenerating = compileReportMutation.isPending;
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
@@ -172,6 +192,32 @@ export function TemplateEditorPage() {
             )}
             Save
           </Button>
+          {isEditing && templateId ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-8 gap-1.5 px-3.5 text-sm"
+              onClick={handleGenerateReport}
+              disabled={isGenerating}
+            >
+              {isGenerating ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <FileOutput className="h-3 w-3" />
+              )}
+              Generate Report
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-8 gap-1.5 px-3.5 text-sm"
+              disabled
+            >
+              <FileOutput className="h-3 w-3" />
+              Generate Report
+            </Button>
+          )}
         </div>
       </div>
 

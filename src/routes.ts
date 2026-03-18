@@ -3,6 +3,8 @@ import { Layout } from "./components/layout";
 import { Dashboard } from "./pages/dashboard";
 import { PortfolioDetailPage } from "./pages/portfolios/detail";
 import { PortfolioListPage } from "./pages/portfolios/list";
+import { ReportDetailPage } from "./pages/reports/detail";
+import { ReportListPage } from "./pages/reports/list";
 import { TemplateEditorPage } from "./pages/templates/editor";
 import { TemplateListPage } from "./pages/templates/list";
 
@@ -17,6 +19,8 @@ export const router = createBrowserRouter([
       { path: "templates", Component: TemplateListPage },
       { path: "templates/new", Component: TemplateEditorPage },
       { path: "templates/:templateId/edit", Component: TemplateEditorPage },
+      { path: "reports", Component: ReportListPage },
+      { path: "reports/:reportId", Component: ReportDetailPage },
     ],
   },
 ]);

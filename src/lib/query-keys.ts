@@ -78,6 +78,13 @@ const templatesQueryKeys = {
   list: () => [...apiRoot, "templates", "list"] as const,
 } as const;
 
+const reportsQueryKeys = {
+  all: [...apiRoot, "reports"] as const,
+  detail: (reportId: IdParam) =>
+    [...apiRoot, "reports", "detail", normalizeId(reportId)] as const,
+  list: () => [...apiRoot, "reports", "list"] as const,
+} as const;
+
 export const queryKeys = {
   portfolios: portfoliosQueryKeys,
   balances: balancesQueryKeys,
@@ -87,6 +94,7 @@ export const queryKeys = {
   marketData: marketDataQueryKeys,
   marketHistory: marketHistoryQueryKeys,
   templates: templatesQueryKeys,
+  reports: reportsQueryKeys,
 } as const;
 
 export function invalidatePortfolioScope(

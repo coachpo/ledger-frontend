@@ -52,6 +52,11 @@ export function toPathSegment(value: IdParam): string {
   return encodeURIComponent(String(value));
 }
 
+export function buildApiUrl(path: string): string {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${API_BASE_URL}${normalizedPath}`;
+}
+
 function buildQueryString(query?: Record<string, RequestQueryValue>): string {
   if (!query) {
     return "";

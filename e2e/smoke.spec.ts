@@ -11,6 +11,8 @@ test.describe("Smoke tests", () => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Portfolios", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Templates", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Reports", exact: true })).toBeVisible();
   });
 
   test("navigate to portfolios page", async ({ page }) => {
