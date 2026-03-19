@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TemplateEditorPage } from "./editor";
@@ -118,6 +118,11 @@ describe("TemplateEditorPage", () => {
     });
 
     fireEvent.click(screen.getByRole("button", { name: /generate report/i }));
+    const dialog = screen.getByRole("dialog");
+
+    expect(within(dialog).getByDisplayValue("ticker")).toBeInTheDocument();
+    expect(within(dialog).getByDisplayValue("MSFT")).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: /^generate$/i }));
 
     expect(compileReportMutateMock).toHaveBeenCalledWith(
       {

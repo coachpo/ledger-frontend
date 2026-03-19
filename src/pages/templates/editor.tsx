@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { GenerateReportDialog } from "@/components/forms/generate-report-dialog";
 import { Input } from "@/components/ui/input";
 import {
   Collapsible,
@@ -67,6 +68,10 @@ function buildRuntimeInputs(rows: RuntimeInputRow[]): TemplateRuntimeInputs {
   return result;
 }
 
+function createRuntimeInputRowsFromInputs(inputs: TemplateRuntimeInputs): RuntimeInputRow[] {
+  return Object.entries(inputs).map(([key, value]) => createRuntimeInputRow(key, value));
+}
+
 export function TemplateEditorPage() {
   const { templateId } = useParams<{ templateId: string }>();
   const navigate = useNavigate();
@@ -75,6 +80,7 @@ export function TemplateEditorPage() {
   const [name, setName] = useState("");
   const [content, setContent] = useState("");
   const [isFormatting, setIsFormatting] = useState(false);
+  const [generateOpen, setGenerateOpen] = useState(false);
   const [placeholdersOpen, setPlaceholdersOpen] = useState(true);
   const [runtimeInputsOpen, setRuntimeInputsOpen] = useState(false);
   const [runtimeInputRows, setRuntimeInputRows] = useState<RuntimeInputRow[]>([]);
@@ -149,12 +155,22 @@ export function TemplateEditorPage() {
     }, 0);
   };
 
-  const handleGenerateReport = () => {
-    if (!templateId) return;
+  const handleGenerateReport = ({
+    inputs,
+    templateId: selectedTemplateId,
+  }: {
+    inputs: TemplateRuntimeInputs;
+    templateId: string;
+  }) => {
+    setRuntimeInputRows(createRuntimeInputRowsFromInputs(inputs));
+    if (Object.keys(inputs).length > 0) {
+      setRuntimeInputsOpen(true);
+    }
 
-    compileReportMutation.mutate({ templateId, input: { inputs: runtimeInputs } }, {
+    compileReportMutation.mutate({ templateId: selectedTemplateId, input: { inputs } }, {
       onError: () => toast.error("Failed to generate report"),
       onSuccess: (report) => {
+        setGenerateOpen(false);
         toast.success(`Report "${report.name}" generated`, {
           action: {
             label: "View",
@@ -303,7 +319,7 @@ export function TemplateEditorPage() {
                 variant="secondary"
                 size="sm"
                 className="h-8 gap-1.5 px-3.5 text-sm"
-                onClick={handleGenerateReport}
+                onClick={() => setGenerateOpen(true)}
                 disabled={isGenerating}
               >
                 {isGenerating ? (
@@ -594,6 +610,25 @@ export function TemplateEditorPage() {
           </ScrollArea>
         </div>
       )}
+
+      {isEditing && templateId ? (
+        <GenerateReportDialog
+          open={generateOpen}
+          onOpenChange={setGenerateOpen}
+          templateOptions={[
+            {
+              id: templateId,
+              name: template?.name ?? (name || "Current template"),
+            },
+          ]}
+          defaultTemplateId={templateId}
+          description="Generate a report snapshot from this saved template and provide runtime inputs if needed."
+          initialInputs={runtimeInputs}
+          isPending={isGenerating}
+          lockTemplateSelection
+          onGenerate={handleGenerateReport}
+        />
+      ) : null}
     </div>
   );
 }

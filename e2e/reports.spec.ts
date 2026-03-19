@@ -162,7 +162,7 @@ test.describe("Reports", () => {
     const templateResponse = await request.post(`${API_BASE}/templates`, {
       data: {
         name: `E2E Editor Report ${Date.now()}`,
-        content: "# Editor Report\n\nFrom editor.",
+        content: "# Editor Report\n\nTicker: {{inputs.ticker}}",
       },
     });
     expect(templateResponse.ok()).toBeTruthy();
@@ -175,7 +175,13 @@ test.describe("Reports", () => {
       name: /generate report/i,
     });
     await expect(generateBtn).toBeEnabled({ timeout: 5000 });
-    await generateBtn.dispatchEvent("click");
+    await generateBtn.click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByRole("heading", { name: "Generate Report" })).toBeVisible();
+    await dialog.getByRole("button", { name: /add input/i }).click();
+    await dialog.getByPlaceholder("ticker").fill("ticker");
+    await dialog.getByPlaceholder("AAPL").fill("AAPL");
+    await dialog.getByRole("button", { name: /^generate$/i }).click();
     await expect(
       page.getByText(/generated/i).or(page.getByText(/failed to generate/i)),
     ).toBeVisible({
@@ -184,5 +190,10 @@ test.describe("Reports", () => {
 
     await page.getByRole("button", { name: "View" }).click();
     await expect(page).toHaveURL(/\/reports\/[a-z0-9_]+/);
+    await expect(page.getByText("Ticker: AAPL")).toBeVisible();
+
+    const generatedSlug = page.url().split("/reports/")[1];
+    const deleteResponse = await request.delete(`${API_BASE}/reports/${generatedSlug}`);
+    expect(deleteResponse.ok()).toBeTruthy();
   });
 });
