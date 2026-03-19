@@ -116,8 +116,8 @@ export function PortfolioPositionsSection({
             <div
               className={
                 pnl.unrealized >= 0
-                  ? "text-emerald-600"
-                  : "text-red-600"
+                  ? "text-positive"
+                  : "text-negative"
               }
             >
               <div>{formatCurrency(pnl.unrealized, row.original.currency)}</div>
