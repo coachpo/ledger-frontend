@@ -11,6 +11,7 @@ import {
 } from "@/lib/api/templates";
 import { queryKeys } from "@/lib/query-keys";
 import type { TextTemplateUpdateInput, TextTemplateWriteInput } from "@/lib/types/text-template";
+import type { TextTemplateInlineCompileInput, TextTemplateStoredCompileInput } from "@/lib/types/text-template";
 
 type IdParam = number | string;
 
@@ -62,7 +63,7 @@ export function useCompileTemplate(templateId: IdParam | undefined) {
 
   return useQuery({
     queryKey: queryKeys.templates.compile(resolvedId),
-    queryFn: ({ signal }) => compileTemplate(resolvedId, signal),
+    queryFn: ({ signal }) => compileTemplate(resolvedId, undefined, signal),
     enabled: Boolean(templateId),
   });
 }
@@ -79,9 +80,14 @@ export function useTemplate(templateId: IdParam | undefined) {
 
 export function useCompileInline() {
   return useMutation({
-    mutationFn: (content: string) => compileTemplateInline(content),
+    mutationFn: (input: TextTemplateInlineCompileInput | string) => compileTemplateInline(input),
   });
 }
+
+export type CompileStoredTemplateVariables = {
+  templateId: IdParam;
+  input?: TextTemplateStoredCompileInput;
+};
 
 export function usePlaceholders() {
   return useQuery({

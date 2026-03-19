@@ -16,6 +16,17 @@ export interface TextTemplateUpdateInput {
   content?: string;
 }
 
+export type TemplateRuntimeInputs = Record<string, string>;
+
+export interface TextTemplateInlineCompileInput {
+  content: string;
+  inputs?: TemplateRuntimeInputs;
+}
+
+export interface TextTemplateStoredCompileInput {
+  inputs?: TemplateRuntimeInputs;
+}
+
 export interface TextTemplateCompileRead {
   id: number;
   name: string;

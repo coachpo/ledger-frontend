@@ -1,3 +1,5 @@
+import type { TemplateRuntimeInputs } from "./text-template";
+
 export interface ReportAnalysisMetadata {
   ticker?: string | null;
   portfolioSlug?: string | null;
@@ -29,4 +31,8 @@ export interface ReportRead {
 
 export interface ReportUpdateInput {
   content?: string;
+}
+
+export interface ReportCompileInput {
+  inputs?: TemplateRuntimeInputs;
 }

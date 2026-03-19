@@ -1,4 +1,4 @@
-import type { ReportRead, ReportUpdateInput } from "../types/report";
+import type { ReportCompileInput, ReportRead, ReportUpdateInput } from "../types/report";
 import { type IdParam, buildApiUrl, request, toPathSegment } from "../api-client";
 
 function reportPath(slug: IdParam): string {
@@ -18,9 +18,11 @@ export function getReport(
 
 export function compileReport(
   templateId: IdParam,
+  input?: ReportCompileInput,
   signal?: AbortSignal,
 ): Promise<ReportRead> {
   return request<ReportRead>(`/reports/compile/${toPathSegment(templateId)}`, {
+    body: input,
     method: "POST",
     signal,
   });

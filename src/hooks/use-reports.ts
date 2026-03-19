@@ -8,13 +8,18 @@ import {
   uploadReport,
 } from "@/lib/api/reports";
 import { queryKeys } from "@/lib/query-keys";
-import type { ReportUpdateInput } from "@/lib/types/report";
+import type { ReportCompileInput, ReportUpdateInput } from "@/lib/types/report";
 
 type SlugParam = string;
 
 type UpdateReportVariables = {
   slug: SlugParam;
   data: ReportUpdateInput;
+};
+
+type CompileReportVariables = {
+  templateId: number | string;
+  input?: ReportCompileInput;
 };
 
 export function useReports() {
@@ -38,7 +43,13 @@ export function useCompileReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (templateId: number | string) => compileReport(templateId),
+    mutationFn: (variables: CompileReportVariables | number | string) => {
+      if (typeof variables === "number" || typeof variables === "string") {
+        return compileReport(variables);
+      }
+
+      return compileReport(variables.templateId, variables.input);
+    },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.reports.list() }),
   });
