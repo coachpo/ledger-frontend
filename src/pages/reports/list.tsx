@@ -8,6 +8,7 @@ import { useTemplates } from "@/hooks/use-templates";
 import { formatDateTime } from "@/lib/format";
 import { downloadReportUrl } from "@/lib/api/reports";
 import type { ReportRead } from "@/lib/api-types";
+import type { TemplateRuntimeInputs } from "@/lib/types/text-template";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,36 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { ConfirmDeleteDialog } from "@/components/portfolios/confirm-delete-dialog";
 
+type RuntimeInputRow = {
+  id: string;
+  key: string;
+  value: string;
+};
+
+let runtimeInputRowCounter = 0;
+
+function createRuntimeInputRow(key = "", value = ""): RuntimeInputRow {
+  runtimeInputRowCounter += 1;
+  return {
+    id: `report-runtime-input-${runtimeInputRowCounter}`,
+    key,
+    value,
+  };
+}
+
+function buildRuntimeInputs(rows: RuntimeInputRow[]): TemplateRuntimeInputs {
+  const result: TemplateRuntimeInputs = {};
+  for (const row of rows) {
+    const key = row.key.trim();
+    const value = row.value.trim();
+    if (!key || !value) {
+      continue;
+    }
+    result[key] = value;
+  }
+  return result;
+}
+
 export function ReportListPage() {
   const navigate = useNavigate();
   const reportsQuery = useReports();
@@ -50,6 +81,7 @@ export function ReportListPage() {
   const [deleting, setDeleting] = useState<ReportRead | null>(null);
   const [generateOpen, setGenerateOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [generateInputRows, setGenerateInputRows] = useState<RuntimeInputRow[]>([]);
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -64,16 +96,38 @@ export function ReportListPage() {
   const handleGenerate = () => {
     if (!selectedTemplateId) return;
 
-    compileMutation.mutate(selectedTemplateId, {
+    compileMutation.mutate({
+      templateId: selectedTemplateId,
+      input: { inputs: buildRuntimeInputs(generateInputRows) },
+    }, {
       onError: (error) =>
         toast.error(error instanceof Error ? error.message : "Failed to generate report"),
       onSuccess: (report) => {
         toast.success(`Report "${report.name}" generated`);
         setGenerateOpen(false);
         setSelectedTemplateId("");
+        setGenerateInputRows([]);
         navigate(`/reports/${report.slug}`);
       },
     });
+  };
+
+  const addGenerateInputRow = () => {
+    setGenerateInputRows((rows) => [...rows, createRuntimeInputRow()]);
+  };
+
+  const updateGenerateInputRow = (
+    rowId: string,
+    field: "key" | "value",
+    value: string,
+  ) => {
+    setGenerateInputRows((rows) =>
+      rows.map((row) => (row.id === rowId ? { ...row, [field]: value } : row)),
+    );
+  };
+
+  const removeGenerateInputRow = (rowId: string) => {
+    setGenerateInputRows((rows) => rows.filter((row) => row.id !== rowId));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -253,7 +307,16 @@ export function ReportListPage() {
         }}
       />
 
-      <Dialog open={generateOpen} onOpenChange={setGenerateOpen}>
+      <Dialog
+        open={generateOpen}
+        onOpenChange={(open) => {
+          setGenerateOpen(open);
+          if (!open) {
+            setSelectedTemplateId("");
+            setGenerateInputRows([]);
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Generate Report</DialogTitle>
@@ -273,6 +336,46 @@ export function ReportListPage() {
               ))}
             </SelectContent>
           </Select>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label>Runtime Inputs</Label>
+              <Button type="button" variant="outline" size="sm" onClick={addGenerateInputRow}>
+                Add Input
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Use key/value pairs like `ticker`, `portfolio_slug`, or `analysis_tag` when the
+              selected template is parameterized.
+            </p>
+            {generateInputRows.length === 0 ? (
+              <p className="text-xs italic text-muted-foreground">
+                No runtime inputs provided.
+              </p>
+            ) : null}
+            {generateInputRows.map((row) => (
+              <div key={row.id} className="flex items-center gap-2">
+                <Input
+                  value={row.key}
+                  onChange={(event) => updateGenerateInputRow(row.id, "key", event.target.value)}
+                  placeholder="ticker"
+                />
+                <Input
+                  value={row.value}
+                  onChange={(event) => updateGenerateInputRow(row.id, "value", event.target.value)}
+                  placeholder="AAPL"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeGenerateInputRow(row.id)}
+                  aria-label={`Remove runtime input ${row.key || row.id}`}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setGenerateOpen(false)}>
               Cancel
