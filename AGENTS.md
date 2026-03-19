@@ -15,6 +15,7 @@ React 19 + Vite frontend with a flat route shell, TanStack Query for server stat
 - `src/pages/templates/AGENTS.md` — template list/editor orchestration and preview rules
 - `src/pages/reports/AGENTS.md` — report list/detail flows, markdown edit/download behavior
 - `src/components/AGENTS.md` — layout shell, theme system, shared components, forms, feature UI, primitives
+- `src/components/ui/AGENTS.md` — shadcn/ui wrappers, sidebar primitives, and shared variant tokens
 - `src/components/shared/AGENTS.md` — reusable tables, metrics, error boundaries, and field schemas
 - `src/components/portfolios/AGENTS.md` — portfolio feature sections, dialogs, tables, and trading forms
 
@@ -40,6 +41,7 @@ frontend/
 | Template routes | `src/pages/templates/*.tsx`, `src/hooks/use-templates.ts`, `src/lib/api/templates.ts` | CRUD, placeholder tree, inline preview compile |
 | Report routes | `src/pages/reports/AGENTS.md`, `src/hooks/use-reports.ts`, `src/lib/api/reports.ts` | generate from template, upload markdown, edit/download/delete |
 | Shared components | `src/components/AGENTS.md` | layout shell, theme, shared UI, forms, portfolio feature folders |
+| UI primitives | `src/components/ui/AGENTS.md` | shadcn/ui wrappers, sidebar primitives, variant helpers |
 | Unit test setup | `vite.config.ts`, `src/test/setup.ts` | jsdom config + browser API mocks |
 | E2E flow setup | `playwright.config.ts`, `scripts/start-playwright-*.mjs` | backend `8001`, frontend `4173` |
 
@@ -82,4 +84,5 @@ pnpm test:e2e
 ## NOTES
 - `vite.config.ts` sets up the `@` alias, Vitest jsdom mode, and manual chunking for framework/data/ui/forms/date/vendor bundles.
 - Playwright only runs Chromium here and starts both backend/frontend web servers automatically.
+- Current Vitest coverage is concentrated in `src/lib/*.test.ts`; CI still gates `pnpm lint`, `pnpm build`, and `pnpm test:e2e`, not `pnpm test:run`.
 - The live router exposes dashboard, portfolio list/detail, template list/editor, and report list/detail routes.

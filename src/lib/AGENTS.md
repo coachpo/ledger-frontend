@@ -20,7 +20,7 @@
 | Portfolio analytics | `portfolio-analytics.ts` | quote enrichment, market value, PnL, allocation |
 | Display formatting | `format.ts` | currency, decimal, percent, date/datetime, compact numbers |
 | Markdown formatting | `markdown-format.ts` | Prettier-backed markdown normalization for the template editor |
-| Unit coverage | `api.test.ts`, `query-keys.test.ts`, `portfolio-analytics.test.ts`, `format.test.ts` | contract and helper regressions |
+| Unit coverage | `api.test.ts`, `query-keys.test.ts`, `portfolio-analytics.test.ts`, `format.test.ts`, `markdown-format.test.ts` | contract and helper regressions |
 
 ## CONVENTIONS
 - `api-client.ts` is the only place that should know the base URL, query-string encoding, and error-envelope parsing.
@@ -56,4 +56,5 @@ pnpm build
 ## NOTES
 - `api.ts` is a convenience barrel for the live portfolio, balance, position, trading-operation, market-data, template, and report modules.
 - `markdown-format.ts` centralizes Prettier-based markdown cleanup so the template editor does not embed formatter setup inline.
+- Current unit tests in this folder are helper/API focused; routed and feature-heavy behavior is covered primarily by Playwright flows.
 - `portfolio-analytics.ts` is where quote-enriched position math belongs, not in routed screens.

@@ -27,11 +27,12 @@ src/components/
 | Shared components | `shared/AGENTS.md` | reusable data tables, metrics, field schemas, and error boundaries |
 | Form components | `forms/` | shared dialog forms that do not belong in a feature folder |
 | Portfolio feature UI | `portfolios/AGENTS.md` | sections, dialogs, trading form, feature-specific logic |
-| Pure UI primitives | `ui/` | shadcn/ui-style presentational components only |
+| Pure UI primitives | `ui/AGENTS.md` | shadcn/ui wrappers, sidebar primitives, variant helpers |
 
 ## CHILD DOCS
 - `shared/AGENTS.md` — reusable cross-feature components and schema helpers
 - `portfolios/AGENTS.md` — portfolio feature sections, dialogs, and trades UI
+- `ui/AGENTS.md` — presentational shadcn/ui wrappers, sidebar context, and shared style helpers
 
 ## CONVENTIONS
 - Routed page components live in `src/pages/` and are thin orchestration layers.
@@ -63,4 +64,5 @@ pnpm build
 ## NOTES
 - `Layout` switches between the usual scroll container and a full-height outlet for template editor routes.
 - `Layout` owns the Reports sidebar entry and breadcrumb labels for both `/reports` and `/reports/:slug`.
+- `layout.tsx` owns route labels and nav composition; `ui/sidebar.tsx` and `ui/sidebar-context.ts` stay generic primitives.
 - Page components stay thin; the real complexity lives in hooks, shared components, forms, and portfolio feature folders.
