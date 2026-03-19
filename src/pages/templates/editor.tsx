@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import {
   X,
@@ -35,6 +35,37 @@ import {
 import { useCompileReport } from "@/hooks/use-reports";
 import { useDebounce } from "@/hooks/use-debounce";
 import { formatMarkdown } from "@/lib/markdown-format";
+import type { TemplateRuntimeInputs } from "@/lib/types/text-template";
+
+type RuntimeInputRow = {
+  id: string;
+  key: string;
+  value: string;
+};
+
+let runtimeInputRowCounter = 0;
+
+function createRuntimeInputRow(key = "", value = ""): RuntimeInputRow {
+  runtimeInputRowCounter += 1;
+  return {
+    id: `runtime-input-${runtimeInputRowCounter}`,
+    key,
+    value,
+  };
+}
+
+function buildRuntimeInputs(rows: RuntimeInputRow[]): TemplateRuntimeInputs {
+  const result: TemplateRuntimeInputs = {};
+  for (const row of rows) {
+    const key = row.key.trim();
+    const value = row.value.trim();
+    if (!key || !value) {
+      continue;
+    }
+    result[key] = value;
+  }
+  return result;
+}
 
 export function TemplateEditorPage() {
   const { templateId } = useParams<{ templateId: string }>();
@@ -45,6 +76,8 @@ export function TemplateEditorPage() {
   const [content, setContent] = useState("");
   const [isFormatting, setIsFormatting] = useState(false);
   const [placeholdersOpen, setPlaceholdersOpen] = useState(true);
+  const [runtimeInputsOpen, setRuntimeInputsOpen] = useState(false);
+  const [runtimeInputRows, setRuntimeInputRows] = useState<RuntimeInputRow[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: template, isLoading: isLoadingTemplate } = useTemplate(templateId);
@@ -55,6 +88,8 @@ export function TemplateEditorPage() {
   const compileReportMutation = useCompileReport();
 
   const debouncedContent = useDebounce(content, 500);
+  const runtimeInputs = useMemo(() => buildRuntimeInputs(runtimeInputRows), [runtimeInputRows]);
+  const debouncedRuntimeInputs = useDebounce(runtimeInputs, 500);
   const handleClose = () => navigate("/templates");
 
   useEffect(() => {
@@ -66,9 +101,9 @@ export function TemplateEditorPage() {
 
   useEffect(() => {
     if (debouncedContent) {
-      compileInline(debouncedContent);
+      compileInline({ content: debouncedContent, inputs: debouncedRuntimeInputs });
     }
-  }, [compileInline, debouncedContent]);
+  }, [compileInline, debouncedContent, debouncedRuntimeInputs]);
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -117,7 +152,7 @@ export function TemplateEditorPage() {
   const handleGenerateReport = () => {
     if (!templateId) return;
 
-    compileReportMutation.mutate(templateId, {
+    compileReportMutation.mutate({ templateId, input: { inputs: runtimeInputs } }, {
       onError: () => toast.error("Failed to generate report"),
       onSuccess: (report) => {
         toast.success(`Report "${report.name}" generated`, {
@@ -163,6 +198,25 @@ export function TemplateEditorPage() {
     } finally {
       setIsFormatting(false);
     }
+  };
+
+  const addRuntimeInputRow = () => {
+    setRuntimeInputsOpen(true);
+    setRuntimeInputRows((rows) => [...rows, createRuntimeInputRow()]);
+  };
+
+  const updateRuntimeInputRow = (
+    rowId: string,
+    field: "key" | "value",
+    value: string,
+  ) => {
+    setRuntimeInputRows((rows) =>
+      rows.map((row) => (row.id === rowId ? { ...row, [field]: value } : row)),
+    );
+  };
+
+  const removeRuntimeInputRow = (rowId: string) => {
+    setRuntimeInputRows((rows) => rows.filter((row) => row.id !== rowId));
   };
 
   if (isEditing && isLoadingTemplate) {
@@ -274,6 +328,68 @@ export function TemplateEditorPage() {
         </div>
       </div>
 
+      <div className="border-b border-border bg-muted/30 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Runtime Inputs
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={() => setRuntimeInputsOpen((open) => !open)}
+          >
+            {runtimeInputsOpen ? "Hide" : "Show"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={addRuntimeInputRow}
+          >
+            Add Input
+          </Button>
+        </div>
+        {runtimeInputsOpen || runtimeInputRows.length > 0 ? (
+          <div className="mt-3 space-y-2">
+            <p className="text-xs text-muted-foreground">
+              Reuse one template by supplying compile-time values such as `ticker`,
+              `portfolio_slug`, or `analysis_tag`.
+            </p>
+            {runtimeInputRows.length === 0 ? (
+              <p className="text-xs italic text-muted-foreground">
+                No runtime inputs yet. Add one to parameterize this template.
+              </p>
+            ) : null}
+            {runtimeInputRows.map((row) => (
+              <div key={row.id} className="flex items-center gap-2">
+                <Input
+                  value={row.key}
+                  onChange={(event) => updateRuntimeInputRow(row.id, "key", event.target.value)}
+                  placeholder="ticker"
+                  className="h-8 max-w-[16rem] text-xs"
+                />
+                <Input
+                  value={row.value}
+                  onChange={(event) => updateRuntimeInputRow(row.id, "value", event.target.value)}
+                  placeholder="AAPL"
+                  className="h-8 flex-1 text-xs"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => removeRuntimeInputRow(row.id)}
+                  aria-label={`Remove runtime input ${row.key || row.id}`}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
       <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] 2xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
         <div className="flex min-h-0 min-w-0 flex-col xl:border-r xl:border-border">
           <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2">
@@ -352,6 +468,17 @@ export function TemplateEditorPage() {
             <ScrollArea className="h-[220px] lg:h-[240px]">
               <div className="flex flex-wrap gap-x-8 gap-y-1 px-4 py-2">
               <PlaceholderGroup
+                title="Inputs"
+                description="Compile-time values supplied from the editor when previewing or generating a report."
+                items={[
+                  { path: "inputs", type: "object" },
+                  { path: "inputs.ticker", type: "string" },
+                  { path: "inputs.portfolio_slug", type: "string" },
+                  { path: "inputs.analysis_tag", type: "string" },
+                ]}
+                onInsert={insertPlaceholder}
+              />
+              <PlaceholderGroup
                 title="Portfolio"
                 items={[
                   { path: "portfolios", type: "list" },
@@ -365,6 +492,23 @@ export function TemplateEditorPage() {
                   { path: "portfolios.<slug>.unrealized_pnl", type: "number" },
                   { path: "portfolios.<slug>.created_at", type: "datetime" },
                   { path: "portfolios.<slug>.updated_at", type: "datetime" },
+                ]}
+                onInsert={insertPlaceholder}
+              />
+              <PlaceholderGroup
+                title="Dynamic Portfolio Selectors"
+                description="Use input-driven selectors when one template should work across multiple portfolios or tickers."
+                items={[
+                  { path: 'portfolios.by_slug(inputs.portfolio_slug).name', type: "string" },
+                  { path: 'portfolios.by_slug(inputs.portfolio_slug).positions', type: "list" },
+                  {
+                    path: 'portfolios.by_slug(inputs.portfolio_slug).positions.by_symbol(inputs.ticker).quantity',
+                    type: "string",
+                  },
+                  {
+                    path: 'portfolios.by_slug(inputs.portfolio_slug).positions.by_symbol(inputs.ticker).market_value',
+                    type: "number",
+                  },
                 ]}
                 onInsert={insertPlaceholder}
               />
@@ -412,8 +556,10 @@ export function TemplateEditorPage() {
                 items={[
                   { path: "reports.latest", type: "object" },
                   { path: 'reports.latest("AAPL").content', type: "string" },
+                  { path: 'reports.latest(inputs.ticker).content', type: "string" },
                   { path: "reports[0].name", type: "string" },
                   { path: 'reports.by_tag("weekly_review").latest', type: "object" },
+                  { path: 'reports.by_tag(inputs.analysis_tag).latest', type: "object" },
                   { path: 'reports.by_tag("weekly_review").latest.content', type: "string" },
                 ]}
                 onInsert={insertPlaceholder}

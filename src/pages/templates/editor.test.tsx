@@ -3,13 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TemplateEditorPage } from "./editor";
 
+const paramsMock: { templateId?: string } = {};
 const navigateMock = vi.fn();
 const compileInlineMock = vi.fn();
 const compileReportMutateMock = vi.fn();
 
 vi.mock("react-router", () => ({
   useNavigate: () => navigateMock,
-  useParams: () => ({}),
+  useParams: () => paramsMock,
 }));
 
 vi.mock("sonner", () => ({
@@ -67,6 +68,7 @@ vi.mock("@/hooks/use-reports", () => ({
 
 describe("TemplateEditorPage", () => {
   beforeEach(() => {
+    paramsMock.templateId = undefined;
     navigateMock.mockReset();
     compileInlineMock.mockReset();
     compileReportMutateMock.mockReset();
@@ -90,6 +92,39 @@ describe("TemplateEditorPage", () => {
 
     expect(screen.getByPlaceholderText("Enter template content…")).toHaveValue(
       '{{reports.latest("AAPL").content}}',
+    );
+  });
+
+  it("passes runtime inputs through preview compile and report generation", () => {
+    paramsMock.templateId = "42";
+
+    render(<TemplateEditorPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /show/i }));
+    fireEvent.click(screen.getByRole("button", { name: /add input/i }));
+
+    const keyInputs = screen.getAllByPlaceholderText("ticker");
+    const valueInputs = screen.getAllByPlaceholderText("AAPL");
+
+    fireEvent.change(keyInputs[0], { target: { value: "ticker" } });
+    fireEvent.change(valueInputs[0], { target: { value: "MSFT" } });
+    fireEvent.change(screen.getByPlaceholderText("Enter template content…"), {
+      target: { value: "Ticker {{inputs.ticker}}" },
+    });
+
+    expect(compileInlineMock).toHaveBeenLastCalledWith({
+      content: "Ticker {{inputs.ticker}}",
+      inputs: { ticker: "MSFT" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /generate report/i }));
+
+    expect(compileReportMutateMock).toHaveBeenCalledWith(
+      {
+        templateId: "42",
+        input: { inputs: { ticker: "MSFT" } },
+      },
+      expect.any(Object),
     );
   });
 });
