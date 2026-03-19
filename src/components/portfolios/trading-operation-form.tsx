@@ -188,6 +188,7 @@ export function TradingOperationForm({
       >
         <div className="grid gap-4 sm:grid-cols-2">
           {requiresBalance ? (
+            balances.length > 0 ? (
             <FormField
               control={form.control}
               name="balanceId"
@@ -195,7 +196,7 @@ export function TradingOperationForm({
                 <FormItem>
                   <FormLabel>Balance</FormLabel>
                   <Select
-                    disabled={isPending || balances.length === 0}
+                    disabled={isPending}
                     value={field.value}
                     onValueChange={field.onChange}
                   >
@@ -221,6 +222,11 @@ export function TradingOperationForm({
                 </FormItem>
               )}
             />
+            ) : (
+              <div className="rounded-md border border-dashed border-destructive/50 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                {side} requires a deposit balance. Add one in the Balances tab first.
+              </div>
+            )
           ) : (
             <div className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
               Split operations do not require a cash balance.
@@ -511,7 +517,7 @@ export function TradingOperationForm({
           <Button onClick={onCancel} type="button" variant="outline" disabled={isPending}>
             Cancel
           </Button>
-          <Button disabled={isPending || !form.formState.isValid} type="submit">
+          <Button disabled={isPending || !form.formState.isValid || (requiresBalance && balances.length === 0)} type="submit">
             Save Operation
           </Button>
         </div>
