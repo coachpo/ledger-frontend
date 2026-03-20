@@ -4,6 +4,7 @@ import {
   ClipboardList,
   FileText,
   LayoutDashboard,
+  TrendingUp,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -44,6 +45,7 @@ const navItems: NavItem[] = [
   { icon: Briefcase, label: "Portfolios", to: "/portfolios" },
   { icon: FileText, label: "Templates", to: "/templates" },
   { icon: ClipboardList, label: "Reports", to: "/reports" },
+  { icon: TrendingUp, label: "Backtests", to: "/backtests" },
 ];
 
 function isNavItemActive(pathname: string, item: NavItem) {
@@ -83,6 +85,18 @@ function getPageMeta(pathname: string) {
 
   if (pathname.startsWith("/reports/")) {
     return { section: "Reports", sectionHref: "/reports", title: "Report Detail" };
+  }
+
+   if (pathname === "/backtests") {
+    return { section: "Backtests", title: "Backtests" };
+  }
+
+  if (pathname === "/backtests/new") {
+    return { section: "Backtests", sectionHref: "/backtests", title: "New Backtest" };
+  }
+
+  if (pathname.startsWith("/backtests/")) {
+    return { section: "Backtests", sectionHref: "/backtests", title: "Backtest Detail" };
   }
 
   return { section: "Workspace", title: "Workspace" };

@@ -212,4 +212,17 @@ describe("api client", () => {
       "https://ledger.example.com/api/v2/portfolios/portfolio%20with%2Fslash/positions/lookup?symbol=BRK%2FB",
     );
   });
+
+  it("sends a successful GET request for listBacktests", async () => {
+    const { listBacktests } = await loadApiModule();
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse([{ id: 1, name: "Daily Backtest", status: "RUNNING" }], 200),
+    );
+
+    await expect(listBacktests()).resolves.toHaveLength(1);
+
+    const { init, url } = getLastFetchCall(fetchMock);
+    expect(url).toBe(`${DEFAULT_API_BASE_URL}/backtests`);
+    expect(init?.method).toBe("GET");
+  });
 });

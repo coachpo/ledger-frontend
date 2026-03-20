@@ -30,4 +30,8 @@ describe("query keys", () => {
       queryKeys.positions.lookup(1, "AAPL"),
     );
   });
+
+  it("normalizes backtest ids to the same detail key", () => {
+    expect(queryKeys.backtests.detail("7")).toEqual(queryKeys.backtests.detail(7));
+  });
 });

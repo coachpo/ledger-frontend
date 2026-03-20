@@ -1,5 +1,6 @@
 export * from "./types/common";
 export * from "./types/csv";
+export * from "./types/backtest";
 export * from "./types/portfolio";
 export * from "./types/balance";
 export * from "./types/position";

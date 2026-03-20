@@ -143,7 +143,90 @@ export const tradingOperationFormSchema = z
     }
   });
 
+export const backtestCreateFormSchema = z
+  .object({
+    name: requiredText("Backtest name"),
+    portfolioMode: z.enum(["existing", "new"]),
+    portfolioId: z.string(),
+    newPortfolioName: optionalText,
+    newPortfolioSlug: optionalText,
+    newPortfolioCurrency: z.string().trim().length(3, "Base currency must be a 3-letter code"),
+    newPortfolioInitialCash: optionalText,
+    createTemplate: z.boolean(),
+    templateId: z.string(),
+    templateName: optionalText,
+    frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY"]),
+    startDate: requiredText("Start date"),
+    endDate: requiredText("End date"),
+    priceMode: z.enum(["CLOSING_PRICE", "LLM_DECIDED"]),
+    llmPriceSuccessRate: optionalText,
+    commissionMode: z.enum(["ZERO", "FIXED", "PERCENTAGE"]),
+    commissionValue: numericText("Commission value"),
+    llmBaseUrl: requiredText("LLM base URL"),
+    llmApiKey: requiredText("LLM API key"),
+    llmModel: requiredText("LLM model"),
+    benchmarkSymbols: z.array(z.string()).min(1, "Select at least one benchmark"),
+  })
+  .superRefine((value, ctx) => {
+    if (value.portfolioMode === "existing" && !value.portfolioId.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Select a portfolio",
+        path: ["portfolioId"],
+      });
+    }
+
+    if (value.portfolioMode === "new") {
+      if (!value.newPortfolioName.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Portfolio name is required",
+          path: ["newPortfolioName"],
+        });
+      }
+      if (!value.newPortfolioSlug.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Portfolio slug is required",
+          path: ["newPortfolioSlug"],
+        });
+      }
+      if (!value.newPortfolioInitialCash.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Initial cash is required",
+          path: ["newPortfolioInitialCash"],
+        });
+      }
+    }
+
+    if (!value.createTemplate && !value.templateId.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Select a template or create a default one",
+        path: ["templateId"],
+      });
+    }
+
+    if (value.priceMode === "LLM_DECIDED") {
+      if (!value.llmPriceSuccessRate.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "LLM price success rate is required",
+          path: ["llmPriceSuccessRate"],
+        });
+      } else if (!Number.isFinite(Number(value.llmPriceSuccessRate))) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "LLM price success rate must be a valid number",
+          path: ["llmPriceSuccessRate"],
+        });
+      }
+    }
+  });
+
 export type BalanceFormValues = z.infer<typeof balanceFormSchema>;
+export type BacktestCreateFormValues = z.infer<typeof backtestCreateFormSchema>;
 export type PortfolioCreateFormValues = z.infer<typeof portfolioCreateFormSchema>;
 export type PortfolioUpdateFormValues = z.infer<typeof portfolioUpdateFormSchema>;
 export type PositionCreateFormValues = z.infer<typeof positionCreateFormSchema>;

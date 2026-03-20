@@ -1,4 +1,5 @@
 export * from "./api-client";
+export * from "./api/backtests";
 export * from "./api/balances";
 export * from "./api/market-data";
 export * from "./api/portfolios";
@@ -7,6 +8,7 @@ export * from "./api/reports";
 export * from "./api/templates";
 export * from "./api/trading-operations";
 
+import { backtestsApi } from "./api/backtests";
 import { balancesApi } from "./api/balances";
 import { marketDataApi } from "./api/market-data";
 import { portfoliosApi } from "./api/portfolios";
@@ -16,6 +18,7 @@ import { templatesApi } from "./api/templates";
 import { tradingOperationsApi } from "./api/trading-operations";
 
 export const api = {
+  backtests: backtestsApi,
   balances: balancesApi,
   marketData: marketDataApi,
   portfolios: portfoliosApi,

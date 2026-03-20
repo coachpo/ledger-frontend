@@ -8,7 +8,11 @@ const backendDir = resolve(__dirname, "..", "..", "backend");
 const child = spawn(
   "uv",
   ["run", "--frozen", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8001"],
-  { cwd: backendDir, stdio: "inherit" }
+  {
+    cwd: backendDir,
+    env: { ...process.env, BACKTEST_TEST_MODE: "1" },
+    stdio: "inherit",
+  }
 );
 
 process.on("SIGTERM", () => child.kill());
