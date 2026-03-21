@@ -158,13 +158,11 @@ export const backtestCreateFormSchema = z
     frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY"]),
     startDate: requiredText("Start date"),
     endDate: requiredText("End date"),
-    priceMode: z.enum(["CLOSING_PRICE", "LLM_DECIDED"]),
-    llmPriceSuccessRate: optionalText,
+    priceMode: z.enum(["CLOSING_PRICE"]),
     commissionMode: z.enum(["ZERO", "FIXED", "PERCENTAGE"]),
     commissionValue: numericText("Commission value"),
-    llmBaseUrl: requiredText("LLM base URL"),
-    llmApiKey: requiredText("LLM API key"),
-    llmModel: requiredText("LLM model"),
+    webhookUrl: requiredText("Webhook URL"),
+    webhookTimeout: numericText("Webhook timeout"),
     benchmarkSymbols: z.array(z.string()).min(1, "Select at least one benchmark"),
   })
   .superRefine((value, ctx) => {
@@ -208,21 +206,7 @@ export const backtestCreateFormSchema = z
       });
     }
 
-    if (value.priceMode === "LLM_DECIDED") {
-      if (!value.llmPriceSuccessRate.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "LLM price success rate is required",
-          path: ["llmPriceSuccessRate"],
-        });
-      } else if (!Number.isFinite(Number(value.llmPriceSuccessRate))) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "LLM price success rate must be a valid number",
-          path: ["llmPriceSuccessRate"],
-        });
-      }
-    }
+
   });
 
 export type BalanceFormValues = z.infer<typeof balanceFormSchema>;

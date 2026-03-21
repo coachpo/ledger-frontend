@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import type { BacktestRead } from "./backtest";
 
-describe("BacktestRead llmApiKey contract", () => {
-  it("accepts only the redacted llmApiKey value", () => {
+describe("BacktestRead webhook contract", () => {
+  it("accepts webhook fields instead of LLM fields", () => {
     const valid = {
       id: 1,
       portfolioId: 1,
@@ -18,11 +18,10 @@ describe("BacktestRead llmApiKey contract", () => {
       currentCycleDate: null,
       totalCycles: 1,
       completedCycles: 1,
-      llmBaseUrl: "http://localhost:11434/v1",
-      llmApiKey: "***",
-      llmModel: "qwen2.5:72b",
+      webhookUrl: "http://test.example.com/webhook",
+      webhookTimeout: 600,
+      currentCycleStatus: null,
       priceMode: "CLOSING_PRICE",
-      llmPriceSuccessRate: null,
       commissionMode: "ZERO",
       commissionValue: "0",
       benchmarkSymbols: ["^GSPC"],
@@ -33,6 +32,7 @@ describe("BacktestRead llmApiKey contract", () => {
       updatedAt: "2024-01-02T00:00:00Z",
     } satisfies BacktestRead;
 
-    expect(valid.llmApiKey).toBe("***");
+    expect(valid.webhookUrl).toBe("http://test.example.com/webhook");
+    expect(valid.webhookTimeout).toBe(600);
   });
 });

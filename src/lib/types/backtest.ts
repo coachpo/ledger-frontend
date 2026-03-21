@@ -1,12 +1,14 @@
 export type BacktestStatus =
   | "PENDING"
   | "RUNNING"
+  | "AWAITING_CALLBACK"
+  | "PROCESSING_CALLBACK"
   | "COMPLETED"
   | "FAILED"
   | "CANCELLED";
 
 export type BacktestFrequency = "DAILY" | "WEEKLY" | "MONTHLY";
-export type BacktestPriceMode = "CLOSING_PRICE" | "LLM_DECIDED";
+export type BacktestPriceMode = "CLOSING_PRICE";
 export type BacktestCommissionMode = "ZERO" | "FIXED" | "PERCENTAGE";
 export type BacktestTradeAction = "BUY" | "SELL" | "HOLD";
 
@@ -85,11 +87,10 @@ export interface BacktestRead {
   currentCycleDate: string | null;
   totalCycles: number;
   completedCycles: number;
-  llmBaseUrl: string;
-  llmApiKey: "***";
-  llmModel: string;
+  webhookUrl: string;
+  webhookTimeout: number;
+  currentCycleStatus: string | null;
   priceMode: BacktestPriceMode;
-  llmPriceSuccessRate: string | null;
   commissionMode: BacktestCommissionMode;
   commissionValue: string;
   benchmarkSymbols: string[];
@@ -109,11 +110,9 @@ export interface BacktestCreateInput {
   frequency: BacktestFrequency;
   startDate: string;
   endDate: string;
-  llmBaseUrl: string;
-  llmApiKey: string;
-  llmModel: string;
+  webhookUrl: string;
+  webhookTimeout?: number;
   priceMode: BacktestPriceMode;
-  llmPriceSuccessRate?: string | null;
   commissionMode: BacktestCommissionMode;
   commissionValue: string;
   benchmarkSymbols: string[];
