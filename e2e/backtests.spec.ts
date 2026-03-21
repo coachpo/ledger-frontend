@@ -64,15 +64,15 @@ async function configureBacktestForm(page: Page, backtestName: string) {
   await page.locator("#frequency").selectOption("MONTHLY");
   await page.locator("#start-date").fill("2024-01-02");
   await page.locator("#end-date").fill("2024-03-29");
-  await page.locator("#llm-base-url").fill("http://localhost:11434/v1");
-  await page.locator("#llm-api-key").fill("secret-token");
-  await page.locator("#llm-model").fill("qwen2.5:72b");
+  await page.locator("#webhook-url").fill("http://localhost:5678/webhook/test");
+  await page.locator("#webhook-timeout").fill("600");
   await page.getByLabel(/s&p 500/i).check();
   await expect(page.getByLabel(/s&p 500/i)).toBeChecked();
 
   await expect(page.getByText("Select an existing portfolio")).toHaveCount(0);
   await expect(page.getByText("Choose a complete date range")).toHaveCount(0);
-  await expect(page.getByText("Fill in all LLM configuration fields")).toHaveCount(0);
+  await expect(page.getByText("Enter a webhook URL")).toHaveCount(0);
+  await expect(page.getByText("Enter a webhook timeout")).toHaveCount(0);
   await expect(page.getByText("Select at least one benchmark")).toHaveCount(0);
 }
 
