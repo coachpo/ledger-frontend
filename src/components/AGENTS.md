@@ -14,7 +14,9 @@ src/components/
 ├── theme.ts                # theme context types
 ├── shared/                 # reusable components across features
 ├── forms/                  # cross-feature dialog forms
-├── templates/              # template-editor support components and placeholder reference UI
+│   └── AGENTS.md
+├── templates/              # template-editor support components and placeholder/runtime-input UI
+│   └── AGENTS.md
 ├── backtests/              # backtest result widgets and status display
 ├── portfolios/             # portfolio feature-specific components
 │   └── AGENTS.md
@@ -27,15 +29,16 @@ src/components/
 | App shell / navigation | `layout.tsx`, `shared/error-boundary.tsx` | sidebar shell, portfolio/template/report nav, top-level error boundary |
 | Theme behavior | `theme-provider.tsx`, `theme-toggle.tsx`, `theme.ts` | persisted theme state and system-sync logic |
 | Shared components | `shared/AGENTS.md` | reusable data tables, metrics, field schemas, and error boundaries |
-| Form components | `forms/` | shared dialog forms that do not belong in a feature folder |
-| Template-editor support UI | `templates/` | placeholder reference and runtime-input surfaces used by template routes |
+| Form components | `forms/AGENTS.md` | shared dialog forms that do not belong in a feature folder |
+| Template-editor support UI | `templates/AGENTS.md` | placeholder reference and runtime-input surfaces used by template routes |
 | Backtest feature UI | `backtests/AGENTS.md` | status badges, KPI cards, charts, and trade log tables |
 | Portfolio feature UI | `portfolios/AGENTS.md` | sections, dialogs, trading form, feature-specific logic |
 | Pure UI primitives | `ui/AGENTS.md` | shadcn/ui wrappers, sidebar primitives, variant helpers |
 
 ## CHILD DOCS
 - `shared/AGENTS.md` — reusable cross-feature components and schema helpers
-- `templates/` — template-editor support components such as placeholder reference and runtime-input sections
+- `forms/AGENTS.md` — cross-route dialog forms such as portfolio and report-generation dialogs
+- `templates/AGENTS.md` — template-editor support components such as placeholder reference and runtime-input sections
 - `backtests/AGENTS.md` — backtest charts, metrics, badges, and trade log tables
 - `portfolios/AGENTS.md` — portfolio feature sections, dialogs, and trades UI
 - `ui/AGENTS.md` — presentational shadcn/ui wrappers, sidebar context, and shared style helpers
@@ -44,7 +47,8 @@ src/components/
 - Routed page components live in `src/pages/` and are thin orchestration layers.
 - Shared components in `shared/` are reusable across multiple features and should not contain portfolio-specific request logic.
 - `shared/` is where the app keeps reusable data tables, metric cards, field schemas, and error boundaries; if a component only makes sense inside one feature route, keep it out of this folder.
-- `forms/` is reserved for small cross-feature form surfaces such as portfolio creation and editing dialogs.
+- `forms/` is reserved for small cross-feature form surfaces such as portfolio creation/editing and shared report-generation dialogs.
+- `templates/` is reserved for template-editor support widgets such as placeholder browsing and runtime-input row controls.
 - Backtest result widgets stay in `backtests/` because they share a single wire contract, chart stack, and result vocabulary, even when they reuse shared cards or tables.
 - Feature-specific components in `portfolios/` own their domain logic and should not be reused outside that feature without a clear abstraction.
 - Report routes currently stay page-centric and reuse shared components such as `ConfirmDeleteDialog` instead of maintaining a dedicated `components/reports/` feature folder.
@@ -58,6 +62,7 @@ src/components/
 - Do not move backtest charts or trade-log widgets into `shared/` until another feature genuinely reuses the same result contract.
 - Do not move feature-rich components into `ui/` just because they render cards or forms.
 - Do not create one-off forms in feature folders when they should live in `forms/` or a shared dialog component.
+- Do not move template-editor-only support widgets into `shared/` just because they render generic inputs or lists.
 - Do not create a `components/reports/` folder just to wrap page-local report markup unless report UI genuinely becomes reusable across routes.
 
 ## VALIDATION
