@@ -13,8 +13,8 @@
 | Position + CSV flows | `use-positions.ts` | CRUD, symbol lookup, preview/commit imports |
 | Trading operations | `use-trading-operations.ts` | list + create trading operations |
 | Market data | `use-market-data.ts` | quotes/history with symbol guards |
-| Template flows | `use-templates.ts` | list/detail CRUD, inline compile, placeholder tree |
-| Report flows | `use-reports.ts` | list/detail, compile, upload, update, delete |
+| Template flows | `use-templates.ts` | list/detail CRUD, inline compile with runtime inputs, placeholder tree |
+| Report flows | `use-reports.ts` | list/detail, compile with runtime inputs, upload, update, delete |
 | Backtest flows | `use-backtests.ts` | list/detail, 5s running-state polling, create, cancel, delete |
 | Generic timing helper | `use-debounce.ts` | small debounce helper used by the template editor |
 
@@ -24,8 +24,8 @@
 - Template hooks invalidate `queryKeys.templates.list()` and keep placeholder/detail query composition inside the hooks layer.
 - Report hooks invalidate `queryKeys.reports.list()` for writes and additionally invalidate slug-scoped detail keys after content edits so the detail route refreshes without a redirect.
 - `useBacktest()` owns the 5-second `refetchInterval` policy for `PENDING`, `RUNNING`, `AWAITING_CALLBACK`, and `PROCESSING_CALLBACK` rows, while create, cancel, and delete invalidate both the list and the affected detail query.
-- `useCompileInline()` is modeled as a mutation because it represents explicit compile work rather than cached resource fetching.
-- `useCompileReport()` is a mutation because report generation is a write that creates a persisted snapshot from a template.
+- `useCompileInline()` is a mutation because it represents explicit compile work rather than cached resource fetching; it accepts both template content and optional runtime inputs for `{{inputs...}}` preview resolution.
+- `useCompileReport()` is a mutation because report generation is a write that creates a persisted snapshot from a template and may include runtime inputs.
 - The template editor owns the 500 ms debounce for inline compile; hooks expose compile/query primitives but do not debounce internally.
 - Hooks wrap `src/lib/api*.ts` only and keep server-state orchestration out of routed screens.
 - Generic utility hooks such as `use-debounce.ts` should stay UI-focused and framework-agnostic.
