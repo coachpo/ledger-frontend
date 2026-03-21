@@ -3,9 +3,6 @@ import { useParams, useNavigate } from "react-router";
 import {
   X,
   Save,
-  ChevronDown,
-  ChevronRight,
-  Copy,
   Loader2,
   Eye,
   Code2,
@@ -14,17 +11,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { TemplatePlaceholderReference } from "@/components/templates/template-placeholder-reference";
+import { TemplateRuntimeInputsSection } from "@/components/templates/template-runtime-inputs-section";
 import { Button } from "@/components/ui/button";
 import { GenerateReportDialog } from "@/components/forms/generate-report-dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 
 import {
   useTemplate,
@@ -36,41 +29,13 @@ import {
 import { useCompileReport } from "@/hooks/use-reports";
 import { useDebounce } from "@/hooks/use-debounce";
 import { formatMarkdown } from "@/lib/markdown-format";
+import {
+  buildRuntimeInputs,
+  createRuntimeInputRow,
+  createRuntimeInputRows,
+  type RuntimeInputRow,
+} from "@/lib/runtime-inputs";
 import type { TemplateRuntimeInputs } from "@/lib/types/text-template";
-
-type RuntimeInputRow = {
-  id: string;
-  key: string;
-  value: string;
-};
-
-let runtimeInputRowCounter = 0;
-
-function createRuntimeInputRow(key = "", value = ""): RuntimeInputRow {
-  runtimeInputRowCounter += 1;
-  return {
-    id: `runtime-input-${runtimeInputRowCounter}`,
-    key,
-    value,
-  };
-}
-
-function buildRuntimeInputs(rows: RuntimeInputRow[]): TemplateRuntimeInputs {
-  const result: TemplateRuntimeInputs = {};
-  for (const row of rows) {
-    const key = row.key.trim();
-    const value = row.value.trim();
-    if (!key || !value) {
-      continue;
-    }
-    result[key] = value;
-  }
-  return result;
-}
-
-function createRuntimeInputRowsFromInputs(inputs: TemplateRuntimeInputs): RuntimeInputRow[] {
-  return Object.entries(inputs).map(([key, value]) => createRuntimeInputRow(key, value));
-}
 
 export function TemplateEditorPage() {
   const { templateId } = useParams<{ templateId: string }>();
@@ -162,7 +127,7 @@ export function TemplateEditorPage() {
     inputs: TemplateRuntimeInputs;
     templateId: string;
   }) => {
-    setRuntimeInputRows(createRuntimeInputRowsFromInputs(inputs));
+    setRuntimeInputRows(createRuntimeInputRows("template", inputs));
     if (Object.keys(inputs).length > 0) {
       setRuntimeInputsOpen(true);
     }
@@ -218,7 +183,7 @@ export function TemplateEditorPage() {
 
   const addRuntimeInputRow = () => {
     setRuntimeInputsOpen(true);
-    setRuntimeInputRows((rows) => [...rows, createRuntimeInputRow()]);
+    setRuntimeInputRows((rows) => [...rows, createRuntimeInputRow("template")]);
   };
 
   const updateRuntimeInputRow = (
@@ -344,67 +309,14 @@ export function TemplateEditorPage() {
         </div>
       </div>
 
-      <div className="border-b border-border bg-muted/30 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Runtime Inputs
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs"
-            onClick={() => setRuntimeInputsOpen((open) => !open)}
-          >
-            {runtimeInputsOpen ? "Hide" : "Show"}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 px-2 text-xs"
-            onClick={addRuntimeInputRow}
-          >
-            Add Input
-          </Button>
-        </div>
-        {runtimeInputsOpen || runtimeInputRows.length > 0 ? (
-          <div className="mt-3 space-y-2">
-            <p className="text-xs text-muted-foreground">
-              Reuse one template by supplying compile-time values such as `ticker`,
-              `portfolio_slug`, or `analysis_tag`.
-            </p>
-            {runtimeInputRows.length === 0 ? (
-              <p className="text-xs italic text-muted-foreground">
-                No runtime inputs yet. Add one to parameterize this template.
-              </p>
-            ) : null}
-            {runtimeInputRows.map((row) => (
-              <div key={row.id} className="flex items-center gap-2">
-                <Input
-                  value={row.key}
-                  onChange={(event) => updateRuntimeInputRow(row.id, "key", event.target.value)}
-                  placeholder="ticker"
-                  className="h-8 max-w-[16rem] text-xs"
-                />
-                <Input
-                  value={row.value}
-                  onChange={(event) => updateRuntimeInputRow(row.id, "value", event.target.value)}
-                  placeholder="AAPL"
-                  className="h-8 flex-1 text-xs"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => removeRuntimeInputRow(row.id)}
-                  aria-label={`Remove runtime input ${row.key || row.id}`}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </div>
+      <TemplateRuntimeInputsSection
+        open={runtimeInputsOpen}
+        rows={runtimeInputRows}
+        onAddRow={addRuntimeInputRow}
+        onOpenChange={setRuntimeInputsOpen}
+        onRemoveRow={removeRuntimeInputRow}
+        onUpdateRow={updateRuntimeInputRow}
+      />
 
       <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] 2xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
         <div className="flex min-h-0 min-w-0 flex-col xl:border-r xl:border-border">
@@ -462,154 +374,13 @@ export function TemplateEditorPage() {
         </div>
       </div>
 
-      {placeholdersOpen && (
-        <div className="border-t border-border">
-          <div className="flex items-center gap-2 bg-muted/50 px-4 py-2">
-            <Braces className="h-3 w-3 text-muted-foreground" />
-            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              Placeholder Reference
-            </span>
-            {isLoadingPlaceholders && (
-              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="ml-auto h-5 w-5"
-              onClick={() => setPlaceholdersOpen(false)}
-            >
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-          </div>
-            <ScrollArea className="h-[220px] lg:h-[240px]">
-              <div className="flex flex-wrap gap-x-8 gap-y-1 px-4 py-2">
-              <PlaceholderGroup
-                title="Inputs"
-                description="Compile-time values supplied from the editor when previewing or generating a report."
-                items={[
-                  { path: "inputs", type: "object" },
-                  { path: "inputs.ticker", type: "string" },
-                  { path: "inputs.portfolio_slug", type: "string" },
-                  { path: "inputs.analysis_tag", type: "string" },
-                ]}
-                onInsert={insertPlaceholder}
-              />
-              <PlaceholderGroup
-                title="Portfolio"
-                items={[
-                  { path: "portfolios", type: "list" },
-                  { path: "portfolios.<slug>", type: "object" },
-                  { path: "portfolios.<slug>.name", type: "string" },
-                  { path: "portfolios.<slug>.description", type: "string" },
-                  { path: "portfolios.<slug>.base_currency", type: "string" },
-                  { path: "portfolios.<slug>.position_count", type: "number" },
-                  { path: "portfolios.<slug>.balance_count", type: "number" },
-                  { path: "portfolios.<slug>.total_value", type: "number" },
-                  { path: "portfolios.<slug>.unrealized_pnl", type: "number" },
-                  { path: "portfolios.<slug>.created_at", type: "datetime" },
-                  { path: "portfolios.<slug>.updated_at", type: "datetime" },
-                ]}
-                onInsert={insertPlaceholder}
-              />
-              <PlaceholderGroup
-                title="Dynamic Portfolio Selectors"
-                description="Use input-driven selectors when one template should work across multiple portfolios or tickers."
-                items={[
-                  { path: 'portfolios.by_slug(inputs.portfolio_slug).name', type: "string" },
-                  { path: 'portfolios.by_slug(inputs.portfolio_slug).positions', type: "list" },
-                  {
-                    path: 'portfolios.by_slug(inputs.portfolio_slug).positions.by_symbol(inputs.ticker).quantity',
-                    type: "string",
-                  },
-                  {
-                    path: 'portfolios.by_slug(inputs.portfolio_slug).positions.by_symbol(inputs.ticker).market_value',
-                    type: "number",
-                  },
-                ]}
-                onInsert={insertPlaceholder}
-              />
-              <PlaceholderGroup
-                title="Balance"
-                items={[
-                  { path: "portfolios.<slug>.balance", type: "object" },
-                  { path: "portfolios.<slug>.balance.label", type: "string" },
-                  { path: "portfolios.<slug>.balance.amount", type: "string" },
-                  { path: "portfolios.<slug>.balance.operation_type", type: "string" },
-                  { path: "portfolios.<slug>.balance.currency", type: "string" },
-                ]}
-                onInsert={insertPlaceholder}
-              />
-              <PlaceholderGroup
-                title="Position"
-                items={[
-                  { path: "portfolios.<slug>.positions", type: "list" },
-                  { path: "portfolios.<slug>.positions.<SYMBOL>", type: "object" },
-                  { path: "portfolios.<slug>.positions.<SYMBOL>.quantity", type: "string" },
-                  { path: "portfolios.<slug>.positions.<SYMBOL>.average_cost", type: "string" },
-                  { path: "portfolios.<slug>.positions.<SYMBOL>.currency", type: "string" },
-                  { path: "portfolios.<slug>.positions.<SYMBOL>.name", type: "string" },
-                  { path: "portfolios.<slug>.positions.<SYMBOL>.market_value", type: "number" },
-                  { path: "portfolios.<slug>.positions.<SYMBOL>.unrealized_pnl", type: "number" },
-                  { path: "portfolios.<slug>.positions.<SYMBOL>.unrealized_pnl_percent", type: "number" },
-                ]}
-                onInsert={insertPlaceholder}
-              />
-              <PlaceholderGroup
-                title="Report"
-                description="Exact report references stay available when you already know a saved report name."
-                items={[
-                  { path: "reports", type: "list" },
-                  { path: "reports.<name>", type: "object" },
-                  { path: "reports.<name>.content", type: "string" },
-                  { path: "reports.<name>.name", type: "string" },
-                  { path: "reports.<name>.created_at", type: "datetime" },
-                ]}
-                onInsert={insertPlaceholder}
-              />
-              <PlaceholderGroup
-                title="Dynamic Report Selectors"
-                description="Use these when the latest matching report matters more than a fixed saved name. `reports[0]` is the newest report. Valid selectors that match nothing compile to an empty string."
-                items={[
-                  { path: "reports.latest", type: "object" },
-                  { path: 'reports.latest("AAPL").content', type: "string" },
-                  { path: 'reports.latest(inputs.ticker).content', type: "string" },
-                  { path: "reports[0].name", type: "string" },
-                  { path: 'reports.by_tag("weekly_review").latest', type: "object" },
-                  { path: 'reports.by_tag(inputs.analysis_tag).latest', type: "object" },
-                  { path: 'reports.by_tag("weekly_review").latest.content', type: "string" },
-                ]}
-                onInsert={insertPlaceholder}
-              />
-
-              {placeholderTree?.portfolios.map((p) => (
-                <PlaceholderGroup
-                  key={p.slug}
-                  title={p.name}
-                  items={[
-                    { path: `portfolios.${p.slug}`, type: "object" },
-                    ...p.positions.map((pos) => ({
-                      path: `portfolios.${p.slug}.positions.${pos.symbol}`,
-                      type: "object",
-                    })),
-                  ]}
-                  onInsert={insertPlaceholder}
-                />
-              ))}
-              {placeholderTree?.reports.map((r) => (
-                <PlaceholderGroup
-                  key={r.name}
-                  title={r.name}
-                  items={[
-                    { path: `reports.${r.name}`, type: "object" },
-                    { path: `reports.${r.name}.content`, type: "string" },
-                  ]}
-                  onInsert={insertPlaceholder}
-                />
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      )}
+      <TemplatePlaceholderReference
+        open={placeholdersOpen}
+        isLoading={isLoadingPlaceholders}
+        onClose={() => setPlaceholdersOpen(false)}
+        onInsert={insertPlaceholder}
+        placeholderTree={placeholderTree}
+      />
 
       {isEditing && templateId ? (
         <GenerateReportDialog
@@ -630,57 +401,5 @@ export function TemplateEditorPage() {
         />
       ) : null}
     </div>
-  );
-}
-
-interface PlaceholderItem {
-  path: string;
-  type: string;
-}
-
-interface PlaceholderGroupProps {
-  description?: string;
-  title: string;
-  items: PlaceholderItem[];
-  onInsert: (path: string) => void;
-}
-
-function PlaceholderGroup({ description, title, items, onInsert }: PlaceholderGroupProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="min-w-[260px]">
-      <CollapsibleTrigger asChild>
-        <button className="flex w-full items-center gap-1 py-1 text-left text-xs font-medium text-foreground hover:text-primary">
-          {isOpen ? (
-            <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
-          )}
-          {title}
-          <Badge variant="outline" className="ml-1 h-4 px-1 text-[9px]">
-            {items.length}
-          </Badge>
-        </button>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="flex flex-col pb-1 pl-4">
-        {description ? (
-          <p className="px-1 pb-1 text-[10px] leading-4 text-muted-foreground">{description}</p>
-        ) : null}
-        {items.map((item) => (
-          <div
-            key={item.path}
-            className="group flex cursor-pointer items-center gap-1.5 rounded px-1 py-0.5 hover:bg-accent"
-            onClick={() => onInsert(item.path)}
-          >
-            <code className="flex-1 truncate text-[11px] text-primary">{item.path}</code>
-            <Badge variant="outline" className="h-3.5 shrink-0 px-1 text-[8px] uppercase leading-none">
-              {item.type}
-            </Badge>
-            <Copy className="h-2.5 w-2.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-60" />
-          </div>
-        ))}
-      </CollapsibleContent>
-    </Collapsible>
   );
 }
