@@ -16,7 +16,7 @@
 
 ## CONVENTIONS
 - Keep components generic enough to serve multiple features; pass feature-specific labels, callbacks, and columns from callers.
-- Shared validation snippets belong in `form-schemas.ts` when they are reused across dialogs or routes; `backtestCreateFormSchema` is the current multi-section example that still reuses the shared text, slug, and numeric patterns from this file.
+- Shared validation snippets belong in `form-schemas.ts` when they are reused across dialogs or routes; `backtestCreateFormSchema` is the current multi-section example and now validates `webhookUrl`, `webhookTimeout`, benchmark selection, plus the shared text/slug/numeric patterns from this file.
 - Error-boundary components stay UI-focused; logging or recovery policy belongs in higher-level app code.
 
 ## ANTI-PATTERNS

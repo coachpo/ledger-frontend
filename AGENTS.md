@@ -3,7 +3,7 @@
 > Inherits root rules from `/AGENTS.md`. Local frontend docs live under `src/*/AGENTS.md`.
 
 ## OVERVIEW
-React 19 + Vite frontend with a flat route shell, TanStack Query for server state, a template editor with inline compile preview, report list/detail flows, an experimental backtest workspace with charts and status polling, shadcn/ui primitives, and Playwright-backed end-to-end coverage.
+React 19 + Vite frontend with a flat route shell, TanStack Query for server state, a template editor with inline compile preview, report list/detail flows, and a backtest workspace that collects webhook settings, surfaces callback-aware statuses from the shared contract, and renders result charts once runs complete.
 
 ## CHILD DOCS
 - `src/lib/AGENTS.md` — API client, query keys, analytics, formatting, template contracts
@@ -42,7 +42,7 @@ frontend/
 | Portfolio routes | `src/pages/portfolios/*.tsx`, `src/components/portfolios/AGENTS.md` | list/detail workspace, balances, positions, trades |
 | Template routes | `src/pages/templates/*.tsx`, `src/hooks/use-templates.ts`, `src/lib/api/templates.ts` | CRUD, placeholder tree, inline preview compile |
 | Report routes | `src/pages/reports/AGENTS.md`, `src/hooks/use-reports.ts`, `src/lib/api/reports.ts` | generate from template, upload markdown, edit/download/delete |
-| Backtest routes | `src/pages/backtests/AGENTS.md`, `src/hooks/use-backtests.ts`, `src/lib/api/backtests.ts` | launch simulations, 5s status polling, charts, result navigation |
+| Backtest routes | `src/pages/backtests/AGENTS.md`, `src/hooks/use-backtests.ts`, `src/lib/api/backtests.ts` | launch simulations, collect webhook settings, poll active callback states, charts, result navigation |
 | Shared components | `src/components/AGENTS.md` | layout shell, theme, shared UI, forms, portfolio feature folders |
 | UI primitives | `src/components/ui/AGENTS.md` | shadcn/ui wrappers, sidebar primitives, variant helpers |
 | Unit test setup | `vite.config.ts`, `src/test/setup.ts` | jsdom config + browser API mocks |
@@ -56,8 +56,8 @@ frontend/
 - The template editor route is still inside the main shell, but `Layout` gives it a full-height content region instead of the usual scroll container.
 - Report flows are slug-addressed, use `use-reports.ts` for server state, and rely on `downloadReportUrl()` for native markdown downloads.
 - Report content edits intentionally invalidate both report list and slug-scoped detail queries so the detail route stays fresh without a forced navigation round trip.
-- Backtest detail uses numeric ids, not slugs, and `useBacktest()` polls every 5 seconds while status is `PENDING` or `RUNNING`.
-- Backtest creation can either use an existing portfolio/template or create a new portfolio plus initial cash balance before launching the run.
+- Backtest detail uses numeric ids, not slugs, and `useBacktest()` polls every 5 seconds while status is `PENDING`, `RUNNING`, `AWAITING_CALLBACK`, or `PROCESSING_CALLBACK`.
+- Backtest creation can either use an existing portfolio/template or create a new portfolio plus initial cash balance before launching the run, and the config form now requires `webhookUrl` plus `webhookTimeout` instead of the older provider-specific config fields.
 - Theme state lives in `src/components/theme-provider.tsx`; components should consume the existing context instead of inventing new color-mode state.
 - Query keys normalize ids as strings and symbol sets as trimmed uppercase arrays; cache reuse depends on those canonical forms.
 
@@ -91,5 +91,5 @@ pnpm test:e2e
 ## NOTES
 - `vite.config.ts` sets up the `@` alias, Vitest jsdom mode, and manual chunking for framework/data/ui/forms/date/vendor bundles.
 - Playwright only runs Chromium here and starts both backend/frontend web servers automatically.
-- Current Vitest coverage is still selective, but it now spans `src/lib/` helpers plus targeted backtest hooks, pages, and result widgets; CI still gates `pnpm lint`, `pnpm build`, and `pnpm test:e2e`, not `pnpm test:run`.
+- Current Vitest coverage is still selective, but it now spans `src/lib/` helpers plus targeted backtest hooks, pages, and result widgets; CI still gates `pnpm lint`, `pnpm build`, and `pnpm test:e2e`, while `pnpm typecheck` and `pnpm test:run` remain local verification steps.
 - The live router exposes dashboard, portfolio list/detail, template list/editor, report list/detail, and backtest list/config/detail routes.

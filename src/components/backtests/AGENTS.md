@@ -8,7 +8,7 @@
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |---|---|---|
-| Status badges | `backtest-status-badge.tsx` | maps the five lifecycle states to outline badge styles |
+| Status badges | `backtest-status-badge.tsx` | maps all seven lifecycle states, including callback waits, to badge styles |
 | KPI cards | `metrics-summary.tsx` | renders portfolio return, drawdown, sharpe, trade count, win rate, and commission |
 | Equity curve | `equity-curve-chart.tsx` | normalizes the portfolio line, overlays benchmark curves, toggles benchmark visibility |
 | Drawdown chart | `drawdown-chart.tsx` | renders drawdown points with the shared chart container |
@@ -20,6 +20,7 @@
 - `metrics-summary.tsx` formats wire-string numbers through `lib/format` instead of coercing them at the type layer.
 - `equity-curve-chart.tsx` normalizes the portfolio curve to the starting value and keeps benchmark visibility in local UI state only.
 - `trade-log-table.tsx` sorts client-side and uses the shared `ui/table` primitives instead of bespoke table markup.
+- `backtest-status-badge.tsx` is the single source of truth for the full status palette: `PENDING`, `RUNNING`, `AWAITING_CALLBACK`, `PROCESSING_CALLBACK`, `COMPLETED`, `FAILED`, and `CANCELLED`.
 
 ## ANTI-PATTERNS
 - Do not move backtest-specific chart math or sort behavior into `src/components/ui/`; these widgets are domain components.

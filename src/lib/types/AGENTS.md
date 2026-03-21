@@ -10,7 +10,7 @@
 |---|---|---|
 | Portfolio/balance/position types | `portfolio.ts`, `balance.ts`, `position.ts` | CRUD payloads plus read models |
 | Trading payload unions | `trading.ts` | BUY/SELL/DIVIDEND/SPLIT request shapes |
-| Backtest contracts | `backtest.ts` | status/frequency enums, create input, recent activity, curves, trade log, and results |
+| Backtest contracts | `backtest.ts` | status/frequency enums, webhook fields, current-cycle status, recent activity, curves, trade log, and results |
 | Market data types | `market-data.ts` | quote/history payloads and warnings |
 | Template contract | `text-template.ts` | template CRUD, compile, placeholder tree |
 | Report contract | `report.ts` | slug-based report reads, metadata, update input |
@@ -22,10 +22,12 @@
 - Model enum-like values as exact string unions so invalid report sources, trading sides, or operation types fail at compile time.
 - Use these files for API shapes only; derive view models separately when the UI needs extra formatting or enrichment.
 - Unknown report metadata keys are allowed by the backend; preserve extensibility in `report.ts` instead of narrowing metadata too aggressively.
+- Backtest wire contracts must mirror the backend callback lifecycle exactly, including `AWAITING_CALLBACK` and `PROCESSING_CALLBACK`, plus `webhookUrl`, `webhookTimeout`, and `currentCycleStatus` on reads.
 
 ## ANTI-PATTERNS
 - Do not declare ad-hoc wire types inside hooks or page components.
 - Do not collapse backend distinctions such as slug-based report lookup vs numeric portfolio ids.
 - Do not collapse the distinction between slug-based report routes and numeric backtest ids when building shared route contracts.
+- Do not collapse callback-aware backtest statuses into a generic `RUNNING` type; polling and status-badge logic depend on the explicit union values.
 - Do not convert decimal strings to numbers at the type layer.
 - Do not change template/report placeholder tree shapes without coordinating backend schemas, hooks, and tests.

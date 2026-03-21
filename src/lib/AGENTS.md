@@ -16,7 +16,7 @@
 | API endpoint functions | `api/*.ts` | domain-specific modules for portfolios, balances, positions, trading operations, market data, templates, reports, and backtests |
 | Backward compatibility | `api.ts`, `api-types.ts` | barrel re-exports for live modules and wire types |
 | Shared wire types | `types/*.ts` | domain-specific type definitions, including text-template and report types |
-| Backtest contracts | `api/backtests.ts`, `types/backtest.ts` | lifecycle endpoints plus result, trade, and curve wire shapes |
+| Backtest contracts | `api/backtests.ts`, `types/backtest.ts` | lifecycle endpoints plus webhook fields, callback-aware statuses, result, trade, and curve wire shapes |
 | Query key factory | `query-keys.ts` | hierarchical keys, param normalization, template/report keys, `invalidatePortfolioScope()` |
 | Portfolio analytics | `portfolio-analytics.ts` | quote enrichment, market value, PnL, allocation |
 | Display formatting | `format.ts` | currency, decimal, percent, date/datetime, compact numbers |
@@ -33,6 +33,7 @@
 - `invalidatePortfolioScope()` is the default invalidation path for portfolio-scoped mutations; templates use their own `queryKeys.templates.*` namespace.
 - Report flows use `queryKeys.reports.*`; `downloadReportUrl()` stays in the API layer because it builds the absolute file URL from the configured API base.
 - Backtest flows use `queryKeys.backtests.list()` and `.detail(id)` only; polling policy lives in hooks, but the cache-key contract lives here.
+- Frontend API helpers only call the CRUD backtest endpoints; callback endpoints under `/backtests/{id}/cycles/*` are backend-to-webhook integration surfaces, not browser-facing requests.
 - Report detail queries are slug-scoped, not numeric-id scoped, even though some shared helper signatures still use generic `IdParam` naming.
 
 ## ANTI-PATTERNS
