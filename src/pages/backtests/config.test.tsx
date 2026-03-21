@@ -131,14 +131,8 @@ describe("BacktestConfigPage", () => {
     fireEvent.change(screen.getByLabelText(/end date/i), {
       target: { value: "2024-12-31" },
     });
-    fireEvent.change(screen.getByLabelText(/llm base url/i), {
-      target: { value: "http://localhost:11434/v1" },
-    });
-    fireEvent.change(screen.getByLabelText(/llm api key/i), {
-      target: { value: "secret" },
-    });
-    fireEvent.change(screen.getByLabelText(/llm model/i), {
-      target: { value: "qwen2.5:72b" },
+    fireEvent.change(screen.getByLabelText(/n8n webhook url/i), {
+      target: { value: "http://localhost:5678/webhook/backtest" },
     });
     fireEvent.click(screen.getByLabelText(/s&p 500/i));
     fireEvent.click(screen.getByLabelText(/create default template/i));
@@ -181,14 +175,8 @@ describe("BacktestConfigPage", () => {
     fireEvent.change(screen.getByLabelText(/end date/i), {
       target: { value: "2024-03-29" },
     });
-    fireEvent.change(screen.getByLabelText(/llm base url/i), {
-      target: { value: "http://localhost:11434/v1" },
-    });
-    fireEvent.change(screen.getByLabelText(/llm api key/i), {
-      target: { value: "secret" },
-    });
-    fireEvent.change(screen.getByLabelText(/llm model/i), {
-      target: { value: "qwen2.5:72b" },
+    fireEvent.change(screen.getByLabelText(/n8n webhook url/i), {
+      target: { value: "http://localhost:5678/webhook/backtest" },
     });
     fireEvent.click(screen.getByLabelText(/s&p 500/i));
     fireEvent.click(screen.getByRole("button", { name: /launch backtest/i }));
