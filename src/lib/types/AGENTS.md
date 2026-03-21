@@ -3,13 +3,14 @@
 > Inherits `/AGENTS.md`, `/frontend/AGENTS.md`, and `/frontend/src/lib/AGENTS.md`.
 
 ## OVERVIEW
-`src/lib/types/` mirrors the backend wire contracts for portfolios, balances, positions, market data, templates, reports, CSV import, and trading operations. Treat these files as the shared schema boundary between frontend UI and backend API.
+`src/lib/types/` mirrors the backend wire contracts for portfolios, balances, positions, market data, templates, reports, CSV import, trading operations, and backtests. Treat these files as the shared schema boundary between frontend UI and backend API.
 
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |---|---|---|
 | Portfolio/balance/position types | `portfolio.ts`, `balance.ts`, `position.ts` | CRUD payloads plus read models |
 | Trading payload unions | `trading.ts` | BUY/SELL/DIVIDEND/SPLIT request shapes |
+| Backtest contracts | `backtest.ts` | status/frequency enums, create input, recent activity, curves, trade log, and results |
 | Market data types | `market-data.ts` | quote/history payloads and warnings |
 | Template contract | `text-template.ts` | template CRUD, compile, placeholder tree |
 | Report contract | `report.ts` | slug-based report reads, metadata, update input |
@@ -25,5 +26,6 @@
 ## ANTI-PATTERNS
 - Do not declare ad-hoc wire types inside hooks or page components.
 - Do not collapse backend distinctions such as slug-based report lookup vs numeric portfolio ids.
+- Do not collapse the distinction between slug-based report routes and numeric backtest ids when building shared route contracts.
 - Do not convert decimal strings to numbers at the type layer.
 - Do not change template/report placeholder tree shapes without coordinating backend schemas, hooks, and tests.

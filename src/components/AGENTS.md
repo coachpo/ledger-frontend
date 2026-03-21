@@ -3,7 +3,7 @@
 > Inherits `/AGENTS.md` and `/frontend/AGENTS.md`. This file covers shared components, feature-specific components, and UI primitives in `src/components/`.
 
 ## OVERVIEW
-`src/components/` contains the layout shell, theme system, shared component library, portfolio-specific UI folders, and shadcn/ui primitives. Routed page components live in `src/pages/` and map to routes in `src/routes.ts`, including the report flows that reuse the shared shell and dialogs.
+`src/components/` contains the layout shell, theme system, shared component library, portfolio-specific UI folders, backtest result widgets, and shadcn/ui primitives. Routed page components live in `src/pages/` and map to routes in `src/routes.ts`, including the report and backtest flows that reuse the shared shell and dialogs.
 
 ## STRUCTURE
 ```text
@@ -14,6 +14,7 @@ src/components/
 ├── theme.ts                # theme context types
 ├── shared/                 # reusable components across features
 ├── forms/                  # cross-feature dialog forms
+├── backtests/              # backtest result widgets and status display
 ├── portfolios/             # portfolio feature-specific components
 │   └── AGENTS.md
 └── ui/                     # shadcn/ui primitives and helpers
@@ -26,11 +27,13 @@ src/components/
 | Theme behavior | `theme-provider.tsx`, `theme-toggle.tsx`, `theme.ts` | persisted theme state and system-sync logic |
 | Shared components | `shared/AGENTS.md` | reusable data tables, metrics, field schemas, and error boundaries |
 | Form components | `forms/` | shared dialog forms that do not belong in a feature folder |
+| Backtest feature UI | `backtests/AGENTS.md` | status badges, KPI cards, charts, and trade log tables |
 | Portfolio feature UI | `portfolios/AGENTS.md` | sections, dialogs, trading form, feature-specific logic |
 | Pure UI primitives | `ui/AGENTS.md` | shadcn/ui wrappers, sidebar primitives, variant helpers |
 
 ## CHILD DOCS
 - `shared/AGENTS.md` — reusable cross-feature components and schema helpers
+- `backtests/AGENTS.md` — backtest charts, metrics, badges, and trade log tables
 - `portfolios/AGENTS.md` — portfolio feature sections, dialogs, and trades UI
 - `ui/AGENTS.md` — presentational shadcn/ui wrappers, sidebar context, and shared style helpers
 
@@ -39,6 +42,7 @@ src/components/
 - Shared components in `shared/` are reusable across multiple features and should not contain portfolio-specific request logic.
 - `shared/` is where the app keeps reusable data tables, metric cards, field schemas, and error boundaries; if a component only makes sense inside one feature route, keep it out of this folder.
 - `forms/` is reserved for small cross-feature form surfaces such as portfolio creation and editing dialogs.
+- Backtest result widgets stay in `backtests/` because they share a single wire contract, chart stack, and result vocabulary, even when they reuse shared cards or tables.
 - Feature-specific components in `portfolios/` own their domain logic and should not be reused outside that feature without a clear abstraction.
 - Report routes currently stay page-centric and reuse shared components such as `ConfirmDeleteDialog` instead of maintaining a dedicated `components/reports/` feature folder.
 - Theme state lives in `theme-provider.tsx`; leaf components should consume the existing context instead of creating new theme state.
@@ -48,6 +52,7 @@ src/components/
 - Do not put business rules or raw request code in `ui/` components.
 - Do not put feature-specific logic in `shared/` components.
 - Do not duplicate portfolio feature rules in shared components when the portfolio folder already owns them.
+- Do not move backtest charts or trade-log widgets into `shared/` until another feature genuinely reuses the same result contract.
 - Do not move feature-rich components into `ui/` just because they render cards or forms.
 - Do not create one-off forms in feature folders when they should live in `forms/` or a shared dialog component.
 - Do not create a `components/reports/` folder just to wrap page-local report markup unless report UI genuinely becomes reusable across routes.

@@ -3,7 +3,7 @@
 > Inherits `/AGENTS.md` and `/frontend/AGENTS.md`. This file only covers `src/lib/`.
 
 ## OVERVIEW
-`src/lib/` owns the frontend API contract, query-key naming, derived portfolio analytics, formatting helpers, markdown formatting, and shared type definitions for portfolio, market-data, CSV, template, and report flows.
+`src/lib/` owns the frontend API contract, query-key naming, derived portfolio analytics, formatting helpers, markdown formatting, report grouping helpers, and shared type definitions for portfolio, market-data, CSV, template, report, and backtest flows.
 
 ## CHILD DOCS
 - `api/AGENTS.md` — resource request helpers and upload/download boundaries
@@ -13,9 +13,10 @@
 | Task | Location | Notes |
 |---|---|---|
 | HTTP wrapper / error mapping | `api-client.ts` | `request()`, `ApiRequestError`, `buildUrl()`, CSV form-data helpers |
-| API endpoint functions | `api/*.ts` | domain-specific modules for portfolios, balances, positions, trading operations, market data, templates, and reports |
+| API endpoint functions | `api/*.ts` | domain-specific modules for portfolios, balances, positions, trading operations, market data, templates, reports, and backtests |
 | Backward compatibility | `api.ts`, `api-types.ts` | barrel re-exports for live modules and wire types |
 | Shared wire types | `types/*.ts` | domain-specific type definitions, including text-template and report types |
+| Backtest contracts | `api/backtests.ts`, `types/backtest.ts` | lifecycle endpoints plus result, trade, and curve wire shapes |
 | Query key factory | `query-keys.ts` | hierarchical keys, param normalization, template/report keys, `invalidatePortfolioScope()` |
 | Portfolio analytics | `portfolio-analytics.ts` | quote enrichment, market value, PnL, allocation |
 | Display formatting | `format.ts` | currency, decimal, percent, date/datetime, compact numbers |
@@ -31,6 +32,7 @@
 - `query-keys.ts` normalizes ids as strings, symbol lists as trimmed uppercase sets, and history params so cache keys stay stable across callers.
 - `invalidatePortfolioScope()` is the default invalidation path for portfolio-scoped mutations; templates use their own `queryKeys.templates.*` namespace.
 - Report flows use `queryKeys.reports.*`; `downloadReportUrl()` stays in the API layer because it builds the absolute file URL from the configured API base.
+- Backtest flows use `queryKeys.backtests.list()` and `.detail(id)` only; polling policy lives in hooks, but the cache-key contract lives here.
 - Report detail queries are slug-scoped, not numeric-id scoped, even though some shared helper signatures still use generic `IdParam` naming.
 
 ## ANTI-PATTERNS
@@ -41,6 +43,7 @@
 - Do not duplicate backend contract types when `types/*.ts` already exposes them.
 - Do not change template, CSV, or error-envelope shapes here without updating the backend contract and the calling hooks/pages.
 - Do not change report, upload-metadata, or placeholder-tree shapes here without updating the backend contract and the calling hooks/pages.
+- Do not change backtest request or result shapes here without updating `backend/app/schemas/backtest.py`, hooks, pages, and tests together.
 - Do not change `api/` helpers or `types/` contracts in isolation; keep request helpers and wire shapes in sync.
 - Do not mix presentation-only formatting into API wrapper code.
 
@@ -54,7 +57,8 @@ pnpm build
 ```
 
 ## NOTES
-- `api.ts` is a convenience barrel for the live portfolio, balance, position, trading-operation, market-data, template, and report modules.
+- `api.ts` is a convenience barrel for the live portfolio, balance, position, trading-operation, market-data, template, report, and backtest modules.
+- `api-types.ts` also re-exports the backtest wire contract so route code can stay on the shared import surface.
 - `markdown-format.ts` centralizes Prettier-based markdown cleanup so the template editor does not embed formatter setup inline.
 - Current unit tests in this folder are helper/API focused; routed and feature-heavy behavior is covered primarily by Playwright flows.
 - `portfolio-analytics.ts` is where quote-enriched position math belongs, not in routed screens.
