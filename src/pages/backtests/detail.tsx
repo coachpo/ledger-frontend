@@ -44,7 +44,11 @@ export function BacktestDetailPage() {
 
   const progress =
     backtest.totalCycles > 0 ? (backtest.completedCycles / backtest.totalCycles) * 100 : 0;
-  const isRunning = backtest.status === "PENDING" || backtest.status === "RUNNING";
+  const isRunning =
+    backtest.status === "PENDING" ||
+    backtest.status === "RUNNING" ||
+    backtest.status === "AWAITING_CALLBACK" ||
+    backtest.status === "PROCESSING_CALLBACK";
   const elapsedTime = getElapsedTimeLabel(backtest.createdAt);
 
   return (
@@ -87,6 +91,18 @@ export function BacktestDetailPage() {
                 </p>
               </div>
               <Progress value={progress} />
+              {(backtest.status === "RUNNING" ||
+                backtest.status === "AWAITING_CALLBACK" ||
+                backtest.status === "PROCESSING_CALLBACK") &&
+                backtest.currentCycleStatus && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {backtest.currentCycleStatus === "AWAITING_CALLBACK"
+                      ? "Waiting for n8n response..."
+                      : backtest.currentCycleStatus === "PROCESSING_CALLBACK"
+                        ? "Processing callback..."
+                        : "Running cycle..."}
+                  </p>
+                )}
               <p className="text-xs text-muted-foreground">
                 {backtest.completedCycles} / {backtest.totalCycles} cycles · Started {formatDateTime(backtest.createdAt)}
               </p>

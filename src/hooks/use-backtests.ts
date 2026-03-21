@@ -13,7 +13,12 @@ import type { BacktestCreateInput, BacktestStatus } from "@/lib/types/backtest";
 type BacktestId = number | string;
 
 function isRunningStatus(status: BacktestStatus | undefined) {
-  return status === "PENDING" || status === "RUNNING";
+  return (
+    status === "PENDING" ||
+    status === "RUNNING" ||
+    status === "AWAITING_CALLBACK" ||
+    status === "PROCESSING_CALLBACK"
+  );
 }
 
 export function useBacktests() {
