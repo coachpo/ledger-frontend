@@ -10,7 +10,11 @@ import {
   useUpdatePortfolio,
 } from "@/hooks/use-portfolios";
 import { formatDateTime } from "@/lib/format";
-import type { PortfolioRead, PortfolioUpdateInput, PortfolioWriteInput } from "@/lib/api-types";
+import type {
+  PortfolioRead,
+  PortfolioUpdateInput,
+  PortfolioWriteInput,
+} from "@/lib/types/portfolio";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

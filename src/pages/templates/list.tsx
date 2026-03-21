@@ -8,7 +8,7 @@ import {
   useTemplates,
 } from "@/hooks/use-templates";
 import { formatDateTime } from "@/lib/format";
-import type { TextTemplateRead } from "@/lib/api-types";
+import type { TextTemplateRead } from "@/lib/types/text-template";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";

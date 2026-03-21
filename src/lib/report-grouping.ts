@@ -1,4 +1,4 @@
-import type { ReportRead } from "@/lib/api-types";
+import type { ReportRead } from "@/lib/types/report";
 
 export type GroupByOption = "none" | "tags" | "source" | "month" | "ticker" | "portfolio";
 

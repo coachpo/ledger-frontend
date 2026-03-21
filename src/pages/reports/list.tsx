@@ -7,7 +7,7 @@ import { useCompileReport, useDeleteReport, useReports, useUploadReport } from "
 import { useTemplates } from "@/hooks/use-templates";
 import { formatDateTime } from "@/lib/format";
 import { downloadReportUrl } from "@/lib/api/reports";
-import type { ReportRead } from "@/lib/api-types";
+import type { ReportRead } from "@/lib/types/report";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";

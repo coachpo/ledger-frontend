@@ -15,7 +15,7 @@ import {
   computePositionPnl,
   enrichPositionsWithQuotes,
 } from "@/lib/portfolio-analytics";
-import type { PortfolioUpdateInput } from "@/lib/api-types";
+import type { PortfolioUpdateInput } from "@/lib/types/portfolio";
 
 import { MetricCard } from "@/components/shared/metric-card";
 import { Button } from "@/components/ui/button";

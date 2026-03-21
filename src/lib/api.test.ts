@@ -27,7 +27,21 @@ function textResponse(body: string, status: number): Response {
 async function loadApiModule(baseUrl: string = "") {
   vi.resetModules();
   Reflect.set(import.meta.env, "VITE_API_BASE_URL", baseUrl);
-  return import("./api");
+  const [apiClient, backtestsApi, marketDataApi, portfoliosApi, positionsApi] = await Promise.all([
+    import("./api-client"),
+    import("./api/backtests"),
+    import("./api/market-data"),
+    import("./api/portfolios"),
+    import("./api/positions"),
+  ]);
+
+  return {
+    ...apiClient,
+    ...backtestsApi,
+    ...marketDataApi,
+    ...portfoliosApi,
+    ...positionsApi,
+  };
 }
 
 function getLastFetchCall(fetchMock: ReturnType<typeof createFetchMock>): {
