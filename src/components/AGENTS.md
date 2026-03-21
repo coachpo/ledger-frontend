@@ -3,7 +3,7 @@
 > Inherits `/AGENTS.md` and `/frontend/AGENTS.md`. This file covers shared components, feature-specific components, and UI primitives in `src/components/`.
 
 ## OVERVIEW
-`src/components/` contains the layout shell, theme system, shared component library, portfolio-specific UI folders, backtest result widgets, and shadcn/ui primitives. Routed page components live in `src/pages/` and map to routes in `src/routes.ts`, including the report and backtest flows that reuse the shared shell and dialogs.
+`src/components/` contains the layout shell, theme system, shared component library, cross-route form/dialog surfaces, template-editor support components, portfolio-specific UI folders, backtest result widgets, and shadcn/ui primitives. Routed page components live in `src/pages/` and map to routes in `src/routes.ts`, including the report and backtest flows that reuse the shared shell and dialogs.
 
 ## STRUCTURE
 ```text
@@ -14,6 +14,7 @@ src/components/
 ├── theme.ts                # theme context types
 ├── shared/                 # reusable components across features
 ├── forms/                  # cross-feature dialog forms
+├── templates/              # template-editor support components and placeholder reference UI
 ├── backtests/              # backtest result widgets and status display
 ├── portfolios/             # portfolio feature-specific components
 │   └── AGENTS.md
@@ -27,12 +28,14 @@ src/components/
 | Theme behavior | `theme-provider.tsx`, `theme-toggle.tsx`, `theme.ts` | persisted theme state and system-sync logic |
 | Shared components | `shared/AGENTS.md` | reusable data tables, metrics, field schemas, and error boundaries |
 | Form components | `forms/` | shared dialog forms that do not belong in a feature folder |
+| Template-editor support UI | `templates/` | placeholder reference and runtime-input surfaces used by template routes |
 | Backtest feature UI | `backtests/AGENTS.md` | status badges, KPI cards, charts, and trade log tables |
 | Portfolio feature UI | `portfolios/AGENTS.md` | sections, dialogs, trading form, feature-specific logic |
 | Pure UI primitives | `ui/AGENTS.md` | shadcn/ui wrappers, sidebar primitives, variant helpers |
 
 ## CHILD DOCS
 - `shared/AGENTS.md` — reusable cross-feature components and schema helpers
+- `templates/` — template-editor support components such as placeholder reference and runtime-input sections
 - `backtests/AGENTS.md` — backtest charts, metrics, badges, and trade log tables
 - `portfolios/AGENTS.md` — portfolio feature sections, dialogs, and trades UI
 - `ui/AGENTS.md` — presentational shadcn/ui wrappers, sidebar context, and shared style helpers

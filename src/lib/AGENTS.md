@@ -14,7 +14,6 @@
 |---|---|---|
 | HTTP wrapper / error mapping | `api-client.ts` | `request()`, `ApiRequestError`, `buildUrl()`, CSV form-data helpers |
 | API endpoint functions | `api/*.ts` | domain-specific modules for portfolios, balances, positions, trading operations, market data, templates, reports, and backtests |
-| Backward compatibility | `api.ts`, `api-types.ts` | barrel re-exports for live modules and wire types |
 | Shared wire types | `types/*.ts` | domain-specific type definitions, including text-template and report types |
 | Backtest contracts | `api/backtests.ts`, `types/backtest.ts` | lifecycle endpoints plus webhook fields, callback-aware statuses, result, trade, and curve wire shapes |
 | Query key factory | `query-keys.ts` | hierarchical keys, param normalization, template/report keys, `invalidatePortfolioScope()` |
@@ -27,7 +26,6 @@
 - `api-client.ts` is the only place that should know the base URL, query-string encoding, and error-envelope parsing.
 - `api-client.ts` falls back to `http://127.0.0.1:8000/api/v1` only when `VITE_API_BASE_URL` is absent; `start.sh` and Playwright override that value for real runs.
 - Domain-specific API functions live in `api/*.ts` modules, organized by resource type.
-- `api.ts` and `api-types.ts` are barrel files that re-export the live modules for backward compatibility.
 - Wire decimals remain strings until shared format/analytics helpers convert them for display math.
 - `query-keys.ts` normalizes ids as strings, symbol lists as trimmed uppercase sets, and history params so cache keys stay stable across callers.
 - `invalidatePortfolioScope()` is the default invalidation path for portfolio-scoped mutations; templates use their own `queryKeys.templates.*` namespace.
@@ -58,8 +56,7 @@ pnpm build
 ```
 
 ## NOTES
-- `api.ts` is a convenience barrel for the live portfolio, balance, position, trading-operation, market-data, template, report, and backtest modules.
-- `api-types.ts` also re-exports the backtest wire contract so route code can stay on the shared import surface.
+- Route code should import direct modules from `api/*` and `types/*` instead of relying on barrel re-exports.
 - `markdown-format.ts` centralizes Prettier-based markdown cleanup so the template editor does not embed formatter setup inline.
 - Current unit tests in this folder are helper/API focused; routed and feature-heavy behavior is covered primarily by Playwright flows.
 - `portfolio-analytics.ts` is where quote-enriched position math belongs, not in routed screens.
