@@ -36,12 +36,10 @@ const initialValues: BacktestCreateFormValues = {
   startDate: "",
   endDate: "",
   priceMode: "CLOSING_PRICE",
-  llmPriceSuccessRate: "",
   commissionMode: "ZERO",
   commissionValue: "0",
-  llmBaseUrl: "",
-  llmApiKey: "",
-  llmModel: "",
+  webhookUrl: "",
+  webhookTimeout: "600",
   benchmarkSymbols: [],
 };
 
@@ -114,12 +112,9 @@ export function BacktestConfigPage() {
         frequency: values.frequency,
         startDate: values.startDate,
         endDate: values.endDate,
-        llmBaseUrl: values.llmBaseUrl,
-        llmApiKey: values.llmApiKey,
-        llmModel: values.llmModel,
+        webhookUrl: values.webhookUrl,
+        webhookTimeout: Number(values.webhookTimeout),
         priceMode: values.priceMode,
-        llmPriceSuccessRate:
-          values.priceMode === "LLM_DECIDED" ? values.llmPriceSuccessRate : null,
         commissionMode: values.commissionMode,
         commissionValue: values.commissionValue,
         benchmarkSymbols: values.benchmarkSymbols,
@@ -306,7 +301,6 @@ export function BacktestConfigPage() {
                 }
               >
                 <option value="CLOSING_PRICE">Closing Price</option>
-                <option value="LLM_DECIDED">LLM Decided</option>
               </select>
             </div>
             <div className="space-y-2">
@@ -329,17 +323,6 @@ export function BacktestConfigPage() {
                 onChange={(event) => updateValue("endDate", event.target.value)}
               />
             </div>
-            {values.priceMode === "LLM_DECIDED" ? (
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="llm-price-success-rate">LLM Price Success Rate</Label>
-                <Input
-                  id="llm-price-success-rate"
-                  aria-label="LLM Price Success Rate"
-                  value={values.llmPriceSuccessRate}
-                  onChange={(event) => updateValue("llmPriceSuccessRate", event.target.value)}
-                />
-              </div>
-            ) : null}
           </section>
 
           <section className="grid gap-3 md:grid-cols-2">
@@ -373,36 +356,33 @@ export function BacktestConfigPage() {
             </div>
           </section>
 
-          <section className="grid gap-3 md:grid-cols-3">
-            <div className="space-y-2 md:col-span-3">
-              <Label htmlFor="llm-base-url">LLM Base URL</Label>
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Webhook Configuration</h3>
+            <div className="space-y-2">
+              <Label htmlFor="webhook-url">n8n Webhook URL</Label>
               <Input
-                id="llm-base-url"
-                aria-label="LLM Base URL"
-                value={values.llmBaseUrl}
-                onChange={(event) => updateValue("llmBaseUrl", event.target.value)}
+                id="webhook-url"
+                placeholder="http://localhost:5678/webhook/backtest"
+                value={values.webhookUrl}
+                onChange={(event) => updateValue("webhookUrl", event.target.value)}
               />
             </div>
-            <div className="space-y-2 md:col-span-3">
-              <Label htmlFor="llm-api-key">LLM API Key</Label>
+            <div className="space-y-2">
+              <Label htmlFor="webhook-timeout">Callback Timeout (seconds)</Label>
               <Input
-                id="llm-api-key"
-                aria-label="LLM API Key"
-                type="password"
-                value={values.llmApiKey}
-                onChange={(event) => updateValue("llmApiKey", event.target.value)}
+                id="webhook-timeout"
+                type="number"
+                min="30"
+                max="3600"
+                placeholder="600"
+                value={values.webhookTimeout}
+                onChange={(event) => updateValue("webhookTimeout", event.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                Maximum time to wait for n8n to complete each cycle (30-3600 seconds)
+              </p>
             </div>
-            <div className="space-y-2 md:col-span-3">
-              <Label htmlFor="llm-model">LLM Model</Label>
-              <Input
-                id="llm-model"
-                aria-label="LLM Model"
-                value={values.llmModel}
-                onChange={(event) => updateValue("llmModel", event.target.value)}
-              />
-            </div>
-          </section>
+          </div>
 
           <section className="space-y-2">
             <p className="text-sm font-medium">Benchmarks</p>
@@ -476,8 +456,11 @@ function buildValidationMessages(values: BacktestCreateFormValues, portfolios: P
   if (!values.startDate || !values.endDate) {
     messages.push("Choose a complete date range");
   }
-  if (!values.llmBaseUrl.trim() || !values.llmApiKey.trim() || !values.llmModel.trim()) {
-    messages.push("Fill in all LLM configuration fields");
+  if (!values.webhookUrl.trim()) {
+    messages.push("Enter a webhook URL");
+  }
+  if (!values.webhookTimeout.trim()) {
+    messages.push("Enter a webhook timeout");
   }
   if (values.benchmarkSymbols.length === 0) {
     messages.push("Select at least one benchmark");
