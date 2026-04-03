@@ -97,9 +97,9 @@ export function BacktestDetailPage() {
                 backtest.currentCycleStatus && (
                   <p className="text-xs text-muted-foreground mt-1">
                     {backtest.currentCycleStatus === "AWAITING_CALLBACK"
-                      ? "Waiting for n8n response..."
+                      ? "Waiting for client callback..."
                       : backtest.currentCycleStatus === "PROCESSING_CALLBACK"
-                        ? "Processing callback..."
+                        ? "Processing client callback..."
                         : "Running cycle..."}
                   </p>
                 )}
@@ -120,8 +120,10 @@ export function BacktestDetailPage() {
                   <div key={entry.cycleDate} className="space-y-1 rounded-md border p-3">
                     <p className="text-sm font-medium">{formatDate(entry.cycleDate)}</p>
                     <ul className="space-y-1 text-sm text-muted-foreground">
-                      {entry.decisions.map((decision, index) => (
-                        <li key={`${decision.symbol}-${index}`}>
+                      {entry.decisions.map((decision) => (
+                        <li
+                          key={`${entry.cycleDate}-${decision.symbol}-${decision.action}-${decision.reasoning}`}
+                        >
                           {decision.symbol} · {decision.action}
                         </li>
                       ))}

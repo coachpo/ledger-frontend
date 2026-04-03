@@ -71,8 +71,8 @@ async function configureBacktestForm(page: Page, backtestName: string) {
 
   await expect(page.getByText("Select an existing portfolio")).toHaveCount(0);
   await expect(page.getByText("Choose a complete date range")).toHaveCount(0);
-  await expect(page.getByText("Enter a webhook URL")).toHaveCount(0);
-  await expect(page.getByText("Enter a webhook timeout")).toHaveCount(0);
+  await expect(page.getByText("Enter a client endpoint URL")).toHaveCount(0);
+  await expect(page.getByText("Enter a client callback timeout")).toHaveCount(0);
   await expect(page.getByText("Select at least one benchmark")).toHaveCount(0);
 }
 

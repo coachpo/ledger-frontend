@@ -357,18 +357,18 @@ export function BacktestConfigPage() {
           </section>
 
           <div className="space-y-4">
-            <h3 className="text-sm font-medium">Webhook Configuration</h3>
+            <h3 className="text-sm font-medium">External Client Configuration</h3>
             <div className="space-y-2">
-              <Label htmlFor="webhook-url">n8n Webhook URL</Label>
+              <Label htmlFor="webhook-url">Client Endpoint URL</Label>
               <Input
                 id="webhook-url"
-                placeholder="http://localhost:5678/webhook/backtest"
+                placeholder="http://localhost:5678/client-endpoint/backtest"
                 value={values.webhookUrl}
                 onChange={(event) => updateValue("webhookUrl", event.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="webhook-timeout">Callback Timeout (seconds)</Label>
+              <Label htmlFor="webhook-timeout">Client Callback Timeout (seconds)</Label>
               <Input
                 id="webhook-timeout"
                 type="number"
@@ -379,7 +379,8 @@ export function BacktestConfigPage() {
                 onChange={(event) => updateValue("webhookTimeout", event.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Maximum time to wait for n8n to complete each cycle (30-3600 seconds)
+                Ledger waits this long for the external client to finish each cycle and call back (30-3600
+                seconds)
               </p>
             </div>
           </div>
@@ -457,10 +458,10 @@ function buildValidationMessages(values: BacktestCreateFormValues, portfolios: P
     messages.push("Choose a complete date range");
   }
   if (!values.webhookUrl.trim()) {
-    messages.push("Enter a webhook URL");
+    messages.push("Enter a client endpoint URL");
   }
   if (!values.webhookTimeout.trim()) {
-    messages.push("Enter a webhook timeout");
+    messages.push("Enter a client callback timeout");
   }
   if (values.benchmarkSymbols.length === 0) {
     messages.push("Select at least one benchmark");

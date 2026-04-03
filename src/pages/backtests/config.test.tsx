@@ -131,7 +131,7 @@ describe("BacktestConfigPage", () => {
     fireEvent.change(screen.getByLabelText(/end date/i), {
       target: { value: "2024-12-31" },
     });
-    fireEvent.change(screen.getByLabelText(/n8n webhook url/i), {
+    fireEvent.change(screen.getByLabelText(/client endpoint url/i), {
       target: { value: "http://localhost:5678/webhook/backtest" },
     });
     fireEvent.click(screen.getByLabelText(/s&p 500/i));
@@ -175,7 +175,7 @@ describe("BacktestConfigPage", () => {
     fireEvent.change(screen.getByLabelText(/end date/i), {
       target: { value: "2024-03-29" },
     });
-    fireEvent.change(screen.getByLabelText(/n8n webhook url/i), {
+    fireEvent.change(screen.getByLabelText(/client endpoint url/i), {
       target: { value: "http://localhost:5678/webhook/backtest" },
     });
     fireEvent.click(screen.getByLabelText(/s&p 500/i));

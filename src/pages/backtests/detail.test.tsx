@@ -51,6 +51,12 @@ const runningBacktest = {
   updatedAt: "2026-03-20T10:35:00Z",
 };
 
+const awaitingCallbackBacktest = {
+  ...runningBacktest,
+  status: "AWAITING_CALLBACK",
+  currentCycleStatus: "AWAITING_CALLBACK",
+};
+
 const completedBacktest = {
   ...runningBacktest,
   status: "COMPLETED",
@@ -118,6 +124,14 @@ describe("BacktestDetailPage", () => {
     expect(screen.getByText(/35m/i)).toBeInTheDocument();
     expect(screen.getByText(/AAPL/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /cancel/i })).toBeEnabled();
+  });
+
+  it("shows generic callback wording while awaiting a client callback", async () => {
+    useBacktestMock.mockReturnValue({ data: awaitingCallbackBacktest, isLoading: false });
+
+    render(<BacktestDetailPage />);
+
+    expect(await screen.findByText(/waiting for client callback/i)).toBeInTheDocument();
   });
 
   it("renders completed backtest summary metrics and trade rows", async () => {
